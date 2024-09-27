@@ -1,10 +1,10 @@
-package com.msa.banking.gateway;
+package com.msa.banking.config;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApplicationTests {
+class ConfigServerApplicationTests {
 
 	@Test
 	void contextLoads() {

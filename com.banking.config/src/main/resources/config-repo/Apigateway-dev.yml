@@ -1,0 +1,52 @@
+server:
+  port: 19092  # 게이트웨이 서비스가 실행될 포트 번호
+
+spring:
+  main:
+    web-application-type: reactive  # Spring 애플리케이션이 리액티브 웹 애플리케이션으로 설정됨
+  application:
+    name: gateway-service  # 애플리케이션 이름을 'gateway-service'로 설정
+  cloud:
+    gateway:
+      routes:
+        - id: AuthService
+          uri: lb://AuthService
+          predicates:
+            - Path=/auth/**
+      discovery:
+        locator:
+          enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
+
+service:
+  jwt:
+    secret-key: "h4s6r85thjs65nmryjm1sjry1fjh1sd56y41156q1e6y1sr1yjui3tudf1k1ydfkl561d1js6r35tyj1rsd561"
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+    health-check:
+      enabled: true
+  instance:
+    hostname: localhost
+    metadata-map:
+      instanceId: ${spring.application.name}:${spring.cloud.client.hostname}
+    lease-renewal-interval-in-seconds: 30  # 기본값은 30초, 서비스 상태 갱신 주기
+    lease-expiration-duration-in-seconds: 90  # 기본값은 90초, 서비스 갱신이 없을 때 만료 시간
+    health-check-url-path: /actuator/health # 헬스 체크를 통한 정상작동 확인
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
