@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgresql_auth:
+    image: 'bitnami/postgresql:latest'
+    networks:
+      - postgres_network
+    environment:
+      - POSTGRESQL_USERNAME=auth
+      - POSTGRESQL_PASSWORD=auth
+      - POSTGRESQL_DATABASE=ath
+      - POSTGRESQL_ROOT_PASSWORD=rootpassword
+    ports:
+      - "25434:5432"
+
+networks:
+  postgres_network:
+    driver: bridge

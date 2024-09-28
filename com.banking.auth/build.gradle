@@ -24,17 +24,14 @@ ext {
 dependencies {
 	// 유효성 검증
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	// web
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// config client
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	//eureka client
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-	// feign client
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	// 모니터링
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -44,11 +41,11 @@ dependencies {
 //	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// 서킷 브레이커
 	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
-	implementation 'org.springframework.boot:spring-boot-starter-aop'
-	// jwt추가
-	implementation 'io.jsonwebtoken:jjwt:0.12.6'
-	// spring security 추가
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// jwt
+//	compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+//	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+//	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
 	// zipkin
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'

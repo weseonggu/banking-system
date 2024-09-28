@@ -18,7 +18,7 @@ subprojects {
     dependencies {
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
-        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
     }
 
     tasks.named('bootJar') { //빌드할 때 bootjar 파일로 하겠다는 의미
