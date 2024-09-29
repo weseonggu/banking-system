@@ -1,4 +1,4 @@
-# Auth Server dev config
+# Product Server dev config
 
 server:
   port: 19094
@@ -45,5 +45,3 @@ common:
     security:
       enabled: true
 
-test:
-  config-name: Auth-Server

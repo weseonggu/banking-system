@@ -28,6 +28,12 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	// cloub bus
+	implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
+
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	// devtool
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 dependencyManagement {

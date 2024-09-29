@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	//eureka client
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter'
 	// 모니터링
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
@@ -52,6 +53,8 @@ dependencies {
 	implementation 'io.github.openfeign:feign-micrometer'
 	// 스웨거
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+	// cloub bus
+	implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
 
 	implementation project(':com.banking.commonBean')
 	implementation project(':commonClass')

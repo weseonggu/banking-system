@@ -1,5 +1,5 @@
 spring:
   application:
-    name: ProductService
+    name: AccountService
   config:
     import: optional:configserver:http://sparta24:sparta24@localhost:9000

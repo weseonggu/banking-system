@@ -29,10 +29,15 @@ public class SecurityConfig {
                 .csrf((auth) -> auth.disable());
 
         http
-                .authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
+                .authorizeHttpRequests((auth) -> auth
+
+                        .requestMatchers("/actuator/**").permitAll()
+                        .anyRequest().authenticated()
+                );
 
         http
                 .httpBasic(Customizer.withDefaults());
+
 
 
         return http.build();

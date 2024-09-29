@@ -1,6 +1,8 @@
 package com.msa.banking.commonbean.security;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -16,7 +18,6 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 @EnableWebSecurity
 @ConditionalOnProperty(name = "common.bean.security.enabled", havingValue = "true", matchIfMissing = false)
-@Order(1)
 public class SecurityConfig {
 
     @Bean

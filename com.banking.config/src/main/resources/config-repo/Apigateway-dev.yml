@@ -13,6 +13,18 @@ spring:
           uri: lb://AuthService
           predicates:
             - Path=/auth/**
+        - id: AccountService
+          uri: lb://AccountService
+          predicates:
+            - Path=/account/**
+        - id: PersonalHistoryService
+          uri: lb://PersonalHistoryService
+          predicates:
+            - Path=/personal/**
+        - id: ProductService
+          uri: lb://ProductService
+          predicates:
+            - Path=/product/**
       discovery:
         locator:
           enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
