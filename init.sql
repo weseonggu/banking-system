@@ -9,7 +9,6 @@ CREATE DATABASE auth
   TABLESPACE = pg_default
   CONNECTION LIMIT = -1;
 
-
 -- 'account' 데이터베이스 생성
 CREATE DATABASE account
   WITH OWNER = banking
