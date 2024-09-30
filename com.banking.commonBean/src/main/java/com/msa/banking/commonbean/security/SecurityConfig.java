@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-
+@ConditionalOnProperty(name = "common.bean.security.class", havingValue = "true", matchIfMissing = false)
 public class SecurityConfig {
 
     @Bean
