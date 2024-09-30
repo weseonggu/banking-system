@@ -28,6 +28,14 @@ spring:
       discovery:
         locator:
           enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
+    bus:
+      destination: banking-platform.dev.event.config-event.json
+      refresh:
+        enabled: true
+      env:
+        enabled: true
+  kafka:
+    bootstrap-servers: http://localhost:9092
 
 service:
   jwt:
@@ -52,13 +60,19 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "*, busrefresh"
   endpoint:
     health:
       show-details: always
+    env:
+      show-values: "ALWAYS"
   zipkin:
     tracing:
       endpoint: "http://localhost:9411/api/v2/spans"
   tracing:
     sampling:
       probability: 1.0
+
+
+test:
+  config-name: gateway13-Server

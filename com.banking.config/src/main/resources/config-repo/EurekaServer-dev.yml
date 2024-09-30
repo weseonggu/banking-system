@@ -1,6 +1,14 @@
 spring:
   application:
     name: server
+  cloud:
+    bus:
+      destination: banking-platform.dev.event.config-event.json
+      refresh:
+        enabled: true
+      env:
+        enabled: true
+
 
 eureka:
   client:
@@ -20,7 +28,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "*, busrefresh"
   endpoint:
     health:
       show-details: always
+    env:
+      show-values: "ALWAYS"
+test:
+  config-name: Server3

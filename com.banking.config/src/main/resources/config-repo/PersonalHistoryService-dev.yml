@@ -4,11 +4,17 @@ server:
   port: 19096
 
 spring:
-  # main:
-  #  web-application-type: reactive  # Spring 애플리케이션이 리액티브 웹 애플리케이션으로 설정됨
   application:
     name: PersonalHistoryService  # 애플리케이션 이름을 'gateway-service'로 설정
-
+  kafka:
+    bootstrap-servers: http://localhost:9092
+  cloud:
+    bus:
+      destination: banking-platform.dev.event.config-event.json
+      refresh:
+        enabled: true
+      env:
+        enabled: true
 
 
 eureka:
@@ -29,10 +35,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "*, busrefresh"
   endpoint:
     health:
       show-details: always
+    env:
+      show-values: "ALWAYS"
   zipkin:
     tracing:
       endpoint: "http://localhost:9411/api/v2/spans"
@@ -46,4 +54,4 @@ common:
       enabled: true
 
 test:
-  config-name: Auth-Server
+  config-name: PersonalHistory13-Server

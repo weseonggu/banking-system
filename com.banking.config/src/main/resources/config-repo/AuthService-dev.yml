@@ -4,8 +4,6 @@ server:
   port: 19093
 
 spring:
-  # main:
-  #  web-application-type: reactive  # Spring 애플리케이션이 리액티브 웹 애플리케이션으로 설정됨
   application:
     name: AuthService  # 애플리케이션 이름을 'gateway-service'로 설정
   kafka:

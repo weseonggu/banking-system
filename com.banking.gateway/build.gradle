@@ -42,6 +42,8 @@ dependencies {
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 	implementation 'io.github.openfeign:feign-micrometer'
+	// cloub bus
+	implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
 }
 
 dependencyManagement {

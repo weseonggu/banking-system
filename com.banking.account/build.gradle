@@ -47,6 +47,8 @@ dependencies {
     implementation 'io.github.openfeign:feign-micrometer'
     // 스웨거
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+    // cloub bus
+    implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
 
     implementation project(':com.banking.commonBean')
     implementation project(':commonClass')
