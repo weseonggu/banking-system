@@ -24,9 +24,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/account
-    username: banking
-    password: banking20
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: 1234
 
   jpa:
     hibernate:
@@ -38,6 +38,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
 
+
+jasypt:
+  encryptor:
+    password: ${ENCRYPTOR_PASSWORD}
+    algorithm: PBEWithHMACSHA512AndAES_256
 
 eureka:
   client:
