@@ -23,9 +23,19 @@ public enum ErrorCode {
     // 500 Internal Server Error 서버 오류
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "알 수 없는 에러가 발생하였습니다."),
     // 503 Service Unavailable
-    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, 1006, "서비스가 아직 준비되지 않았습니다.");
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, 1006, "서비스가 아직 준비되지 않았습니다."),
 
     /* 유저 2000번대 */
+
+    // 404 Not Found
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, 2001, "user not found"),
+    // 400 Bad Request
+    PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password."),
+    // 403 Forbidden
+    USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
+    // 400 Bad Request
+    ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다.");
+
     /* 계좌 3000번대 */
     /* 알림 4000번대 */
     /* 개인내역 5000번대 */
