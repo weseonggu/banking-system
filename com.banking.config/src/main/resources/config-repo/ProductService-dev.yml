@@ -74,6 +74,7 @@ management:
 common:
   bean:
     security:
-      enabled: true
+      class: true
+      normal: true
 test:
   config-name: Product13-Server
