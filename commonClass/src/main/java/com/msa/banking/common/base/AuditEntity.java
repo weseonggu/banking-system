@@ -52,6 +52,15 @@ public abstract class AuditEntity {
         isDelete = true;
     }
 
+    /**
+     * 기본적인 삭제 처리(Soft Delete)
+     * TODO userId 추가
+     */
+    public void delete(){
+        deletedAt = LocalDateTime.now();
+        isDelete = true;
+    }
+
 }
 
 
