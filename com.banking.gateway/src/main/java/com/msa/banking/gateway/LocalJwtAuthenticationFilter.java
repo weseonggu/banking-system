@@ -27,26 +27,30 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // ToDo 요청에서 요청 주소 빼기
+        // 요청에서 요청 주소 빼기
         String path = exchange.getRequest().getURI().getPath();
 
-        // ToDO 로그인 및 회원가입 경로는 토큰 검증을 통과합니다.
+        // 로그인 및 회원가입 경로는 토큰 검증을 통과합니다.
         if (isAuthorizationPassRequest(path)) {
             return chain.filter(exchange);
         }
-        // ToDo 해더에서 jwt 가져오기
+        // 헤더에서 jwt 가져오기
         String token = getJwtTokenFromHeader(exchange);
-        // ToDo 토큰 검증s
+
+        //  토큰 검증
         try{
             if(token == null){
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
             SecretKey key = getSecretKey();
+
             Claims claims = getUserInfoFromToken(token, key);
-            Integer userId = claims.get("userId", Integer.class);
-            String username = claims.getSubject();
+
+            String userId = claims.getSubject();
             String role = claims.get("auth").toString();
+            String username = claims.get("username").toString();
+
             addHeadersToRequest(exchange, userId, username, role);
             return chain.filter(exchange);
 
@@ -83,8 +87,8 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
      * @return
      */
     private boolean isAuthorizationPassRequest(String path) {
-        // TODO login sign up 및 추가 적인 통과요소 gateway 그냥 통과 하도록
-        return path.startsWith("/auth/login") || path.startsWith("/auth/sign-up") || path.contains("test") || path.contains("start");
+        //  signUp, signIn 및 추가 적인 통과요소 gateway 통과
+        return path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn");
     }
 
     /**
@@ -116,13 +120,15 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
      * @param username
      * @param role
      */
-    private void addHeadersToRequest(ServerWebExchange exchange, Integer userId, String username, String role) {
+    private void addHeadersToRequest(ServerWebExchange exchange, String userId, String username, String role) {
         exchange.getRequest().mutate()
                 .header("X-User-Id", userId.toString())
                 .header("X-Username", username)
                 .header("X-Role", role)
                 .build();
     }
+
+
     private DataBuffer excepctionMessage(ServerWebExchange exchange, String message) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
 
