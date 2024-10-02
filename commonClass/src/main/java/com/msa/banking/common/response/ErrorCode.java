@@ -23,12 +23,14 @@ public enum ErrorCode {
     // 500 Internal Server Error 서버 오류
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 1005, "알 수 없는 에러가 발생하였습니다."),
     // 503 Service Unavailable
-    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, 1006, "서비스가 아직 준비되지 않았습니다.");
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, 1006, "서비스가 아직 준비되지 않았습니다."),
 
     /* 유저 2000번대 */
     /* 계좌 3000번대 */
     /* 알림 4000번대 */
     /* 개인내역 5000번대 */
+    // 404 Not Found 자원을 찾을 수 없습니다.
+    PERSONAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5001, "개인 내역을 찾을 수 없습니다.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
 
