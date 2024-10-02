@@ -15,6 +15,16 @@ spring:
         enabled: true
       env:
         enabled: true
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region: ${AWS_REGION}
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
 
   data:
     redis:
@@ -38,7 +48,11 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
-
+  http:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
 
 eureka:
   client:
@@ -76,5 +90,9 @@ common:
     security:
       class: true
       normal: true
+
+s3:
+  bucket-name: cargoflowlib
+  path: pdf
 test:
   config-name: Product13-Server

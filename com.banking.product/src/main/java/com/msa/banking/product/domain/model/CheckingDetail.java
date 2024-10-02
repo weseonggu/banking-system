@@ -13,16 +13,16 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "p_withdrawal_detail")
-public class WithdrawalDetail extends AuditEntity {
+@Table(name = "p_checking_detail")
+public class CheckingDetail extends AuditEntity {
 
     @Id
     @UuidGenerator
-    @Column(name = "withdrawal_detail_id")
+    @Column(name = "checking_detail_id")
     private UUID id;
 
-    @Column(columnDefinition = "TEXT", name = "withdrawal_detail", nullable = false)
-    private String withdrawalDetail;
+    @Column(columnDefinition = "TEXT", name = "checking_detail", nullable = false)
+    private String checkingDetail;
 
     @Column(name = "terms_and_conditions", nullable = false)
     private String termsAndConditions;
