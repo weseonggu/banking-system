@@ -73,8 +73,6 @@ public class UserController {
         log.info("고객 조회 시도 중 | customer_id: {}", customerId);
         UUID userId = userDetails.getUserId();
         String role = userDetails.getRole();
-        System.out.println("userid = " + userId);
-        System.out.println("role = " + role);
 
         AuthResponseDto response = userService.findCustomerById(customerId, userId, role);
 
@@ -94,8 +92,6 @@ public class UserController {
         log.info("직원 조회 시도 중 | employee_id: {}", employeeId);
         UUID userId = userDetails.getUserId();
         String role = userDetails.getRole();
-        System.out.println("userid = " + userId);
-        System.out.println("role = " + role);
 
         AuthResponseDto response = userService.findEmployeeById(employeeId, userId, role);
 

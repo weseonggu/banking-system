@@ -12,6 +12,9 @@ import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,6 +69,7 @@ public class UserService {
      * @param role
      * @return
      */
+    @Cacheable(cacheNames = "CustomerCache", key = "#customerId")
     public AuthResponseDto findCustomerById(UUID customerId, UUID userId, String role) {
 
         // 고객 권한일 때 본인 정보가 아니면 에러
@@ -89,6 +93,7 @@ public class UserService {
      * @param role
      * @return
      */
+    @Cacheable(cacheNames = "EmployeeCache", key = "#employeeId")
     public AuthResponseDto findEmployeeById(UUID employeeId, UUID userId, String role) {
         
         // 매니저 권한일 때 본인 정보가 아니면 에러
@@ -114,6 +119,8 @@ public class UserService {
      * @return
      */
     @Transactional
+    @CachePut(cacheNames = "CustomerCache", key = "#customerId")
+    @CacheEvict(cacheNames = "CustomerSearchCache", allEntries = true)
     public AuthResponseDto updateCustomer(UUID customerId, AuthRequestDto request, UUID userId, String role) {
 
         // 고객 권한일 때 본인 정보가 아니면 에러
@@ -146,6 +153,8 @@ public class UserService {
      * @return
      */
     @Transactional
+    @CachePut(cacheNames = "EmployeeCache", key = "#customerId")
+    @CacheEvict(cacheNames = "EmployeeSearchCache", allEntries = true)
     public AuthResponseDto updateEmployee(UUID employeeId, AuthRequestDto request, UUID userId, String role) {
 
         // 매니저 권한일 때 본인 정보가 아니면 에러
@@ -173,10 +182,18 @@ public class UserService {
      * @param pageable
      * @return
      */
+    @Cacheable(cacheNames = "CustomerSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}")
     public Page<AuthResponseDto> findAllCustomer(Pageable pageable, SearchRequestDto condition) {
         return customerRepository.findPagingAllCustomer(pageable, condition);
     }
 
+    /**
+     * 직원 전체 조회, 마스터 매니저 허용
+     * @param pageable
+     * @param condition
+     * @return
+     */
+    @Cacheable(cacheNames = "EmployeeSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}")
     public Page<AuthResponseDto> findAllEmployee(Pageable pageable, SearchRequestDto condition) {
         return employeeRepository.findPagingAllEmployee(pageable, condition);
     }
