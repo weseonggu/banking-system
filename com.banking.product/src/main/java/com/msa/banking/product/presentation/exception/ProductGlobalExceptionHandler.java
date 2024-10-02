@@ -1,6 +1,7 @@
 package com.msa.banking.product.presentation.exception;
 
 import com.msa.banking.common.response.ErrorResponse;
+import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpRequest;
@@ -27,5 +28,28 @@ public class ProductGlobalExceptionHandler {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(errorResponse);
+    }
+
+    // 지원하지 않는 확장자
+    @ExceptionHandler(UnsupportedExtensionsException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedExtensionsException(RuntimeException exc, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
+                "UNSUPPORTED_MEDIA_TYPE",
+                exc.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(errorResponse);
+    }
+    // 없는 데이터 검색
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(RuntimeException exc, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "NOT_FOUND",
+                exc.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 }

@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.InputStream;
 
@@ -33,20 +36,24 @@ public class S3UploadService implements UploadService{
     // s3 파일 업로드
     @Override
     @SneakyThrows
-    public String uploadImage(MultipartFile multipartFile) {
-        String uploadUrl = getS3UploadUrl(multipartFile.getOriginalFilename());
-        PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(uploadUrl)
-                .build();
+    public void uploadImage(String fileName, MultipartFile multipartFile) {
+        try {
+            String uploadUrl = getS3UploadUrl(fileName);
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(uploadUrl)
+                    .build();
 
-        RequestBody content = RequestBody.fromInputStream(
-                multipartFile.getInputStream(),
-                multipartFile.getSize()
-        );
+            RequestBody content = RequestBody.fromInputStream(
+                    multipartFile.getInputStream(),
+                    multipartFile.getSize()
+            );
 
-        s3Client.putObject(request, content);
-        return uploadUrl;
+            s3Client.putObject(request, content);
+        }catch (AwsServiceException e){
+            // TODO 롤백 메서드 구현 비동기 저장시
+            throw e;
+        }
     }
 
     // s3에서 파일 다운로드
