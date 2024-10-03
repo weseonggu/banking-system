@@ -5,6 +5,7 @@ import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryL
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryRequestDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 public interface PersonalHistoryService {
 
     // 개인 내역 목록 조회
-    Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, Boolean status, Pageable pageable);
+    Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable);
 
     // 개인 내역 생성
     PersonalHistoryResponseDto createPersonalHistory(AccountCompletedEventDto accountCompletedEventDto);

@@ -6,12 +6,14 @@ import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryL
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
 import com.msa.banking.personal.application.service.PersonalHistoryService;
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,8 +28,9 @@ public class PersonalHistoryController {
 
     // 개인 내역 전체 조회
     @GetMapping("")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     public ResponseEntity<?> searchPersonalHistory(@RequestParam(value = "categoryName", required = false) String categoryName,
-                                                   @RequestParam(value = "status", required = false) Boolean status,
+                                                   @RequestParam(value = "status", required = false) PersonalHistoryStatus status,
                                                    Pageable pageable) {
         Page<PersonalHistoryListDto> personalHistoryListPage = personalHistoryService.searchPersonalHistory(categoryName, status, pageable);
 
@@ -37,6 +40,7 @@ public class PersonalHistoryController {
 
     // 개인 내역 단건 조회
     @GetMapping("/{history_id}")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     public ResponseEntity<?> findPersonalHistoryById(@PathVariable("history_id") Long historyId) {
 
         PersonalHistoryResponseDto responseDto = personalHistoryService.findPersonalHistoryById(historyId);
@@ -48,6 +52,7 @@ public class PersonalHistoryController {
 
     // 개인 내역 수정(카테고리 수정)
     @PatchMapping("/{history_id}")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
     public ResponseEntity<?> updatePersonalHistoryCategory(@PathVariable("history_id") Long historyId, @RequestBody PersonalHistoryUpdateDto personalHistoryUpdateDto) {
 
         PersonalHistoryResponseDto responseDto = personalHistoryService.updatePersonalHistoryCategory(personalHistoryUpdateDto, historyId);
@@ -58,6 +63,7 @@ public class PersonalHistoryController {
 
     // 개인 내역 삭제(Soft Delete)
     @DeleteMapping("/{history_id}")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
     public ResponseEntity<?> deletePersonalHistory(@PathVariable("history_id") Long historyId) {
 
         personalHistoryService.deletePersonHistory(historyId);

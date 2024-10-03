@@ -6,11 +6,13 @@ import com.msa.banking.personal.application.dto.event.AccountCompletedEventDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.model.Category;
 import com.msa.banking.personal.domain.model.PersonalHistory;
 import com.msa.banking.personal.domain.repository.CategoryRepository;
 import com.msa.banking.personal.domain.repository.PersonalHistoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class PersonalHistoryServiceImpl implements PersonalHistoryService{
 
     private final PersonalHistoryRepository personalHistoryRepository;
@@ -29,7 +32,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService{
      * 조건: 사용자 ID, 카테고리 이름, 상태
      */
     @Override
-    public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, Boolean status, Pageable pageable) {
+    public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable) {
         Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable);
         return personalHistoryPage.map(PersonalHistoryListDto::toDTO);
     }
@@ -75,10 +78,12 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService{
 
         if (optionalCategory.isPresent()) {
             personalHistory.updateCategory(optionalCategory.get());
+            personalHistoryRepository.save(personalHistory);
         } else {
             Category category = Category.createCategory(personalHistoryUpdateDto.getCategoryName());
             categoryRepository.save(category);
             personalHistory.updateCategory(category);
+            personalHistoryRepository.save(personalHistory);
         }
 
         return PersonalHistoryResponseDto.toDTO(personalHistory);
@@ -90,9 +95,12 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService{
     @Override
     public void deletePersonHistory(Long historyId) {
 
+        log.info("deletePersonHistory Service-------------");
+
         PersonalHistory personalHistory = personalHistoryRepository.findById(historyId).orElseThrow(
                 ()-> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
         personalHistory.deletePersonalHistory();
+        personalHistoryRepository.save(personalHistory);
     }
 }

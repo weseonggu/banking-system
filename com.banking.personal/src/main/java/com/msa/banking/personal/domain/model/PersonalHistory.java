@@ -2,6 +2,7 @@ package com.msa.banking.personal.domain.model;
 
 import com.msa.banking.common.base.AuditEntity;
 import com.msa.banking.personal.application.dto.event.AccountCompletedEventDto;
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.enums.PersonalHistoryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,8 +41,9 @@ public class PersonalHistory extends AuditEntity{
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private boolean status;
+    private PersonalHistoryStatus status;
 
     @Column(name = "transaction_date", nullable = false)
     private LocalDateTime transactionDate;
@@ -55,7 +57,7 @@ public class PersonalHistory extends AuditEntity{
                 .userId(accountCompletedEventDto.getUserId())
                 .type(accountCompletedEventDto.getType())
                 .amount(accountCompletedEventDto.getAmount())
-                .status(false)
+                .status(PersonalHistoryStatus.UNCLASSIFIED)
                 .transactionDate(accountCompletedEventDto.getTransactionDate())
                 .description(accountCompletedEventDto.getDescription())
                 .build();
@@ -64,6 +66,7 @@ public class PersonalHistory extends AuditEntity{
     // 카테고리 수정
     public void updateCategory(Category newCategory){
         this.category = newCategory;
+        this.status = PersonalHistoryStatus.CLASSIFIED;
     }
 
     // 개인 내역 삭제(Soft Delete)
