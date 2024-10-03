@@ -1,6 +1,7 @@
 package com.msa.banking.product.application.service;
 
 import com.msa.banking.product.application.dto.ResponsePDFInfo;
+import com.msa.banking.product.application.dto.ResponsePDFUpload;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.repository.PDFInfoRepository;
 import com.msa.banking.product.domain.service.PDFInfoService;
@@ -25,7 +26,7 @@ public class PDFInfoApplicationService {
 
     // pdf 저장 비지니스 로직
     @Transactional
-    public Long createPDFInfo(MultipartFile multipartFile){
+    public ResponsePDFUpload createPDFInfo(MultipartFile multipartFile){
 
         String originalName = multipartFile.getOriginalFilename();
         // 확장자 pdf인지 확인
@@ -42,7 +43,7 @@ public class PDFInfoApplicationService {
         // DB에 파일 저장
         PDFInfo pdf = pdfInfoService.savePdfInfo(originalName, uploadFileName);
 
-        return pdf.getId();
+        return new ResponsePDFUpload(pdf.getId(), pdf.getUploadFileName());
     }
 
     // S3 에 저장할 때 파일의 이름을 랜덤으로 생성해주는 메서드
@@ -55,7 +56,7 @@ public class PDFInfoApplicationService {
     public ResponsePDFInfo getPdf(Long pdfId) {
 
         PDFInfo pdf = pdfInfoService.fingPdfInfo(pdfId);
-
+        System.out.println("test");
         InputStream fileData = uploadService.getFile(pdf.getUploadFileName());
 
         return new ResponsePDFInfo(pdf.getId(), pdf.getFileName(), fileData);

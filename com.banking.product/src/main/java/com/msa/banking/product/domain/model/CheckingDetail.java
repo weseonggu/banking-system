@@ -33,11 +33,31 @@ public class CheckingDetail extends AuditEntity {
     @Column(name = "fees", nullable = false)
     private int fees;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", referencedColumnName = "product_id")
+    ///////////////////////////////////////////////////////////////////////
+
+    @OneToOne(mappedBy = "checkingDetail", fetch = FetchType.LAZY)
     private Product product;
 
-    @OneToOne(mappedBy = "checkingDetail", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "pdf_info_id", referencedColumnName = "pdf_info_id")
     private PDFInfo pdfInfo;
+
+    //////////////////////////////////////////////////////////////////////
+
+    public static CheckingDetail create(String checkingDetail, String termsAndConditions,
+                                        BigDecimal interestRate, int fees) {
+        return CheckingDetail.builder()
+                .checkingDetail(checkingDetail)
+                .termsAndConditions(termsAndConditions)
+                .interestRate(interestRate)
+                .fees(fees)
+                .build();
+
+    }
+
+    public CheckingDetail addPDF(PDFInfo pdfInfo) {
+        this.pdfInfo = pdfInfo;
+        return this;
+    }
 
 }

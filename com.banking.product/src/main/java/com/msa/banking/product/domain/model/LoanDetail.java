@@ -42,11 +42,13 @@ public class LoanDetail extends AuditEntity {
     @Column(columnDefinition = "TEXT", name = "terms_and_conditions", nullable = false)
     private String termsAndConditions;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_id", referencedColumnName = "product_id")
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    @OneToOne(mappedBy = "loanDetail", fetch = FetchType.LAZY)
     private Product product;
 
-    @OneToOne(mappedBy = "loanDetail", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "pdf_info_id", referencedColumnName = "pdf_info_id")
     private PDFInfo pdfInfo;
 
 }

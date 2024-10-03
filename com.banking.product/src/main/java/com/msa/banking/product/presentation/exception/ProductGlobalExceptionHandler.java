@@ -1,6 +1,7 @@
 package com.msa.banking.product.presentation.exception;
 
 import com.msa.banking.common.response.ErrorResponse;
+import com.msa.banking.product.presentation.exception.custom.CustomDuplicateKeyException;
 import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +48,17 @@ public class ProductGlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 "NOT_FOUND",
+                exc.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(CustomDuplicateKeyException.class)
+    public ResponseEntity<ErrorResponse> handleCustomDuplicateKeyException(RuntimeException exc, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "CONFLICT",
                 exc.getMessage(),
                 request.getRequestURI()
         );

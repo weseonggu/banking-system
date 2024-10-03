@@ -16,19 +16,22 @@ import java.time.LocalDateTime;
 public class PDFInfo extends AuditEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "pdf_info_id")
     Long id;
 
     String fileName; // 파일명
 
     String uploadFileName; // S3에 저장된 파일의 이름
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "loan_detail_id", referencedColumnName = "loan_detail_id")
+    //////////////////////////////////////////////////////////////////
+
+    @OneToOne(mappedBy = "pdfInfo", fetch = FetchType.LAZY)
     private LoanDetail loanDetail;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "checking_detail_id", referencedColumnName = "checking_detail_id")
+    @OneToOne(mappedBy = "pdfInfo", fetch = FetchType.LAZY)
     private CheckingDetail checkingDetail;
+
+    //////////////////////////////////////////////////////////////////
 
     public static PDFInfo create(String fileName, String uploadFileName){
         return PDFInfo.builder()
