@@ -1,4 +1,4 @@
-package com.msa.banking.commonbean.redisconfig;
+package com.msa.banking.commonbean.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
