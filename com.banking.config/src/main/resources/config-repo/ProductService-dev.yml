@@ -41,7 +41,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
@@ -98,3 +98,7 @@ s3:
   path: pdf
 test:
   config-name: Product13-Server
+
+logging:
+  level:
+    org.springframework.cache: DEBUG

@@ -28,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 public class PdfInfoController {
 
     private final PDFInfoApplicationService pdfInfoService;
-    private final UploadService uploadService;
 
     @Operation(summary = "pdf 저장 api")
     @ApiResponses(value = {

@@ -12,6 +12,7 @@ public record RequestCreateCheckingProduct(
         String chcking_detail,
         String terms_and_conditions,
         String interest_rate,
-        int fees
+        int fees,
+        Long PDFId;
 ) {
 }

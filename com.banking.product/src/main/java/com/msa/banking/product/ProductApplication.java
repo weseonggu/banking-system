@@ -2,6 +2,7 @@ package com.msa.banking.product;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(scanBasePackages = {
@@ -9,6 +10,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
         "com.msa.banking.commonbean"
 })
 @EnableFeignClients
+@EnableCaching
 public class ProductApplication {
 
     public static void main(String[] args) {

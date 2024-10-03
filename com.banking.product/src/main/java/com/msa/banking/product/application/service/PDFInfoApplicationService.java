@@ -3,11 +3,13 @@ package com.msa.banking.product.application.service;
 import com.msa.banking.product.application.dto.ResponsePDFInfo;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.repository.PDFInfoRepository;
+import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.lib.FileUtil;
 import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
@@ -19,9 +21,10 @@ import java.util.UUID;
 public class PDFInfoApplicationService {
 
     private final UploadService uploadService;
-    private final PDFInfoRepository pdfInfoRepository;
+    private final PDFInfoService pdfInfoService;
 
     // pdf 저장 비지니스 로직
+    @Transactional
     public Long createPDFInfo(MultipartFile multipartFile){
 
         String originalName = multipartFile.getOriginalFilename();
@@ -36,9 +39,9 @@ public class PDFInfoApplicationService {
         String uploadFileName = getRandomImageName() + ".pdf";
         // s3에 파일 저장
         uploadService.uploadImage(uploadFileName, multipartFile);
+        // DB에 파일 저장
+        PDFInfo pdf = pdfInfoService.savePdfInfo(originalName, uploadFileName);
 
-        PDFInfo pdf = PDFInfo.create(originalName, uploadFileName);
-        pdfInfoRepository.save(pdf);
         return pdf.getId();
     }
 
@@ -48,8 +51,10 @@ public class PDFInfoApplicationService {
     }
 
     // 파일 조회
+    @Transactional(readOnly = true)
     public ResponsePDFInfo getPdf(Long pdfId) {
-        PDFInfo pdf = pdfInfoRepository.findById(pdfId).orElseThrow(() -> new IllegalArgumentException("없는 파일입니다."));
+
+        PDFInfo pdf = pdfInfoService.fingPdfInfo(pdfId);
 
         InputStream fileData = uploadService.getFile(pdf.getUploadFileName());
 

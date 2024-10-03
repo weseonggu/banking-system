@@ -37,4 +37,7 @@ public class CheckingDetail extends AuditEntity {
     @JoinColumn(name = "product_id", referencedColumnName = "product_id")
     private Product product;
 
+    @OneToOne(mappedBy = "checkingDetail", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private PDFInfo pdfInfo;
+
 }

@@ -42,10 +42,9 @@ public class ProductController {
     , consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
     @LogDataChange
     // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
-    public ResponseEntity<?> createProduct(@RequestPart("product") RequestCreateCheckingProduct product,
-                                                @RequestPart("pdf") MultipartFile pdfFile) {
+    public ResponseEntity<?> createProduct(@RequestBody RequestCreateCheckingProduct product {
         // 어플리케이션 계층 서비스 호츌
-        applicationService.createProductSynchronous(product, pdfFile);
+        applicationService.createCheckingProduct(product);
         return new ResponseEntity<>(product, HttpStatus.OK);
     }
 

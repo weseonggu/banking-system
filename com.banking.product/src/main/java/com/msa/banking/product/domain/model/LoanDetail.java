@@ -45,4 +45,8 @@ public class LoanDetail extends AuditEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", referencedColumnName = "product_id")
     private Product product;
+
+    @OneToOne(mappedBy = "loanDetail", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private PDFInfo pdfInfo;
+
 }
