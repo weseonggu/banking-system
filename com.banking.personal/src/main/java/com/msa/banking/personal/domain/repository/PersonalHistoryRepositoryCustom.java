@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface PersonalHistoryRepositoryCustom {
-    Page<PersonalHistory> findByUserIdAndCategoryAndStatus(String categoryName, Boolean status, Pageable pageable);
+    Page<PersonalHistory> findByCategoryAndStatus(String categoryName, Boolean status, Pageable pageable);
 }

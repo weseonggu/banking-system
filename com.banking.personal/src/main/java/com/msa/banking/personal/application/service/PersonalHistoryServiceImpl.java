@@ -30,7 +30,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService{
      */
     @Override
     public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, Boolean status, Pageable pageable) {
-        Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByUserIdAndCategoryAndStatus(categoryName, status, pageable);
+        Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable);
         return personalHistoryPage.map(PersonalHistoryListDto::toDTO);
     }
 

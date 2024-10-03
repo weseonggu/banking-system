@@ -24,7 +24,7 @@ public class PersonalHistoryRepositoryCustomImpl implements PersonalHistoryRepos
     }
 
     @Override
-    public Page<PersonalHistory> findByUserIdAndCategoryAndStatus(String categoryName, Boolean status, Pageable pageable) {
+    public Page<PersonalHistory> findByCategoryAndStatus(String categoryName, Boolean status, Pageable pageable) {
         QPersonalHistory personalHistory = QPersonalHistory.personalHistory;
 
         // QueryDSL을 이용한 검색
