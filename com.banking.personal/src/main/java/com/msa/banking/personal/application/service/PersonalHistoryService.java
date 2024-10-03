@@ -1,15 +1,12 @@
 package com.msa.banking.personal.application.service;
 
-import com.msa.banking.personal.application.dto.event.AccountCompletedEventDto;
+import com.msa.banking.personal.application.event.AccountCompletedEventDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
-import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryRequestDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.UUID;
 
 public interface PersonalHistoryService {
 

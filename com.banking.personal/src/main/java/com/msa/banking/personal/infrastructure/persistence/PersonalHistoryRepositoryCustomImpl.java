@@ -23,38 +23,38 @@ public class PersonalHistoryRepositoryCustomImpl implements PersonalHistoryRepos
         this.queryFactory = new JPAQueryFactory(em);
     }
 
+    // TODO null로 들어오면 전체 조회가 안됨 -> 수정 필요
     @Override
     public Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, Pageable pageable) {
         QPersonalHistory personalHistory = QPersonalHistory.personalHistory;
 
+        // 조건 결합
+        BooleanExpression condition = categoryNameEq(categoryName)
+                .and(statusEq(status));
+
         // QueryDSL을 이용한 검색
         List<PersonalHistory> results = queryFactory
                 .selectFrom(personalHistory)
-                .where(
-                        categoryNameEq(categoryName),
-                        statusEq(status)
-                )
+                .where(condition)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(personalHistory.createdAt.desc())
                 .fetch();
 
         // 전체 개수를 가져와서 페이징된 결과와 함께 반환
         long total = queryFactory
                 .selectFrom(personalHistory)
-                .where(
-                        categoryNameEq(categoryName),
-                        statusEq(status)
-                )
+                .where(condition)
                 .fetchCount();
 
         return new PageImpl<>(results, pageable, total);
     }
 
     private BooleanExpression categoryNameEq(String categoryName) {
-        return categoryName != null ? QPersonalHistory.personalHistory.category.name.eq(categoryName) : null;
+        return categoryName != null ? QPersonalHistory.personalHistory.category.name.eq(categoryName) : QPersonalHistory.personalHistory.isNotNull();
     }
 
     private BooleanExpression statusEq(PersonalHistoryStatus status) {
-        return status != null ? QPersonalHistory.personalHistory.status.eq(status) : null;
+        return status != null ? QPersonalHistory.personalHistory.status.eq(status) : QPersonalHistory.personalHistory.isNotNull();
     }
 }

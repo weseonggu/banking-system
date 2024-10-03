@@ -2,7 +2,7 @@ package com.msa.banking.personal.application.service;
 
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
-import com.msa.banking.personal.application.dto.event.AccountCompletedEventDto;
+import com.msa.banking.personal.application.event.AccountCompletedEventDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;

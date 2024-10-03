@@ -1,7 +1,7 @@
 package com.msa.banking.personal.domain.model;
 
 import com.msa.banking.common.base.AuditEntity;
-import com.msa.banking.personal.application.dto.event.AccountCompletedEventDto;
+import com.msa.banking.personal.application.event.AccountCompletedEventDto;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.enums.PersonalHistoryType;
 import jakarta.persistence.*;
