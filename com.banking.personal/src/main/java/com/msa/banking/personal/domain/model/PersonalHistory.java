@@ -22,7 +22,7 @@ import java.util.UUID;
 public class PersonalHistory extends AuditEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "history_id", nullable = false)
     private Long id;
 
@@ -31,7 +31,7 @@ public class PersonalHistory extends AuditEntity{
     private Category category;
 
     @Column(name = "user_id", nullable = false)
-    private UUID user_id;
+    private UUID userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -44,7 +44,7 @@ public class PersonalHistory extends AuditEntity{
     private boolean status;
 
     @Column(name = "transaction_date", nullable = false)
-    private LocalDateTime transaction_date;
+    private LocalDateTime transactionDate;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -52,11 +52,11 @@ public class PersonalHistory extends AuditEntity{
     // 개인 내역 생성
     public static PersonalHistory createPersonalHistory(AccountCompletedEventDto accountCompletedEventDto){
         return PersonalHistory.builder()
-                .user_id(accountCompletedEventDto.getUserId())
+                .userId(accountCompletedEventDto.getUserId())
                 .type(accountCompletedEventDto.getType())
                 .amount(accountCompletedEventDto.getAmount())
                 .status(false)
-                .transaction_date(accountCompletedEventDto.getTransactionDate())
+                .transactionDate(accountCompletedEventDto.getTransactionDate())
                 .description(accountCompletedEventDto.getDescription())
                 .build();
     }

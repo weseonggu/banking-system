@@ -24,7 +24,7 @@ public class PersonalHistoryListDto {
                 .categoryName(personalHistory.getCategory().getName())
                 .type(personalHistory.getType())
                 .amount(personalHistory.getAmount())
-                .transactionDate(personalHistory.getTransaction_date())
+                .transactionDate(personalHistory.getTransactionDate())
                 .build();
     }
 }

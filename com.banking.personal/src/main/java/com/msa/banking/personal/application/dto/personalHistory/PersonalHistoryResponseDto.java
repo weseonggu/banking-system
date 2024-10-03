@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 public class PersonalHistoryResponseDto {
 
-    private Long history_id;
+    private Long historyId;
     private String categoryName;
     private PersonalHistoryType type;
     private BigDecimal amount;
@@ -20,7 +20,7 @@ public class PersonalHistoryResponseDto {
 
     public static PersonalHistoryResponseDto toDTO(PersonalHistory personalHistory){
         return PersonalHistoryResponseDto.builder()
-                .history_id(personalHistory.getId())
+                .historyId(personalHistory.getId())
                 .categoryName(personalHistory.getCategory().getName())
                 .type(personalHistory.getType())
                 .amount(personalHistory.getAmount())
