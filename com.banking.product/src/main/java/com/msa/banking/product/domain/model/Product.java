@@ -35,11 +35,14 @@ public class Product extends AuditEntity {
     @Column(name = "valid_to", nullable = true)
     private LocalDateTime validTo;
 
+    @Column(name = "is_finish", nullable = false)
+    private Boolean isFinish;
+
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private LoanDetail loanDetail;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private WithdrawalDetail withdrawalDetail;
+    private CheckingDetail checkingDetail;
 
     public static Product create(String name, ProductType type, LocalDateTime validFrom, LocalDateTime validTo) {
         return Product.builder()
@@ -47,6 +50,7 @@ public class Product extends AuditEntity {
                 .type(type)
                 .validFrom(validFrom == null ? LocalDateTime.now() : validFrom)
                 .validTo(validTo)
+                .isFinish(false)
                 .build();
     }
 }
