@@ -17,6 +17,7 @@ public class SearchRequestDto {
     private String name;
     private String email;
     private String phoneNumber;
+    private String slackId;
     
     // contains 비교 필드
     private String city;

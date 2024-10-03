@@ -27,6 +27,7 @@ public class AuthResponseDto implements Serializable {
     private String zipcode;
 
     private String role;
+    private String slackId;
 
     public static AuthResponseDto toDto(Customer customer) {
         return new AuthResponseDto(
@@ -38,7 +39,8 @@ public class AuthResponseDto implements Serializable {
                 customer.getAddress().getCity(),
                 customer.getAddress().getStreet(),
                 customer.getAddress().getZipcode(),
-                customer.getRole().name()
+                customer.getRole().name(),
+                customer.getSlackId()
         );
     }
 
@@ -52,7 +54,8 @@ public class AuthResponseDto implements Serializable {
                 employee.getAddress().getCity(),
                 employee.getAddress().getStreet(),
                 employee.getAddress().getZipcode(),
-                employee.getRole().name()
+                employee.getRole().name(),
+                employee.getSlackId()
         );
     }
 }

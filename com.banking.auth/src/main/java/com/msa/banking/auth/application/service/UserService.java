@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,8 +40,9 @@ public class UserService {
      * @param userId
      * @return
      */
-    public AuthResponseDto findEmployeeUsername(String userId) {
-        Employee findEmployee = employeeRepository.findById(UUID.fromString(userId)).orElseThrow(() ->
+    @Cacheable(cacheNames = "EmployeeCache", key = "#userId")
+    public AuthResponseDto findEmployeeUsername(UUID userId) {
+        Employee findEmployee = employeeRepository.findById(userId).orElseThrow(() ->
                 new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
         return AuthResponseDto.toDto(findEmployee);
@@ -52,9 +54,10 @@ public class UserService {
      * @param userId
      * @return
      */
-    public AuthResponseDto findCustomerUsername(String userId) {
+    @Cacheable(cacheNames = "CustomerCache", key = "#userId")
+    public AuthResponseDto findCustomerUsername(UUID userId) {
 
-        Customer findCustomer = customerRepository.findById(UUID.fromString(userId)).orElseThrow(() ->
+        Customer findCustomer = customerRepository.findById(userId).orElseThrow(() ->
                 new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
         return AuthResponseDto.toDto(findCustomer);
@@ -196,5 +199,10 @@ public class UserService {
     @Cacheable(cacheNames = "EmployeeSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}")
     public Page<AuthResponseDto> findAllEmployee(Pageable pageable, SearchRequestDto condition) {
         return employeeRepository.findPagingAllEmployee(pageable, condition);
+    }
+
+    public Customer find() {
+        List<Customer> all = customerRepository.findAll();
+        return all.get(1);
     }
 }

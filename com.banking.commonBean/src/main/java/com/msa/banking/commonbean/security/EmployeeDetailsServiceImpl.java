@@ -16,8 +16,11 @@ public class EmployeeDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        System.out.println("EmployeeDetailsServiceImpl 들어온다 ");
 
         AuthFeignResponseDto findEmployee = authClient.findEmployeeId(userId);
+
+        System.out.println("EmployeeDetailsServiceImpl 조회 완료");
         return new UserDetailsImpl(findEmployee);
     }
 }

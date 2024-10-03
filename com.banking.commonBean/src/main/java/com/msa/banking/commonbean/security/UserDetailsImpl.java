@@ -33,6 +33,10 @@ public class UserDetailsImpl implements UserDetails {
         return authResponse.getRole();
     }
 
+    public String getSlackId() {
+        return authResponse.getSlackId();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String authority = authResponse.getRole();
