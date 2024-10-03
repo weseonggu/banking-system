@@ -22,7 +22,7 @@ public class PersonalHistoryResponseDto {
     public static PersonalHistoryResponseDto toDTO(PersonalHistory personalHistory){
         return PersonalHistoryResponseDto.builder()
                 .historyId(personalHistory.getId())
-                .categoryName(personalHistory.getCategory().getName())
+                .categoryName(personalHistory.getCategory() != null ? personalHistory.getCategory().getName() : "Uncategorized")
                 .type(personalHistory.getType())
                 .amount(personalHistory.getAmount())
                 .description(personalHistory.getDescription())
