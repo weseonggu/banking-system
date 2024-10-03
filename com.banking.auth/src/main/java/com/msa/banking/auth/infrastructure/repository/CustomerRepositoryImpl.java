@@ -4,6 +4,7 @@ import com.msa.banking.auth.domain.model.Customer;
 import com.msa.banking.auth.domain.repository.CustomerRepositoryCustom;
 import com.msa.banking.auth.presentation.request.SearchRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -39,6 +40,7 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
                         nameEq(condition.getName()),
                         emailEq(condition.getEmail()),
                         phoneNumberEq(condition.getPhoneNumber()),
+                        slackIdEq(condition.getSlackId()),
                         cityContains(condition.getCity()),
                         streetContains(condition.getStreet()),
                         zipcodeContains(condition.getZipcode()));
@@ -72,6 +74,7 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
                         nameEq(condition.getName()),
                         emailEq(condition.getEmail()),
                         phoneNumberEq(condition.getPhoneNumber()),
+                        slackIdEq(condition.getSlackId()),
                         cityContains(condition.getCity()),
                         streetContains(condition.getStreet()),
                         zipcodeContains(condition.getZipcode()));
@@ -82,6 +85,10 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
         }
 
         return PageableExecutionUtils.getPage(dtoList, pageable, countQuery::fetchOne);
+    }
+
+    private BooleanExpression slackIdEq(String slackId) {
+        return hasText(slackId) ? customer.slackId.eq(slackId) : null;
     }
 
     private BooleanExpression zipcodeContains(String zipcode) {

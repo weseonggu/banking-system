@@ -38,4 +38,6 @@ public class AuthRequestDto {
     private String city;
     private String street;
     private String zipcode;
+
+    private String slackId;
 }

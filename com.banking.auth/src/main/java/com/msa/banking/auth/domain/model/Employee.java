@@ -41,7 +41,10 @@ public class Employee extends AuditEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    public Employee(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role) {
+    @Column(name = "slack_id")
+    private String slackId;
+
+    public Employee(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -49,6 +52,7 @@ public class Employee extends AuditEntity {
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.role = role;
+        this.slackId = slackId;
     }
 
     /**
@@ -62,8 +66,8 @@ public class Employee extends AuditEntity {
      * @param role
      * @return
      */
-    public static Employee createCustomer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role) {
-        return new Employee(username, password, name, email, phoneNumber, address, role);
+    public static Employee createEmployee(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {
+        return new Employee(username, password, name, email, phoneNumber, address, role, slackId);
     }
 
     /**
@@ -107,6 +111,10 @@ public class Employee extends AuditEntity {
 
         if (request.getPhoneNumber() != null) {
             this.phoneNumber = request.getPhoneNumber();
+        }
+
+        if (request.getSlackId() != null) {
+            this.slackId = request.getSlackId();
         }
 
         return this;

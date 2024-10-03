@@ -42,7 +42,10 @@ public class Customer extends AuditEntity {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    public Customer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role) {
+    @Column(name = "slack_id")
+    private String slackId;
+
+    public Customer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -50,6 +53,7 @@ public class Customer extends AuditEntity {
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.role = role;
+        this.slackId = slackId;
     }
 
     /**
@@ -63,8 +67,8 @@ public class Customer extends AuditEntity {
      * @param role
      * @return
      */
-    public static Customer createCustomer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role) {
-        return new Customer(username, password, name, email, phoneNumber, address, role);
+    public static Customer createCustomer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {
+        return new Customer(username, password, name, email, phoneNumber, address, role, slackId);
     }
 
 
@@ -109,6 +113,10 @@ public class Customer extends AuditEntity {
 
         if (request.getPhoneNumber() != null) {
             this.phoneNumber = request.getPhoneNumber();
+        }
+
+        if (request.getSlackId() != null) {
+            this.slackId = request.getSlackId();
         }
 
         return this;

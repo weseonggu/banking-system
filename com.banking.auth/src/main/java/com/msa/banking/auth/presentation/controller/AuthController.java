@@ -6,6 +6,7 @@ import com.msa.banking.auth.presentation.request.AuthSignUpRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,10 +42,11 @@ public class AuthController {
      * @return
      */
     @PostMapping("/signIn")
-    public ResponseEntity<?> singInAuth(@Valid @RequestBody AuthSignInRequestDto request) {
+    public ResponseEntity<?> singInAuth(@Valid @RequestBody AuthSignInRequestDto request,
+                                        HttpServletResponse response) {
         log.info("로그인 시도 중 | request: {}", request);
 
-        String token = authService.signInAuth(request);
+        String token = authService.signInAuth(request, response);
 
         log.info("로그인 성공 | request: {}, token: {}", request, token);
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "user logged in", token));
