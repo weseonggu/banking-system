@@ -22,6 +22,9 @@ ext {
 }
 
 dependencies {
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+
 	// querydsl
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
@@ -30,7 +33,6 @@ dependencies {
 
 	// 시큐리티
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	// 유효성 검증
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -40,21 +42,29 @@ dependencies {
 
 	//eureka client
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-	implementation 'org.springframework.cloud:spring-cloud-starter'
 
 	// 모니터링
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
+	// OpenFeign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+	// 테스트
+	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	// DB
+
+	// PostgreSQL
 	runtimeOnly 'org.postgresql:postgresql'
+
+	// JPA 및 Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// 서킷 브레이커
 	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
 	// jwt
 	compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
@@ -64,8 +74,10 @@ dependencies {
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
 	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 	implementation 'io.github.openfeign:feign-micrometer'
+
 	// 스웨거
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
 	// cloub bus
 	implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
 
