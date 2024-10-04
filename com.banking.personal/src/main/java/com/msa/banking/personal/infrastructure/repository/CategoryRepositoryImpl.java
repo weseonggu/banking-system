@@ -1,4 +1,4 @@
-package com.msa.banking.personal.infrastructure.persistence;
+package com.msa.banking.personal.infrastructure.repository;
 
 import com.msa.banking.personal.domain.model.Category;
 import com.msa.banking.personal.domain.repository.CategoryRepository;
