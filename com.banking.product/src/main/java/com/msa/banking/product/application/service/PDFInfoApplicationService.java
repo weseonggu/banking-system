@@ -1,5 +1,6 @@
 package com.msa.banking.product.application.service;
 
+import com.msa.banking.product.application.dto.PDFCache;
 import com.msa.banking.product.application.dto.ResponsePDFInfo;
 import com.msa.banking.product.application.dto.ResponsePDFUpload;
 import com.msa.banking.product.domain.model.PDFInfo;
@@ -55,7 +56,7 @@ public class PDFInfoApplicationService {
     @Transactional(readOnly = true)
     public ResponsePDFInfo getPdf(Long pdfId) {
 
-        PDFInfo pdf = pdfInfoService.fingPdfInfo(pdfId);
+        PDFCache pdf = pdfInfoService.fingPdfInfo(pdfId);
 
         InputStream fileData = uploadService.getFile(pdf.getUploadFileName());
 

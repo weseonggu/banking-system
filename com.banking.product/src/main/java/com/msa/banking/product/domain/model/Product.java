@@ -32,7 +32,7 @@ public class Product extends AuditEntity {
     @Column(name = "valid_from", nullable = false)
     private LocalDateTime validFrom;
 
-    @Column(name = "valid_to", nullable = true)
+    @Column(name = "valid_to", nullable = false)
     private LocalDateTime validTo;
 
     @Column(name = "is_finish", nullable = false)

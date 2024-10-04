@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Builder(access = AccessLevel.PRIVATE)
-public class PDFInfo extends AuditEntity implements Serializable {
+public class PDFInfo extends AuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "pdf_info_id")
@@ -39,4 +39,10 @@ public class PDFInfo extends AuditEntity implements Serializable {
                 .uploadFileName(uploadFileName)
                 .build();
     }
+    public PDFInfo(Long id, String fileName, String uploadFileName){
+        this.id = id;
+        this.fileName = fileName;
+        this.uploadFileName = uploadFileName;
+    }
+
 }
