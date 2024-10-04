@@ -18,22 +18,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class PersonalHistoryServiceImpl implements PersonalHistoryService{
+public class PersonalHistoryServiceImpl implements PersonalHistoryService {
 
     private final PersonalHistoryRepository personalHistoryRepository;
     private final CategoryRepository categoryRepository;
 
     /**
      * 개인 내역 목록 조회
-     * 조건: 사용자 ID, 카테고리 이름, 상태
+     * 조건: 카테고리 이름, 상태
      */
     @Override
     public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable) {
+
         Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable);
+
         return personalHistoryPage.map(PersonalHistoryListDto::toDTO);
     }
 
@@ -54,11 +57,15 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService{
      * 개인 내역 단건 조회
      */
     @Override
-    public PersonalHistoryResponseDto findPersonalHistoryById(Long historyId) {
+    public PersonalHistoryResponseDto findPersonalHistoryById(Long historyId, UUID userId, String userRole) {
 
         PersonalHistory personalHistory = personalHistoryRepository.findById(historyId).orElseThrow(
-                ()-> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
+                () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
+
+        if(userRole.equals("CUSTOMER")){
+            checkUserAccess(userId, userRole, personalHistory.getUserId());
+        }
 
         return PersonalHistoryResponseDto.toDTO(personalHistory);
     }
@@ -67,12 +74,16 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService{
      * 개인 내역 조회 후 카테고리 업데이트
      */
     @Override
-    public PersonalHistoryResponseDto updatePersonalHistoryCategory(PersonalHistoryUpdateDto personalHistoryUpdateDto, Long historyId) {
+    public PersonalHistoryResponseDto updatePersonalHistoryCategory(PersonalHistoryUpdateDto personalHistoryUpdateDto, Long historyId, UUID userId, String userRole) {
 
         PersonalHistory personalHistory = personalHistoryRepository.findById(historyId).orElseThrow(
-                ()-> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
+                () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
-        
+
+        if(userRole.equals("CUSTOMER")){
+            checkUserAccess(userId, userRole, personalHistory.getUserId());
+        }
+
         // 입력받은 카테고리 이름 조회 후 존재하지 않으면 생성 후 저장 -> 카테고리 업데이트
         Optional<Category> optionalCategory = categoryRepository.findByName(personalHistoryUpdateDto.getCategoryName());
 
@@ -93,14 +104,26 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService{
      * 개인 내역 삭제(Soft Delete)
      */
     @Override
-    public void deletePersonHistory(Long historyId) {
+    public void deletePersonHistory(Long historyId, UUID userId, String userRole) {
 
         log.info("deletePersonHistory Service-------------");
 
         PersonalHistory personalHistory = personalHistoryRepository.findById(historyId).orElseThrow(
-                ()-> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
+                () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
+
+        if(userRole.equals("CUSTOMER")){
+            checkUserAccess(userId, userRole, personalHistory.getUserId());
+        }
+
         personalHistory.deletePersonalHistory();
         personalHistoryRepository.save(personalHistory);
+    }
+
+    // 고객일 때, 자신의 개인 내역 검색
+    public void checkUserAccess(UUID userId, String userRole, UUID historyUserId) {
+        if (userRole.equals("CUSTOMER") && !userId.equals(historyUserId)) {
+            throw new GlobalCustomException(ErrorCode.USER_FORBIDDEN);
+        }
     }
 }
