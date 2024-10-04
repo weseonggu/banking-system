@@ -10,16 +10,14 @@ import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-public class PersonalHistoryRepositoryCustomImpl implements PersonalHistoryRepositoryCustom {
+public class PersonalHistoryJpaRepositoryImpl implements PersonalHistoryRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    public PersonalHistoryRepositoryCustomImpl(EntityManager em) {
+    public PersonalHistoryJpaRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
 

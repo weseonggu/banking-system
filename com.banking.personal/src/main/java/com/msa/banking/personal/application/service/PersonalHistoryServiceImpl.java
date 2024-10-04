@@ -10,7 +10,7 @@ import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.model.Category;
 import com.msa.banking.personal.domain.model.PersonalHistory;
 import com.msa.banking.personal.domain.repository.CategoryRepository;
-import com.msa.banking.personal.domain.repository.PersonalHistoryRepository;
+import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,7 @@ import java.util.UUID;
 @Log4j2
 public class PersonalHistoryServiceImpl implements PersonalHistoryService {
 
-    private final PersonalHistoryRepository personalHistoryRepository;
+    private final PersonalHistoryJpaRepository personalHistoryRepository;
     private final CategoryRepository categoryRepository;
 
     /**
