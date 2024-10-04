@@ -82,6 +82,5 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-
     }
 }

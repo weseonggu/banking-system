@@ -1,12 +1,12 @@
 package com.msa.banking.auth.presentation.controller;
 
 import com.msa.banking.auth.application.service.UserService;
+import com.msa.banking.auth.domain.model.Customer;
 import com.msa.banking.auth.presentation.request.AuthRequestDto;
 import com.msa.banking.auth.presentation.request.SearchRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
-import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class UserController {
     public AuthResponseDto findEmployeeUsername(@RequestParam("userId") String userId) {
         log.info("내부 API 직원 조회 시도 중 | userId: {}", userId);
 
-        AuthResponseDto response = userService.findEmployeeUsername(userId);
+        AuthResponseDto response = userService.findEmployeeUsername(UUID.fromString(userId));
 
         log.info("내부 API 직원 조회 완료 | userId: {}", userId);
         return response;
@@ -55,7 +55,7 @@ public class UserController {
     public AuthResponseDto findCustomerUsername(@RequestParam("userId") String userId) {
         log.info("내부 API 고객 조회 시도 중 | userId: {}", userId);
 
-        AuthResponseDto response = userService.findCustomerUsername(userId);
+        AuthResponseDto response = userService.findCustomerUsername(UUID.fromString(userId));
 
         log.info("내부 API 고객 조회 완료 | userId: {}", userId);
         return response;
@@ -181,5 +181,14 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "employee paging selected", response));
     }
 
+    @GetMapping
+    @PreAuthorize("hasAuthority('MASTER')")
+    public AuthResponseDto findAllCustomer(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        System.out.println(userDetails.getUserId());
+        System.out.println(userDetails.getUsername());
+        System.out.println(userDetails.getRole());
 
+        Customer customer = userService.find();
+        return AuthResponseDto.toDto(customer);
+    }
 }

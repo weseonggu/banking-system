@@ -24,5 +24,6 @@ public class AuthFeignResponseDto {
     private String zipcode;
 
     private String role;
+    private String slackId;
 
 }

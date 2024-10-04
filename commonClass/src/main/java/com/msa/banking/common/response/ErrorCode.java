@@ -34,11 +34,13 @@ public enum ErrorCode {
     // 403 Forbidden
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
     // 400 Bad Request
-    ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다.");
+    ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
 
     /* 계좌 3000번대 */
     /* 알림 4000번대 */
     /* 개인내역 5000번대 */
+    // 404 Not Found 자원을 찾을 수 없습니다.
+    PERSONAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5001, "개인 내역을 찾을 수 없습니다.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
 
