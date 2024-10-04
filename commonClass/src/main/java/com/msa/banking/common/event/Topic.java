@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum Topic {
 
     SIGN_UP("notification-signUp"),
+    SIGN_UP_FAILED("auth-signUp-fail"),
     TRANSFER("notification-transfer");
 
     private final String topic;
