@@ -56,7 +56,7 @@ public class PDFInfoApplicationService {
     public ResponsePDFInfo getPdf(Long pdfId) {
 
         PDFInfo pdf = pdfInfoService.fingPdfInfo(pdfId);
-        System.out.println("test");
+
         InputStream fileData = uploadService.getFile(pdf.getUploadFileName());
 
         return new ResponsePDFInfo(pdf.getId(), pdf.getFileName(), fileData);

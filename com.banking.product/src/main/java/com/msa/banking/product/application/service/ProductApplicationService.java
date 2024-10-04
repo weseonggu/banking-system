@@ -1,12 +1,14 @@
 package com.msa.banking.product.application.service;
 
 import com.msa.banking.product.domain.model.CheckingDetail;
+import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.domain.service.ProductService;
 import com.msa.banking.product.presentation.exception.custom.CustomDuplicateKeyException;
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
+import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ public class ProductApplicationService {
     // 입출금 상품 저장
     @Transactional
     public void createCheckingProduct(RequestCreateCheckingProduct detail) {
-        try {
+
             // PDF 파일이 있는 있는지 확인
             PDFInfo pdf = pdfInfoService.fingPdfInfo(detail.getFileId());
             if(!pdf.getUploadFileName().equals(detail.getFileName())){
@@ -39,12 +41,28 @@ public class ProductApplicationService {
             product = productService.saveProduct(product);
             // 상품 디테일 저장
             productService.saveCheckkingProduct(product, checkingDetail, pdf);
-        } catch (DataIntegrityViolationException e) {
-            // 중복 키 예외 처리
-            throw new CustomDuplicateKeyException("이미 존재하는 키입니다.");
-        }catch (Exception e){
-            throw new CustomDuplicateKeyException("이미 존재하는 키입니다.");
-        }
 
+
+    }
+
+    @Transactional
+    public void createLoanProduct(RequestCreateLoanProduct detail) {
+        // PDF 파일이 있는 있는지 확인
+        PDFInfo pdf = pdfInfoService.fingPdfInfo(detail.getFileId());
+        if(!pdf.getUploadFileName().equals(detail.getFileName())){
+            throw new IllegalArgumentException("없는 파일 입니다.");
+        }
+        // 대출 상품 생성
+        Product product = Product.create(detail.getName(), detail.getType(),
+                detail.getValid_from(), detail.getValid_to());
+        // 대출 상품 디테일 생성 -> 비동기 처리
+        LoanDetail loanDetail = LoanDetail.create(detail.getInterestRate(),
+                detail.getMinAmount(), detail.getMaxAmount(),
+                detail.getLoanTerm(), detail.getPreferentialInterestRates(),
+                detail.getLoanDetail(), detail.getTerms_and_conditions());
+        // 상품 저장
+        product = productService.saveProduct(product);
+        // 상품 디테일 저장
+        productService.saveLoanProduct(product, loanDetail, pdf);
     }
 }

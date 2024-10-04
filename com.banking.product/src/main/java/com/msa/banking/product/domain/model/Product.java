@@ -66,6 +66,9 @@ public class Product extends AuditEntity {
     public void addDetail(CheckingDetail checkingDetail){
         this.checkingDetail = checkingDetail;
     }
+    public void addDetail(LoanDetail loanDetail){
+        this.loanDetail = loanDetail;
+    }
     public void changeIsFinish(){
         this.isFinish = true;
     }

@@ -5,6 +5,7 @@ import com.msa.banking.product.application.service.PDFInfoApplicationService;
 import com.msa.banking.product.application.service.ProductApplicationService;
 import com.msa.banking.product.application.service.UploadService;
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
+import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -41,9 +42,24 @@ public class ProductController {
     @PostMapping(value = "/create/checking")
     @LogDataChange
     // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
-    public ResponseEntity<?> createProduct(@RequestBody RequestCreateCheckingProduct product) {
+    public ResponseEntity<?> createCheckingProduct(@RequestBody RequestCreateCheckingProduct product) {
         // 어플리케이션 계층 서비스 호츌
         applicationService.createCheckingProduct(product);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "대출 상품 등록 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "상품 등록 성공"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "등록 중 실패")
+    })
+    @PostMapping(value = "/create/loan")
+    @LogDataChange
+    // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
+    public ResponseEntity<?> createLoanProduct(@RequestBody RequestCreateLoanProduct product) {
+        // 어플리케이션 계층 서비스 호츌
+        applicationService.createLoanProduct(product);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

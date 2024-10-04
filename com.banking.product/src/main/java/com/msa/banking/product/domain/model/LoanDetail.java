@@ -51,4 +51,23 @@ public class LoanDetail extends AuditEntity {
     @JoinColumn(name = "pdf_info_id", referencedColumnName = "pdf_info_id")
     private PDFInfo pdfInfo;
 
+    /////////////////////////////////////////////////////////
+    public static LoanDetail create(BigDecimal interestRate, Long minAmount, Long maxAmount,
+                                    int loanTerm, String preferentialInterestRates,
+                                    String loanDetail, String termsAndConditions){
+        return LoanDetail.builder( )
+                .interestRate(interestRate)
+                .minAmount(minAmount)
+                .maxAmount(maxAmount)
+                .loanTerm(loanTerm)
+                .preferentialInterestRates(preferentialInterestRates)
+                .loanDetail(loanDetail)
+                .termsAndConditions(termsAndConditions)
+                .build();
+    }
+    public LoanDetail addPDF(PDFInfo pdfInfo) {
+        this.pdfInfo = pdfInfo;
+        return this;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.msa.banking.product.domain.service;
 
 import com.msa.banking.product.domain.model.CheckingDetail;
+import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.domain.repository.ProductRepository;
@@ -40,4 +41,9 @@ public class ProductService {
 
     }
 
+    public void saveLoanProduct(Product product, LoanDetail loanDetail, PDFInfo pdf) {
+        product.addDetail(loanDetail.addPDF(pdf));
+        product.changeIsFinish();
+        productRepository.save(product);
+    }
 }
