@@ -26,23 +26,30 @@ public class Customer extends AuditEntity {
     @Column(name = "customer_id")
     private UUID id;
 
+    @Column(nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @Embedded
+    @Column(nullable = false)
     private Address address;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
-    @Column(name = "slack_id")
+    @Column(name = "slack_id", nullable = false)
     private String slackId;
 
     public Customer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {

@@ -22,12 +22,14 @@ ext {
 }
 
 dependencies {
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
     // slack
     implementation 'com.slack.api:slack-api-client:1.30.0'
 
     // 시큐리티
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -53,7 +55,9 @@ dependencies {
 
     // 서킷 브레이커
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+    // OpenFeign
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // 모니터링
@@ -64,8 +68,8 @@ dependencies {
 
     //eureka client
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    implementation 'org.springframework.cloud:spring-cloud-starter'
 
+    // 테스트
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

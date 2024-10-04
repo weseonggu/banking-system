@@ -17,7 +17,7 @@ spring:
         spring.json.trusted.packages: '*'
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
   cloud:
     bus:
       destination: banking-platform.dev.event.config-event.json

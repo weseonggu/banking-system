@@ -17,7 +17,7 @@ spring:
         spring.json.trusted.packages: '*'
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
   cloud:
     bus:
       destination: banking-platform.dev.event.config-event.json
@@ -78,6 +78,10 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 common:
   bean:
@@ -91,3 +95,17 @@ service:
 
 slack:
   botKey: ${SLACK_API_TOKEN}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true       # 서킷 브레이커 상태를 헬스 체크에 포함하여 모니터링 가능하게 설정
+        slidingWindowType: COUNT_BASED      # 서킷 브레이커가 동작할 때 호출 수를 기준으로 상태를 판단 (COUNT_BASED)
+        slidingWindowSize: 5                # 서킷 브레이커의 슬라이딩 윈도우 크기를 5로 설정하여 최근 5번의 호출을 저장
+        minimumNumberOfCalls: 5             # 서킷 브레이커가 동작하기 위해 필요한 최소 호출 수를 5로 설정
+        slowCallRateThreshold: 100          # 느린 호출의 비율이 100% 이상일 때 서킷 브레이커가 동작하도록 설정
+        slowCallDurationThreshold: 60000    # 느린 호출의 기준 시간 (60초). 60초 이상 걸리는 호출은 느린 호출로 간주
+        failureRateThreshold: 50            # 실패율이 50%를 넘으면 서킷 브레이커가 동작
+        permittedNumberOfCallsInHalfOpenState: 3  # 서킷 브레이커가 Half-open 상태일 때 허용되는 최대 호출 수 (3회)
+        waitDurationInOpenState: 20s        # Open 상태에서 Half-open 상태로 전환되기 전까지의 대기 시간 (20초)

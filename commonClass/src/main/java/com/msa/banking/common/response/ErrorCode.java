@@ -35,9 +35,15 @@ public enum ErrorCode {
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
     // 400 Bad Request
     ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
+    // 409 Conflict
+    USERNAME_DUPLICATE_RESOURCES(HttpStatus.CONFLICT, 2005, "username 중복된 리소스입니다."),
+    EMAIL_DUPLICATE_RESOURCES(HttpStatus.CONFLICT, 2005, "email 중복된 리소스입니다."),
+    PHONE_NUMBER_DUPLICATE_RESOURCES(HttpStatus.CONFLICT, 2005, "phoneNumber 중복된 리소스입니다."),
+
 
     /* 계좌 3000번대 */
     /* 알림 4000번대 */
+    SLACK_ERROR(HttpStatus.BAD_REQUEST, 4000, "슬랙 ID 가 잘못 되었거나, 현재 메세지를 보낼 수 없는 상태입니다."),
     /* 개인내역 5000번대 */
     // 400 Bad Request
     BUDGET_BAD_REQUEST(HttpStatus.BAD_REQUEST,5000,"잘못된 요청입니다."),
