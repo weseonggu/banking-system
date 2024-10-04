@@ -1,4 +1,4 @@
-package com.msa.banking.personal.application.dto.event;
+package com.msa.banking.personal.application.event;
 
 import com.msa.banking.personal.domain.enums.PersonalHistoryType;
 import lombok.Data;

@@ -57,8 +57,8 @@ public abstract class AuditEntity {
      * TODO userId 추가
      */
     public void delete(){
-        deletedAt = LocalDateTime.now();
-        isDelete = true;
+        this.deletedAt = LocalDateTime.now();
+        this.isDelete = true;
     }
 
 }
