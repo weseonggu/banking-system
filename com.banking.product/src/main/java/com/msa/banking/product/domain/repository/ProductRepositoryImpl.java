@@ -51,9 +51,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 Sort.Direction direction = order.getDirection();
 
                 if ("createdAt".equals(property)) {
-                    query.orderBy(direction.isAscending() ? product.createdAt.asc() : product.createdAt.desc());
+                    query.orderBy(direction.isDescending() ? product.createdAt.desc() : product.createdAt.asc());
                 } else {
-                    query.orderBy(direction.isAscending() ? product.createdAt.asc() : product.createdAt.desc());
+                    query.orderBy(direction.isDescending() ? product.createdAt.desc() : product.createdAt.asc());
                 }
             });
         }

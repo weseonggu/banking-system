@@ -111,11 +111,11 @@ public class ProductApplicationService {
                 if ("create_at".equals(order.getProperty())) {
                     sort = pageable.getSort();
                 } else {
-                    sort = Sort.by("create_at").ascending();
+                    sort = Sort.by("create_at").descending();
                 }
             }
         } else {
-            sort = Sort.by("create_at").ascending();
+            sort = Sort.by("create_at").descending();
         }
 
         // 기본 Pageable 객체 생성
