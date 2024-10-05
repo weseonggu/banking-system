@@ -32,17 +32,23 @@ public class Product extends AuditEntity {
     @Column(name = "valid_from", nullable = false)
     private LocalDateTime validFrom;
 
-    @Column(name = "valid_to", nullable = true)
+    @Column(name = "valid_to", nullable = false)
     private LocalDateTime validTo;
 
     @Column(name = "is_finish", nullable = false)
     private Boolean isFinish;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "loan_detail_id", referencedColumnName = "loan_detail_id")
     private LoanDetail loanDetail;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "checking_detail_id", referencedColumnName = "checking_detail_id")
     private CheckingDetail checkingDetail;
+
+    //////////////////////////////////////////////////////////////////////////////////////
 
     public static Product create(String name, ProductType type, LocalDateTime validFrom, LocalDateTime validTo) {
         return Product.builder()
@@ -52,5 +58,18 @@ public class Product extends AuditEntity {
                 .validTo(validTo)
                 .isFinish(false)
                 .build();
+    }
+
+    public void  createMappingCheckingDetail(CheckingDetail checkingDetail) {
+        this.checkingDetail = checkingDetail;
+    }
+    public void addDetail(CheckingDetail checkingDetail){
+        this.checkingDetail = checkingDetail;
+    }
+    public void addDetail(LoanDetail loanDetail){
+        this.loanDetail = loanDetail;
+    }
+    public void changeIsFinish(){
+        this.isFinish = true;
     }
 }
