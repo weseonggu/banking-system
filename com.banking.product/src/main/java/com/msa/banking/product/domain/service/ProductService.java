@@ -58,7 +58,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(cacheNames = RedisCacheKey.ProdctListCache, key = "#condition.type + '_' + #pageable.getSort()")
+    @Cacheable(cacheNames = RedisCacheKey.ProdctListCache, key = "#condition.type + '_' + #pageable.getSort() + '_' + #pageable.getPageNumber()")
     public List<ResponseProductPage> findAllProducts(Pageable pageable, RequestSearchProductDto condition) {
         return productRepository.findAllProduct(pageable, condition);
     }

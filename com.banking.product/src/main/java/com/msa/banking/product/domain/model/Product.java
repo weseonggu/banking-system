@@ -14,7 +14,11 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "p_product")
+@Table(name = "p_product"
+        , indexes = {
+        @Index(name = "idx_product_created_at", columnList = "created_at")
+        }
+)
 public class Product extends AuditEntity {
 
     @Id
