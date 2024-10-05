@@ -9,16 +9,13 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.msa.banking.product.domain.model.QProduct.product;
-import static org.springframework.util.StringUtils.hasText;
 
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
@@ -47,6 +44,19 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 ))
                 .from(product)
                 .where(builder);
+
+        if (sort.isSorted()) {
+            sort.forEach(order -> {
+                String property = order.getProperty();
+                Sort.Direction direction = order.getDirection();
+
+                if ("createdAt".equals(property)) {
+                    query.orderBy(direction.isAscending() ? product.createdAt.asc() : product.createdAt.desc());
+                } else {
+                    query.orderBy(direction.isAscending() ? product.createdAt.asc() : product.createdAt.desc());
+                }
+            });
+        }
         List<ResponseProductPage> content = query
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

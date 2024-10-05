@@ -1,32 +1,21 @@
 package com.msa.banking.product.presentation.controller;
 
+import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.product.application.dto.ResponseProductPage;
-import com.msa.banking.product.application.service.PDFInfoApplicationService;
 import com.msa.banking.product.application.service.ProductApplicationService;
-import com.msa.banking.product.application.service.UploadService;
-import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.ws.rs.Consumes;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -35,7 +24,6 @@ import java.util.List;
 public class ProductController {
 
     private final ProductApplicationService applicationService;
-    private final ProductRepositoryCustom productRepository;
 
 
 
@@ -76,9 +64,15 @@ public class ProductController {
     })
     @GetMapping(value = "/board")
     // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
-    public List<ResponseProductPage> findProucts(Pageable pageable, RequestSearchProductDto condition) {
+    public ResponseEntity<?> findProucts(Pageable pageable, RequestSearchProductDto condition) {
         // 어플리케이션 계층 서비스 호츌
-        return  productRepository.findAllProduct(pageable, condition);
+        List<ResponseProductPage> list = applicationService.findAllProduct(pageable, condition);
+        SuccessResponse response =  new SuccessResponse(
+                HttpStatus.OK.value(),
+                "상품 목록",
+                list
+        );
+        return ResponseEntity.ok(response);
     }
 
 
