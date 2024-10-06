@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestCreateCheckingProduct{
+public class RequestCreateLoanProduct {
 
     @NotBlank(message = "Product name cannot be blank")
     private String name;
@@ -26,19 +26,28 @@ public class RequestCreateCheckingProduct{
     @Future(message = "Valid to date must be in the future")
     private LocalDateTime valid_to;
 
-    @NotBlank(message = "Checking detail cannot be blank")
-    private String chcking_detail;
-
-    @NotBlank(message = "Terms and conditions cannot be blank")
-    private String terms_and_conditions;
-
     @NotNull(message = "Interest rate cannot be null")
     @DecimalMin(value = "0.0", inclusive = false, message = "Interest rate must be greater than zero")
     @Digits(integer = 1, fraction = 4, message = "Interest rate should be a decimal value with up to 3 integer digits and 2 fractional digits")
-    private BigDecimal interest_rate;
+    private BigDecimal interestRate;
 
-    @Min(value = 0, message = "Fees must be zero or greater")
-    private int fees;
+    @Min(value = 0, message = "Amount must be zero or greater")
+    private Long minAmount;
+
+    @Min(value = 0, message = "Amount must be zero or greater")
+    private Long maxAmount;
+
+    @Min(value = 0, message = "Loan term must be zero or greater")
+    private int loanTerm;
+
+    @NotBlank(message = "Preferential interestRates cannot be blank")
+    private String preferentialInterestRates;
+
+    @NotBlank(message = "Loan detail cannot be blank")
+    private String loanDetail;
+
+    @NotBlank(message = "Terms and conditions cannot be blank")
+    private String terms_and_conditions;
 
     @NotNull(message = "File ID cannot be null")
     private Long fileId;

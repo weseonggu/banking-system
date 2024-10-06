@@ -3,6 +3,7 @@ package com.msa.banking.product.presentation.controller;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.product.application.dto.ResponsePDFInfo;
+import com.msa.banking.product.application.dto.ResponsePDFUpload;
 import com.msa.banking.product.application.service.PDFInfoApplicationService;
 import com.msa.banking.product.application.service.UploadService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 public class PdfInfoController {
 
     private final PDFInfoApplicationService pdfInfoService;
-    private final UploadService uploadService;
 
     @Operation(summary = "pdf 저장 api")
     @ApiResponses(value = {
@@ -41,12 +41,12 @@ public class PdfInfoController {
     // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
     public ResponseEntity<?> UploadPdf(@RequestPart("pdf") MultipartFile pdfFile) {
         // 어플리케이션 계층 서비스 호츌
-        Long id = pdfInfoService.createPDFInfo(pdfFile);
+        ResponsePDFUpload pdfUpload = pdfInfoService.createPDFInfo(pdfFile);
 
         SuccessResponse response = SuccessResponse.builder()
                 .resultCode(HttpStatus.OK.value())
                 .resultMessage("pdf를 저장했습니다.")
-                .data(id)
+                .data(pdfUpload)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
