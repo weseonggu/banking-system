@@ -34,12 +34,12 @@ public class ProductCreater {
 
     @Test
     public void createCheckingProduct() {
-        for (int i = 0; i<500; i++){
+        for (int i = 0; i<5000; i++){
             PDFInfo pdf = PDFInfo.create("testfile 다운 안됩니다.","1cc72db1-4e3b-4f8a-bce5-a56e425c2b7e.pdf");
 
             // 입출금 상품 생성
             Product product = Product.create(
-                    "Savings Account",
+                    "Savings Account: "+i,
                     ProductType.CHECKING,
                     LocalDateTime.now(),
                     LocalDateTime.parse("2025-10-10T12:00:00")
@@ -63,13 +63,13 @@ public class ProductCreater {
 
     @Test
     public void createLoanProduct() {
-        for (int i = 0; i<500; i++){
+        for (int i = 0; i<5000; i++){
 
 
         PDFInfo pdf = PDFInfo.create("testfile 다운 안됩니다.","1cc72db1-4e3b-4f8a-bce5-a56e425c2b7e.pdf");
         // 대출 상품 생성
         Product product = Product.create(
-                "Standard Loan",
+                "Standard Loan: "+i,
                 ProductType.NEGATIVE_LOANS,
                 LocalDateTime.now(),
                 LocalDateTime.parse("2025-10-10T12:00:00")

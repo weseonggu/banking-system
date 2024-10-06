@@ -2,6 +2,7 @@ package com.msa.banking.product.presentation.exception;
 
 import com.msa.banking.common.response.ErrorResponse;
 import com.msa.banking.product.presentation.exception.custom.CustomDuplicateKeyException;
+import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
 import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,6 +61,16 @@ public class ProductGlobalExceptionHandler {
                 HttpStatus.CONFLICT.value(),
                 "CONFLICT",
                 exc.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(RuntimeException exc, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "CONFLICT",
+                "나중에 다시 시도해주세요",
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);

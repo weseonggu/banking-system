@@ -1,7 +1,6 @@
 package com.msa.banking.product.application.service;
 
-import com.msa.banking.product.application.dto.PDFCache;
-import com.msa.banking.product.application.dto.ResponseProductPage;
+import com.msa.banking.product.application.dto.*;
 import com.msa.banking.product.domain.model.CheckingDetail;
 import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
@@ -10,6 +9,7 @@ import com.msa.banking.product.domain.repository.CheckingDetailRepository;
 import com.msa.banking.product.domain.repository.LoanDetailRepository;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.domain.service.ProductService;
+import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -119,5 +120,34 @@ public class ProductApplicationService {
         Pageable newPageable = PageRequest.of(pageNumber, pageSize, sort);
 
         return productService.findAllProducts(newPageable, condition);
+    }
+
+    // 상품 디테일 조회
+    public ProductResponseDto findProductDetail(UUID productId) {
+        Product product = productService.findPrductInfo(productId);
+        ProductDetailDto detailDto;
+
+        if (product.getCheckingDetail() != null) {
+
+            detailDto = CheckingDetailDto.of(product);
+
+        } else if (product.getLoanDetail() != null) {
+
+            detailDto = LoanDetailDto.of(product);
+
+        } else {
+            throw new ResourceNotFoundException("Product details not found");
+        }
+
+        return new ProductResponseDto(
+                product.getId(),
+                product.getName(),
+                product.getType(),
+                product.getValidFrom(),
+                product.getValidTo(),
+                product.getIsFinish(),
+                detailDto  // LoanDetailDto 또는 CheckingDetailDto 반환
+        );
+
     }
 }
