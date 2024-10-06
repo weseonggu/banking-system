@@ -1,8 +1,7 @@
 package com.msa.banking.product;
 
 import com.msa.banking.product.application.dto.ResponseProductPage;
-import com.msa.banking.product.domain.repository.ProductRepository;
-import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
+import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

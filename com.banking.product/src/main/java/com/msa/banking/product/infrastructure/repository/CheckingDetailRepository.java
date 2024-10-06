@@ -1,4 +1,4 @@
-package com.msa.banking.product.domain.repository;
+package com.msa.banking.product.infrastructure.repository;
 
 import com.msa.banking.product.domain.model.CheckingDetail;
 import org.springframework.data.jpa.repository.JpaRepository;

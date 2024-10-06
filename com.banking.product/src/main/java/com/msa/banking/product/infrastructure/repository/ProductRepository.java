@@ -1,6 +1,7 @@
-package com.msa.banking.product.domain.repository;
+package com.msa.banking.product.infrastructure.repository;
 
 import com.msa.banking.product.domain.model.Product;
+import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
 import feign.Param;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;

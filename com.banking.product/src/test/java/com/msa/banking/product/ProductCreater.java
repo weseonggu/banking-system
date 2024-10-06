@@ -1,18 +1,13 @@
 package com.msa.banking.product;
 
-import com.msa.banking.product.application.dto.PDFCache;
-import com.msa.banking.product.application.service.AsyncService;
 import com.msa.banking.product.domain.ProductType;
 import com.msa.banking.product.domain.model.CheckingDetail;
 import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.model.Product;
-import com.msa.banking.product.domain.repository.CheckingDetailRepository;
-import com.msa.banking.product.domain.repository.LoanDetailRepository;
+import com.msa.banking.product.infrastructure.repository.LoanDetailRepository;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.domain.service.ProductService;
-import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
-import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
