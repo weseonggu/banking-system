@@ -29,6 +29,7 @@ public class SecurityContextHelper {
      * @param response
      */
     public void setAuthentication(String userId, String role, HttpServletResponse response) throws IOException {
+
         SecurityContext context = SecurityContextHolder.createEmptyContext();
 
         // 사용자 정보를 기반으로 인증 토큰 생성
@@ -49,6 +50,35 @@ public class SecurityContextHelper {
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
+
+//        // 현재 스레드에서 SecurityContext를 가져옴
+//        SecurityContext context = SecurityContextHolder.getContext();
+//
+//        // SecurityContext가 비어 있거나, 인증 정보가 없는 경우 새로 생성
+//        if (context.getAuthentication() == null || !context.getAuthentication().isAuthenticated()) {
+//
+//            // 사용자 정보를 기반으로 인증 토큰 생성
+//            Authentication authentication = null;
+//            if (UserRole.valueOf(role) == UserRole.MASTER || UserRole.valueOf(role) == UserRole.MANAGER) {
+//                authentication = createEmployeeAuthentication(userId);
+//
+//            } else if (UserRole.valueOf(role) == UserRole.CUSTOMER) {
+//                authentication = createCustomerAuthentication(userId);
+//
+//            } else {
+//                log.error("userId, userName or role is null");
+//                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                response.getWriter().write("Missing or invalid authentication details");
+//                return; // 유효하지 않은 경우 종료
+//            }
+//
+//            // SecurityContext에 인증 정보 설정
+//            context = SecurityContextHolder.createEmptyContext(); // 새 컨텍스트 생성
+//            context.setAuthentication(authentication);
+//            SecurityContextHolder.setContext(context);
+//        } else {
+//            log.info("이미 인증된 컨텍스트가 존재합니다.");
+//        }
     }
 
     /**

@@ -57,29 +57,34 @@ public class AuthSignUpRequestDto {
     @Pattern(regexp = "MASTER|MANAGER|CUSTOMER", message = "권한은 MASTER, MANAGER, CUSTOMER 중 하나여야 합니다.")
     private String role;
 
+    @NotBlank(message = "슬랙 ID 필수 입니다.")
+    private String slackId;
+
     public static Customer toCustomer(AuthSignUpRequestDto dto) {
 
         Address address = new Address(dto.getCity(), dto.getStreet(), dto.getZipcode());
 
-        return new Customer(dto.getUsername(),
+        return  Customer.createCustomer(dto.getUsername(),
                 dto.getPassword(),
                 dto.getName(),
                 dto.getEmail(),
                 dto.getPhoneNumber(),
                 address,
-                UserRole.valueOf(dto.getRole()));
+                UserRole.valueOf(dto.getRole()),
+                dto.getSlackId());
     }
 
     public static Employee toEmployee(AuthSignUpRequestDto dto) {
 
         Address address = new Address(dto.getCity(), dto.getStreet(), dto.getZipcode());
 
-        return new Employee(dto.getUsername(),
+        return Employee.createEmployee(dto.getUsername(),
                 dto.getPassword(),
                 dto.getName(),
                 dto.getEmail(),
                 dto.getPhoneNumber(),
                 address,
-                UserRole.valueOf(dto.getRole()));
+                UserRole.valueOf(dto.getRole()),
+                dto.getSlackId());
     }
 }

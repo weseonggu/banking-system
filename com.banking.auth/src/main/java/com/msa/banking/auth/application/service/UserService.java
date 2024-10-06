@@ -8,6 +8,7 @@ import com.msa.banking.auth.presentation.request.AuthRequestDto;
 import com.msa.banking.auth.presentation.request.SearchRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.base.UserRole;
+import com.msa.banking.common.notification.NotificationRequestDto;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,9 @@ public class UserService {
      * @param userId
      * @return
      */
-    public AuthResponseDto findEmployeeUsername(String userId) {
-        Employee findEmployee = employeeRepository.findById(UUID.fromString(userId)).orElseThrow(() ->
+    @Cacheable(cacheNames = "EmployeeCache", key = "#userId")
+    public AuthResponseDto findEmployeeUsername(UUID userId) {
+        Employee findEmployee = employeeRepository.findById(userId).orElseThrow(() ->
                 new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
         return AuthResponseDto.toDto(findEmployee);
@@ -52,9 +54,10 @@ public class UserService {
      * @param userId
      * @return
      */
-    public AuthResponseDto findCustomerUsername(String userId) {
+    @Cacheable(cacheNames = "CustomerCache", key = "#userId")
+    public AuthResponseDto findCustomerUsername(UUID userId) {
 
-        Customer findCustomer = customerRepository.findById(UUID.fromString(userId)).orElseThrow(() ->
+        Customer findCustomer = customerRepository.findById(userId).orElseThrow(() ->
                 new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
         return AuthResponseDto.toDto(findCustomer);
@@ -196,5 +199,34 @@ public class UserService {
     @Cacheable(cacheNames = "EmployeeSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}")
     public Page<AuthResponseDto> findAllEmployee(Pageable pageable, SearchRequestDto condition) {
         return employeeRepository.findPagingAllEmployee(pageable, condition);
+    }
+
+    /**
+     * 슬랙 오류로 인한 회원가입 롤백
+     * @param request
+     * @return
+     */
+    @Transactional
+    public String rollbackSignUp(NotificationRequestDto request) {
+        if (UserRole.MASTER.equals(request.getRole()) || UserRole.MANAGER.equals(request.getRole())) {
+
+            // 직원 조회
+            Employee findEmployee = employeeRepository.findById(request.getUserId()).orElseThrow(() ->
+                    new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
+
+            employeeRepository.delete(findEmployee);
+
+            return request.getSlackId() + " 슬랙 ID 가 유효하지 않거나 현재 슬랙을 통한 회원가입 완료 메세지를 보낼 수 없어 회원가입이 불가합니다.";
+        } else {
+
+            // 고객 조회
+            Customer findCustomer = customerRepository.findById(request.getUserId()).orElseThrow(() ->
+                    new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
+
+            customerRepository.delete(findCustomer);
+
+            return request.getSlackId() + " 슬랙 ID 가 유효하지 않거나 현재 슬랙을 통한 회원가입 완료 메세지를 보낼 수 없어 회원가입이 불가합니다.";
+        }
+
     }
 }

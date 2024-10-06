@@ -92,6 +92,7 @@ services:
           cpus: "0.1"
           memory: 128M
 
+
 volumes:
   postgres_data:
     driver: local

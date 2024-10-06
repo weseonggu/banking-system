@@ -1,7 +1,8 @@
 package com.msa.banking.personal.domain.model;
 
 import com.msa.banking.common.base.AuditEntity;
-import com.msa.banking.personal.application.dto.event.AccountCompletedEventDto;
+import com.msa.banking.personal.application.event.AccountCompletedEventDto;
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.enums.PersonalHistoryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.UUID;
 public class PersonalHistory extends AuditEntity{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "history_id", nullable = false)
     private Long id;
 
@@ -31,7 +32,7 @@ public class PersonalHistory extends AuditEntity{
     private Category category;
 
     @Column(name = "user_id", nullable = false)
-    private UUID user_id;
+    private UUID userId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -40,11 +41,12 @@ public class PersonalHistory extends AuditEntity{
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private boolean status;
+    private PersonalHistoryStatus status;
 
     @Column(name = "transaction_date", nullable = false)
-    private LocalDateTime transaction_date;
+    private LocalDateTime transactionDate;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -52,11 +54,11 @@ public class PersonalHistory extends AuditEntity{
     // 개인 내역 생성
     public static PersonalHistory createPersonalHistory(AccountCompletedEventDto accountCompletedEventDto){
         return PersonalHistory.builder()
-                .user_id(accountCompletedEventDto.getUserId())
+                .userId(accountCompletedEventDto.getUserId())
                 .type(accountCompletedEventDto.getType())
                 .amount(accountCompletedEventDto.getAmount())
-                .status(false)
-                .transaction_date(accountCompletedEventDto.getTransactionDate())
+                .status(PersonalHistoryStatus.UNCLASSIFIED)
+                .transactionDate(accountCompletedEventDto.getTransactionDate())
                 .description(accountCompletedEventDto.getDescription())
                 .build();
     }
@@ -64,6 +66,7 @@ public class PersonalHistory extends AuditEntity{
     // 카테고리 수정
     public void updateCategory(Category newCategory){
         this.category = newCategory;
+        this.status = PersonalHistoryStatus.CLASSIFIED;
     }
 
     // 개인 내역 삭제(Soft Delete)

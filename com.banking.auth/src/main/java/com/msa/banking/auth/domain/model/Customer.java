@@ -26,23 +26,33 @@ public class Customer extends AuditEntity {
     @Column(name = "customer_id")
     private UUID id;
 
+    @Column(nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @Embedded
+    @Column(nullable = false)
     private Address address;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
-    public Customer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role) {
+    @Column(name = "slack_id", nullable = false)
+    private String slackId;
+
+    public Customer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -50,6 +60,7 @@ public class Customer extends AuditEntity {
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.role = role;
+        this.slackId = slackId;
     }
 
     /**
@@ -63,8 +74,8 @@ public class Customer extends AuditEntity {
      * @param role
      * @return
      */
-    public static Customer createCustomer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role) {
-        return new Customer(username, password, name, email, phoneNumber, address, role);
+    public static Customer createCustomer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {
+        return new Customer(username, password, name, email, phoneNumber, address, role, slackId);
     }
 
 
@@ -109,6 +120,10 @@ public class Customer extends AuditEntity {
 
         if (request.getPhoneNumber() != null) {
             this.phoneNumber = request.getPhoneNumber();
+        }
+
+        if (request.getSlackId() != null) {
+            this.slackId = request.getSlackId();
         }
 
         return this;

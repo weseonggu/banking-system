@@ -45,8 +45,8 @@ CREATE DATABASE support
   TABLESPACE = pg_default
   CONNECTION LIMIT = -1;
 
--- 'notify' 데이터베이스 생성
-CREATE DATABASE notify
+-- 'notification' 데이터베이스 생성
+CREATE DATABASE notification
   WITH OWNER = banking
   ENCODING = 'UTF8'
   LC_COLLATE = 'en_US.utf8'

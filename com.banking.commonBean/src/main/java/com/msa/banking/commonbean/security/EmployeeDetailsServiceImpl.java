@@ -18,6 +18,7 @@ public class EmployeeDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
 
         AuthFeignResponseDto findEmployee = authClient.findEmployeeId(userId);
+
         return new UserDetailsImpl(findEmployee);
     }
 }
