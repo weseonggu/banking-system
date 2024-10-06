@@ -1,4 +1,4 @@
-package com.msa.banking.common.pageable;
+package com.msa.banking.commonbean.pageable;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.PageRequest;

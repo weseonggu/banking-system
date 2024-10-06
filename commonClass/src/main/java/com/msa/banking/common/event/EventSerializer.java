@@ -10,10 +10,10 @@ public class EventSerializer {
     private static final Logger logger = LoggerFactory.getLogger(EventSerializer.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 직렬화 (객체 -> JSON 문자열)
-    public static <T> String serialize(T object) {
+    // 직렬화 (객체 -> JSON 바이트 배열)
+    public static <T> byte[] serialize(T object) {
         try {
-            return objectMapper.writeValueAsString(object);
+            return objectMapper.writeValueAsBytes(object); // JSON 문자열을 바이트 배열로 직렬화
         } catch (JsonProcessingException e) {
             logger.error("Failed to serialize object: {}", object, e);
             throw new RuntimeException("Serialization error", e);
@@ -29,5 +29,7 @@ public class EventSerializer {
             throw new RuntimeException("Deserialization error", e);
         }
     }
+
+
 }
 

@@ -1,5 +1,7 @@
 package com.msa.banking.notification.application.service;
 
+import com.msa.banking.common.event.EventSerializer;
+import com.msa.banking.common.event.Topic;
 import com.msa.banking.common.notification.NotificationRequestDto;
 import com.msa.banking.notification.domain.model.Notification;
 import com.msa.banking.notification.infrastructure.repository.NotificationRepository;
@@ -7,9 +9,11 @@ import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +31,17 @@ public class NotificationService {
     private String slackToken;
 
     private final NotificationRepository notificationRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    /**
+     * 알림 DB 저장 및 슬랙 메세지 전송
+     * @param request
+     * @throws SlackApiException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @Transactional
+    @CircuitBreaker(name = "slackService", fallbackMethod = "sendMessageFallback")
     public void creatednotify(NotificationRequestDto request) throws SlackApiException, IOException, URISyntaxException {
 
         Notification notification = Notification.createNotification(request.getUserId(), request.getSlackId(), request.getRole(), request.getType(), request.getMessage());
@@ -37,32 +50,37 @@ public class NotificationService {
         notificationRepository.save(notification);
 
         // 슬랙 메세지 전송
-        sendMessage(request.getMessage(), request.getSlackId());
+        sendMessage(request);
     }
-
 
     /**
      * 슬랙 봇으로 DM 보내기
      * @throws IOException
      * @throws SlackApiException
      */
-    public void sendMessage(String message, String... slackId) throws IOException, SlackApiException, URISyntaxException {
+    public void sendMessage(NotificationRequestDto requestDto) throws IOException, SlackApiException, URISyntaxException {
         Slack slack = Slack.getInstance();
 
-        for (String slackUserId : slackId) {
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                     .token(slackToken)
-                    .channel(slackUserId)  // Slack 사용자 ID
-                    .text(message)
+                    .channel(requestDto.getSlackId())
+                    .text(requestDto.getMessage())
                     .build();
 
             ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
-
             if (response.isOk()) {
-                log.info("Message sent successfully to user: " + slackUserId);
+                log.info("Message sent successfully to user: " + requestDto.getSlackId());
             } else {
                 log.error("Error sending message: " + response.getError());
+                throw new RuntimeException(response.getError());
             }
-        }
+    }
+
+    // 슬랙 메세지 전송 실패 시 회원가입 롤백 메서드
+    public void sendMessageFallback(NotificationRequestDto requestDto, Throwable throwable) {
+        log.error("Slack 메시지 전송 실패. 서킷이 열렸습니다. 에러 메시지: {}", throwable.getMessage());
+        requestDto.setMessage(requestDto.getSlackId() + " 슬랙 ID 로 회원가입 알림 전송 실패");
+
+        kafkaTemplate.send(Topic.SIGN_UP_FAILED.getTopic(), EventSerializer.serialize(requestDto));
     }
 }

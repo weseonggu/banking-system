@@ -1,5 +1,6 @@
 package com.msa.banking.personal.application.dto.personalHistory;
 
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.enums.PersonalHistoryType;
 import com.msa.banking.personal.domain.model.PersonalHistory;
 import lombok.Builder;
@@ -11,21 +12,21 @@ import java.math.BigDecimal;
 @Builder
 public class PersonalHistoryResponseDto {
 
-    private Long history_id;
+    private Long historyId;
     private String categoryName;
     private PersonalHistoryType type;
     private BigDecimal amount;
     private String description;
-    private boolean status;
+    private PersonalHistoryStatus status;
 
     public static PersonalHistoryResponseDto toDTO(PersonalHistory personalHistory){
         return PersonalHistoryResponseDto.builder()
-                .history_id(personalHistory.getId())
-                .categoryName(personalHistory.getCategory().getName())
+                .historyId(personalHistory.getId())
+                .categoryName(personalHistory.getCategory() != null ? personalHistory.getCategory().getName() : "Uncategorized")
                 .type(personalHistory.getType())
                 .amount(personalHistory.getAmount())
                 .description(personalHistory.getDescription())
-                .status(personalHistory.isStatus())
+                .status(personalHistory.getStatus())
                 .build();
     }
 }

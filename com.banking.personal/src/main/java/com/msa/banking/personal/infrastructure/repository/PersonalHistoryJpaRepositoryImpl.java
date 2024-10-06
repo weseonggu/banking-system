@@ -1,5 +1,6 @@
-package com.msa.banking.personal.infrastructure.persistence;
+package com.msa.banking.personal.infrastructure.repository;
 
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.model.PersonalHistory;
 import com.msa.banking.personal.domain.model.QPersonalHistory;
 import com.msa.banking.personal.domain.repository.PersonalHistoryRepositoryCustom;
@@ -9,22 +10,19 @@ import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
-@Repository
-public class PersonalHistoryRepositoryCustomImpl implements PersonalHistoryRepositoryCustom {
+public class PersonalHistoryJpaRepositoryImpl implements PersonalHistoryRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    public PersonalHistoryRepositoryCustomImpl(EntityManager em) {
+    public PersonalHistoryJpaRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
     @Override
-    public Page<PersonalHistory> findByUserIdAndCategoryAndStatus(String categoryName, Boolean status, Pageable pageable) {
+    public Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, Pageable pageable) {
         QPersonalHistory personalHistory = QPersonalHistory.personalHistory;
 
         // QueryDSL을 이용한 검색
@@ -54,7 +52,7 @@ public class PersonalHistoryRepositoryCustomImpl implements PersonalHistoryRepos
         return categoryName != null ? QPersonalHistory.personalHistory.category.name.eq(categoryName) : null;
     }
 
-    private BooleanExpression statusEq(Boolean status) {
+    private BooleanExpression statusEq(PersonalHistoryStatus status) {
         return status != null ? QPersonalHistory.personalHistory.status.eq(status) : null;
     }
 }

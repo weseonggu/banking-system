@@ -18,8 +18,6 @@ import com.msa.banking.commonbean.exception.GlobalCustomException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,26 +50,36 @@ public class AuthService {
             request.setPassword(passwordEncoder.encode(request.getPassword()));
 
             Employee employee = AuthSignUpRequestDto.toEmployee(request);
-            Employee savedEmployee = null;
 
-            try {
-                savedEmployee = employeeRepository.save(employee);
-            } catch (ConstraintViolationException e) {
-                throw new GlobalCustomException(ErrorCode.DUPLICATE_RESOURCE);
+            // 유저 ID 유니크 제약 조건 검증
+            if (existsByUsername(request.getUsername())) {
+                throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
             }
+
+            // Email 유니크 제약 조건 검증
+            if (existsByEmail(request.getEmail())) {
+                throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+            }
+
+            // PhoneNumber 유니크 제약 조건 검증
+            if (existsByPhoneNumber(request.getPhoneNumber())) {
+                throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
+            }
+
+            // 직원 저장
+            Employee savedEmployee = employeeRepository.save(employee);
 
             // kafka 알림 회원 가입 메세지 보내기
             // 트랜잭션이 커밋된 후에 Kafka 메시지를 전송
-            Employee finalSavedEmployee = savedEmployee;
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCommit() {
                     NotificationRequestDto notifyDto = new NotificationRequestDto(
-                            finalSavedEmployee.getId(),
-                            finalSavedEmployee.getSlackId(),
-                            finalSavedEmployee.getRole(),
+                            savedEmployee.getId(),
+                            savedEmployee.getSlackId(),
+                            savedEmployee.getRole(),
                             NotiType.SIGNUP,
-                            finalSavedEmployee.getName() + "님 회원 가입을 축하드립니다."
+                            savedEmployee.getName() + "님 회원 가입을 축하드립니다."
                     );
                     signUpNotify(notifyDto);
                 }
@@ -80,30 +88,40 @@ public class AuthService {
             return AuthResponseDto.toDto(savedEmployee);
 
 
-        }else { // 고객 회원가입
+        } else { // 고객 회원가입
             request.setPassword(passwordEncoder.encode(request.getPassword()));
 
             Customer customer = AuthSignUpRequestDto.toCustomer(request);
-            Customer savedCustomer = null;
 
-            try {
-                savedCustomer = customerRepository.save(customer);
-            } catch (ConstraintViolationException e) {
-                throw new GlobalCustomException(ErrorCode.DUPLICATE_RESOURCE);
+            // 유저 ID 유니크 제약 조건 검증
+            if (existsByUsername(request.getUsername())) {
+                throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
             }
+
+            // Email 유니크 제약 조건 검증
+            if (existsByEmail(request.getEmail())) {
+                throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+            }
+
+            // PhoneNumber 유니크 제약 조건 검증
+            if (existsByPhoneNumber(request.getPhoneNumber())) {
+                throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
+            }
+
+            // 고객 저장
+            Customer savedCustomer = customerRepository.save(customer);
 
             // kafka 알림 회원 가입 메세지 보내기
             // 트랜잭션이 커밋된 후에 Kafka 메시지를 전송
-            Customer finalsavedCustomer = savedCustomer;
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCommit() {
                     NotificationRequestDto notifyDto = new NotificationRequestDto(
-                            finalsavedCustomer.getId(),
-                            finalsavedCustomer.getSlackId(),
-                            finalsavedCustomer.getRole(),
+                            savedCustomer.getId(),
+                            savedCustomer.getSlackId(),
+                            savedCustomer.getRole(),
                             NotiType.SIGNUP,
-                            finalsavedCustomer.getName() + "님 회원 가입을 축하드립니다."
+                            savedCustomer.getName() + "님 회원 가입을 축하드립니다."
                     );
                     signUpNotify(notifyDto);
                 }
@@ -164,5 +182,32 @@ public class AuthService {
      */
     public void signUpNotify(NotificationRequestDto notifyDto) {
         kafkaTemplate.send(Topic.SIGN_UP.getTopic(), EventSerializer.serialize(notifyDto));
+    }
+
+    /**
+     * username 유니크 제약 조건 검증
+     * @param username
+     * @return
+     */
+    public boolean existsByUsername(String username) {
+        return employeeRepository.existsByUsername(username);
+    }
+
+    /**
+     * username 유니크 제약 조건 검증
+     * @param email
+     * @return
+     */
+    public boolean existsByEmail(String email) {
+        return employeeRepository.existsByEmail(email);
+    }
+
+    /**
+     * username 유니크 제약 조건 검증
+     * @param phoneNumber
+     * @return
+     */
+    public boolean existsByPhoneNumber(String phoneNumber) {
+        return employeeRepository.existsByPhoneNumber(phoneNumber);
     }
 }
