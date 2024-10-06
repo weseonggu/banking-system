@@ -1,14 +1,17 @@
-package com.msa.banking.personal.application.service;
+package com.msa.banking.personal.infrastructure.service;
 
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
-import com.msa.banking.personal.application.event.AccountCompletedEventDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
+import com.msa.banking.personal.application.event.AccountCompletedEventDto;
+import com.msa.banking.personal.application.service.PersonalHistoryService;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
+import com.msa.banking.personal.domain.model.Budget;
 import com.msa.banking.personal.domain.model.Category;
 import com.msa.banking.personal.domain.model.PersonalHistory;
+import com.msa.banking.personal.domain.repository.BudgetRepository;
 import com.msa.banking.personal.domain.repository.CategoryRepository;
 import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +34,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
 
     private final PersonalHistoryJpaRepository personalHistoryRepository;
     private final CategoryRepository categoryRepository;
+    private final BudgetRepository budgetRepository;
 
     /**
      * 개인 내역 목록 조회
@@ -51,6 +58,26 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         // 계좌에서 거래가 일어났을 때 데이터를 받아서 개인 내역에 저장
         PersonalHistory personalHistory = PersonalHistory.createPersonalHistory(accountCompletedEventDto);
         PersonalHistory savePersonalHistory = personalHistoryRepository.save(personalHistory);
+
+        UUID userId = savePersonalHistory.getUserId();
+        LocalDateTime transactionDate = savePersonalHistory.getTransactionDate();
+        BigDecimal transactionAmount = savePersonalHistory.getAmount();
+        
+        // 해당 기간에 속하는 모든 예산 설정을 조회
+        List<Budget> budgets = budgetRepository.findAllByUserIdAndPeriod(userId, transactionDate);
+
+        // 예산 설정이 존재하면
+        if(!budgets.isEmpty()){
+            for (Budget budget : budgets) {
+                budget.addTransactionAmount(transactionAmount);
+                budgetRepository.save(budget);
+
+                if(budget.getSpentAmount().compareTo(budget.getTotalBudget()) > 0){
+                    // TODO 카프카로 전송
+                }
+            }
+
+        }
 
         return PersonalHistoryResponseDto.toDTO(savePersonalHistory);
     }

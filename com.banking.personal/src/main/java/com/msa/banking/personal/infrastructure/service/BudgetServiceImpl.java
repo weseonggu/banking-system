@@ -1,4 +1,4 @@
-package com.msa.banking.personal.application.service;
+package com.msa.banking.personal.infrastructure.service;
 
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
@@ -6,6 +6,7 @@ import com.msa.banking.personal.application.dto.budget.BudgetListDto;
 import com.msa.banking.personal.application.dto.budget.BudgetRequestDto;
 import com.msa.banking.personal.application.dto.budget.BudgetResponseDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
+import com.msa.banking.personal.application.service.BudgetService;
 import com.msa.banking.personal.domain.model.Budget;
 import com.msa.banking.personal.domain.repository.BudgetRepository;
 import lombok.RequiredArgsConstructor;
