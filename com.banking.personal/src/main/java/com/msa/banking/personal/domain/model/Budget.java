@@ -4,7 +4,9 @@ import com.msa.banking.common.base.AuditEntity;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.personal.application.dto.budget.BudgetRequestDto;
+import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.domain.enums.BudgetPeriod;
+import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +33,7 @@ public class Budget extends AuditEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "period", nullable = false)
     private BudgetPeriod period;
 
@@ -47,17 +50,52 @@ public class Budget extends AuditEntity {
     private LocalDateTime endDate;
 
     // 예산 설정 생성
-    public static Budget createBudget(BudgetRequestDto budgetRequestDto){
+    public static Budget createBudget(BudgetRequestDto budgetRequestDto,UUID userId, String userName){
         LocalDateTime startDate = budgetRequestDto.getStartDate();
         LocalDateTime endDate = calculateEndDate(startDate, budgetRequestDto.getPeriod());
 
-        return Budget.builder()
-                .userId(budgetRequestDto.getUserId())
+        Budget budget = Budget.builder()
+                .userId(userId)
                 .period(budgetRequestDto.getPeriod())
                 .totalBudget(budgetRequestDto.getTotalBudget())
+                .spentAmount(BigDecimal.ZERO)
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
+
+        budget.setCreateByUserName(userName);
+
+        return budget;
+    }
+
+    // 예산 설정 수정
+    public void updateBudget(BudgetUpdateDto budgetUpdateDto, String userName){
+
+        if(budgetUpdateDto.getPeriod() != null){
+            this.updateBudgetPeriod(budgetUpdateDto.getPeriod());
+        }
+
+        if(budgetUpdateDto.getTotalBudget() != null){
+            this.updateTotalBudget(budgetUpdateDto.getTotalBudget());
+        }
+
+        this.setUpdateByUserName(userName);
+    }
+
+    // 예산 설정 기간 수정 메서드
+    public void updateBudgetPeriod(BudgetPeriod period){
+        this.period = period;
+        this.endDate = calculateEndDate(this.startDate, period);
+    }
+
+    // 설정한 총 예산 수정 메서드
+    public void updateTotalBudget(BigDecimal totalBudget){
+        this.totalBudget = totalBudget;
+    }
+
+    // 예산 설정 삭제(Soft Delete)
+    public void deleteBudget(String userName){
+        this.delete(userName);
     }
 
     // 예산 종료일 계산
@@ -70,5 +108,4 @@ public class Budget extends AuditEntity {
         }
         throw new GlobalCustomException(ErrorCode.BUDGET_BAD_REQUEST);
     }
-
 }
