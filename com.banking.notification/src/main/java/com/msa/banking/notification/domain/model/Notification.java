@@ -24,19 +24,22 @@ public class Notification extends AuditEntity {
     @Column(name = "notification_id")
     private UUID id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "slack_id")
+    @Column(name = "slack_id", nullable = false)
     private String slackId;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private NotiType type;
 
     @Lob
+    @Column(nullable = false)
     private String message;
 
     public Notification(UUID userId, String slackId, UserRole role, NotiType type, String message) {
