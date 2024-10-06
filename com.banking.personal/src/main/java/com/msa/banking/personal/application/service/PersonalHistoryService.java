@@ -18,12 +18,12 @@ public interface PersonalHistoryService {
     // 개인 내역 생성
     PersonalHistoryResponseDto createPersonalHistory(AccountCompletedEventDto accountCompletedEventDto);
 
-    // 개인 내역 단건 조회
+    // 개인 내역 단 건 조회
     PersonalHistoryResponseDto findPersonalHistoryById(Long historyId, UUID userId, String userRole);
 
     // 개인 내역 수정(카테고리 수정)
-    PersonalHistoryResponseDto updatePersonalHistoryCategory(PersonalHistoryUpdateDto personalHistoryUpdateDto, Long historyId, UUID userId, String userRole);
+    PersonalHistoryResponseDto updatePersonalHistoryCategory(PersonalHistoryUpdateDto personalHistoryUpdateDto, Long historyId, UUID userId, String userRole, String userName);
 
     // 개인 내역 삭제
-    void deletePersonHistory(Long historyId, UUID userId, String userRole);
+    void deletePersonHistory(Long historyId, UUID userId, String userRole, String userName);
 }

@@ -64,13 +64,14 @@ public class PersonalHistory extends AuditEntity{
     }
 
     // 카테고리 수정
-    public void updateCategory(Category newCategory){
+    public void updateCategory(Category newCategory, String userName){
         this.category = newCategory;
         this.status = PersonalHistoryStatus.CLASSIFIED;
+        this.setUpdateByUserName(userName);
     }
 
     // 개인 내역 삭제(Soft Delete)
-    public void deletePersonalHistory(){
-        this.delete();
+    public void deletePersonalHistory(String userName){
+        this.delete(userName);
     }
 }

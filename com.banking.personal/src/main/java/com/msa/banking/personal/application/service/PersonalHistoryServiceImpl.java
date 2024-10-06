@@ -16,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -44,6 +45,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      * 개인 내역 생성 (카테고리 미분류)
      */
     @Override
+    @Transactional
     public PersonalHistoryResponseDto createPersonalHistory(AccountCompletedEventDto accountCompletedEventDto) {
 
         // 계좌에서 거래가 일어났을 때 데이터를 받아서 개인 내역에 저장
@@ -54,7 +56,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
     }
 
     /**
-     * 개인 내역 단건 조회
+     * 개인 내역 단 건 조회
      */
     @Override
     public PersonalHistoryResponseDto findPersonalHistoryById(Long historyId, UUID userId, String userRole) {
@@ -74,7 +76,8 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      * 개인 내역 조회 후 카테고리 업데이트
      */
     @Override
-    public PersonalHistoryResponseDto updatePersonalHistoryCategory(PersonalHistoryUpdateDto personalHistoryUpdateDto, Long historyId, UUID userId, String userRole) {
+    @Transactional
+    public PersonalHistoryResponseDto updatePersonalHistoryCategory(PersonalHistoryUpdateDto personalHistoryUpdateDto, Long historyId, UUID userId, String userRole, String userName) {
 
         PersonalHistory personalHistory = personalHistoryRepository.findById(historyId).orElseThrow(
                 () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
@@ -88,12 +91,12 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         Optional<Category> optionalCategory = categoryRepository.findByName(personalHistoryUpdateDto.getCategoryName());
 
         if (optionalCategory.isPresent()) {
-            personalHistory.updateCategory(optionalCategory.get());
+            personalHistory.updateCategory(optionalCategory.get(), userName);
             personalHistoryRepository.save(personalHistory);
         } else {
             Category category = Category.createCategory(personalHistoryUpdateDto.getCategoryName());
             categoryRepository.save(category);
-            personalHistory.updateCategory(category);
+            personalHistory.updateCategory(category, userName);
             personalHistoryRepository.save(personalHistory);
         }
 
@@ -104,7 +107,8 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      * 개인 내역 삭제(Soft Delete)
      */
     @Override
-    public void deletePersonHistory(Long historyId, UUID userId, String userRole) {
+    @Transactional
+    public void deletePersonHistory(Long historyId, UUID userId, String userRole, String userName) {
 
         log.info("deletePersonHistory Service-------------");
 
@@ -116,7 +120,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
             checkUserAccess(userId, userRole, personalHistory.getUserId());
         }
 
-        personalHistory.deletePersonalHistory();
+        personalHistory.deletePersonalHistory(userName);
         personalHistoryRepository.save(personalHistory);
     }
 

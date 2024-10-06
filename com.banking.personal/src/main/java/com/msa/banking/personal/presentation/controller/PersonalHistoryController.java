@@ -41,7 +41,7 @@ public class PersonalHistoryController {
                 new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "searchPersonalHistory", personalHistoryListPage));
     }
 
-    // 개인 내역 단건 조회
+    // 개인 내역 단 건 조회
     @GetMapping("/{history_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     public ResponseEntity<?> findPersonalHistoryById(@PathVariable("history_id") Long historyId,
@@ -65,8 +65,9 @@ public class PersonalHistoryController {
 
         UUID userId = userDetails.getUserId();
         String role = userDetails.getRole();
+        String userName = userDetails.getUsername();
 
-        PersonalHistoryResponseDto responseDto = personalHistoryService.updatePersonalHistoryCategory(personalHistoryUpdateDto, historyId, userId, role);
+        PersonalHistoryResponseDto responseDto = personalHistoryService.updatePersonalHistoryCategory(personalHistoryUpdateDto, historyId, userId, role, userName);
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(SuccessCode.UPDATE_SUCCESS.getStatus(), "updatePersonalHistoryCategory", responseDto));
@@ -80,11 +81,12 @@ public class PersonalHistoryController {
 
         UUID userId = userDetails.getUserId();
         String role = userDetails.getRole();
+        String userName = userDetails.getUsername();
 
-        personalHistoryService.deletePersonHistory(historyId, userId, role);
+        personalHistoryService.deletePersonHistory(historyId, userId, role,userName);
 
         return ResponseEntity.ok(
-                new SuccessResponse<>(SuccessCode.DELETE_SUCCESS.getStatus(), "updatePersonalHistoryCategory", null));
+                new SuccessResponse<>(SuccessCode.DELETE_SUCCESS.getStatus(), "updatePersonalHistoryCategory", "개인 내역 삭제되었습니다."));
     }
 
 }
