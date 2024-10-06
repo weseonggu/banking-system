@@ -3,23 +3,34 @@ package com.msa.banking.product.domain.repository;
 import com.msa.banking.product.application.dto.QResponseProductPage;
 import com.msa.banking.product.application.dto.ResponseProductPage;
 import com.msa.banking.product.domain.ProductType;
+import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.msa.banking.product.domain.model.QProduct.product;
 
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public ProductRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -79,4 +90,5 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 ? product.createdAt.between(startDate, endDate)
                 : null;
     }
+
 }

@@ -126,6 +126,7 @@ public class ProductApplicationService {
     public ProductResponseDto findProductDetail(UUID productId) {
         Product product = productService.findPrductInfo(productId);
         ProductDetailDto detailDto;
+        System.out.println("조회 완료");
 
         if (product.getCheckingDetail() != null) {
 

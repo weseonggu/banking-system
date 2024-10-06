@@ -7,6 +7,7 @@ import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.domain.repository.ProductRepository;
+import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
