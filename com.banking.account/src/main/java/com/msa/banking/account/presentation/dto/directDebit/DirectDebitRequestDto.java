@@ -1,4 +1,4 @@
-package com.msa.banking.account.presentation.dto;
+package com.msa.banking.account.presentation.dto.directDebit;
 
 import java.math.BigDecimal;
 

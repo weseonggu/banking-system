@@ -1,8 +1,9 @@
 package com.msa.banking.account.domain.model;
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
-import com.msa.banking.account.presentation.dto.DirectDebitRequestDto;
+import com.msa.banking.account.presentation.dto.directDebit.DirectDebitRequestDto;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ public class DirectDebit {
 
     @Convert(converter = EncryptAttributeConverter.class)
     @Column(nullable = false)
+    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.")
     private String beneficiaryAccount;
 
     @Column(precision = 15, scale = 2, nullable = false)

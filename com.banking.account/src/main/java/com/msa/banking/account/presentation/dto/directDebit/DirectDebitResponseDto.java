@@ -1,4 +1,4 @@
-package com.msa.banking.account.presentation.dto;
+package com.msa.banking.account.presentation.dto.directDebit;
 
 import com.msa.banking.account.domain.model.DirectDebitStatus;
 

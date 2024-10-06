@@ -2,9 +2,10 @@ package com.msa.banking.account.domain.model;
 
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
-import com.msa.banking.account.presentation.dto.AccountRequestDto;
+import com.msa.banking.account.presentation.dto.account.AccountRequestDto;
 import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ public class Account extends AuditEntity {
     // TODO: 알고리즘으로 랜덤 생성
     @Convert(converter = EncryptAttributeConverter.class)    // 중요 데이터 암호화
     @Column(name = "account_number", nullable = false, unique = true)
+    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.")
     private String accountNumber;
 
     @Convert(converter = EncryptAttributeConverter.class)

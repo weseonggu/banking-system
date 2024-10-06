@@ -1,4 +1,4 @@
-package com.msa.banking.account.presentation.dto;
+package com.msa.banking.account.presentation.dto.transactions;
 
 import com.msa.banking.account.domain.model.TransactionType;
 
@@ -9,7 +9,6 @@ public record TransactionsRequestDto(
         TransactionType type,
         BigDecimal amount,
         String description,
-        String originatingAccount,
         String beneficiaryAccount
 ) {
 }

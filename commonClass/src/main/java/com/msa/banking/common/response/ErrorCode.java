@@ -40,7 +40,7 @@ public enum ErrorCode {
     /* 알림 4000번대 */
     /* 개인내역 5000번대 */
     // 404 Not Found 자원을 찾을 수 없습니다.
-    PERSONAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5001, "개인 내역을 찾을 수 없습니다.");
+//    PERSONAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5001, "개인 내역을 찾을 수 없습니다.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
 
