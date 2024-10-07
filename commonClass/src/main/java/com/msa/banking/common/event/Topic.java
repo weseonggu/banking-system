@@ -10,6 +10,7 @@ public enum Topic {
     SIGN_UP("notification-signUp"),
     SIGN_UP_FAILED("auth-signUp-fail"),
     PERFORMANCE_MASTER_SLACK_LIST("performance-master-slack-list"),
+    PERFORMANCE_PRODUCT_COUNT("performance-product-count"),
     TRANSFER("notification-transfer");
 
     private final String topic;

@@ -39,12 +39,10 @@ public class SalesPerformance extends AuditEntity {
     private Long depositCount;
 
     // 연도별 평가
-    // TODO 생성 시 Year.now(); 필요 여부 확인
     @Column(name = "evaluation_year")
     private Year evaluationYear;
 
     // 월별 평가
-    // TODO 생성 시 YearMonth.now(); 필요 여부 확인
     @Column(name = "evaluation_month")
     private YearMonth evaluationMonth;
 
