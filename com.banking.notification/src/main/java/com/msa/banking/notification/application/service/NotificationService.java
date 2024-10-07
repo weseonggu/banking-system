@@ -33,6 +33,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
+
     /**
      * 알림 DB 저장 및 슬랙 메세지 전송
      * @param request
@@ -44,10 +45,11 @@ public class NotificationService {
     @CircuitBreaker(name = "slackService", fallbackMethod = "sendMessageFallback")
     public void creatednotify(NotificationRequestDto request) throws SlackApiException, IOException, URISyntaxException {
 
+        // Notification 엔티티 변환
         Notification notification = Notification.createNotification(request.getUserId(), request.getSlackId(), request.getRole(), request.getType(), request.getMessage());
 
         // DB 저장
-        notificationRepository.save(notification);
+        Notification save = notificationRepository.save(notification);
 
         // 슬랙 메세지 전송
         sendMessage(request);
@@ -59,24 +61,30 @@ public class NotificationService {
      * @throws SlackApiException
      */
     public void sendMessage(NotificationRequestDto requestDto) throws IOException, SlackApiException, URISyntaxException {
+        log.info("슬랙 메세지 전송 시도 중");
         Slack slack = Slack.getInstance();
 
-            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .token(slackToken)
-                    .channel(requestDto.getSlackId())
-                    .text(requestDto.getMessage())
-                    .build();
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .token(slackToken)
+                .channel(requestDto.getSlackId())
+                .text(requestDto.getMessage())
+                .build();
 
-            ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
-            if (response.isOk()) {
-                log.info("Message sent successfully to user: " + requestDto.getSlackId());
-            } else {
-                log.error("Error sending message: " + response.getError());
-                throw new RuntimeException(response.getError());
-            }
+        ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
+        if (response.isOk()) {
+            log.info("Message sent successfully to user: " + requestDto.getSlackId());
+        } else {
+            log.error("Error sending message: " + response.getError());
+            throw new RuntimeException(response.getError());
+        }
+        log.info("슬랙 메세지 전송 완료");
     }
 
-    // 슬랙 메세지 전송 실패 시 회원가입 롤백 메서드
+    /**
+     * 슬랙 메세지 전송 실패 시 회원가입 롤백 메서드
+     * @param requestDto
+     * @param throwable
+     */
     public void sendMessageFallback(NotificationRequestDto requestDto, Throwable throwable) {
         log.error("Slack 메시지 전송 실패. 서킷이 열렸습니다. 에러 메시지: {}", throwable.getMessage());
         requestDto.setMessage(requestDto.getSlackId() + " 슬랙 ID 로 회원가입 알림 전송 실패");

@@ -1,5 +1,6 @@
 package com.msa.banking.commonbean.security;
 
+import com.msa.banking.common.auth.dto.ForContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,19 +9,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @Slf4j(topic = "CustomPreAuthFilter")
 @RequiredArgsConstructor
 public class CustomPreAuthFilter extends OncePerRequestFilter {
 
-    private final SecurityContextHelper securityContextHelper;
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
@@ -37,16 +38,23 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
         log.info("CustomPreAuthFilter 필터링 시도 중");
 
         String userId = request.getHeader("X-User-Id");
-        String userName = request.getHeader("X-Username");
+        String username = request.getHeader("X-Username");
         String role = request.getHeader("X-Role");
 
-        log.info("userId: {}, userName: {}, role: {}", userId, userName, role);
+        log.info("userId: {}, userName: {}, role: {}", userId, username, role);
 
-        if (userId != null && userName != null && role != null) {
+        if (userId != null && username != null && role != null) {
 
             try {
                 log.info("인증 설정 시도 중");
-                securityContextHelper.setAuthentication(userId, role, response);
+                ForContext context = new ForContext(UUID.fromString(userId), username, role);
+
+                UserDetailsImpl userDetails = new UserDetailsImpl(context);
+                Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+                        userDetails.getAuthorities());
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
                 log.info("인증 설정 성공");
             } catch (Exception e) {
                 log.error("인증 설정 실패: {}", e.getMessage());
@@ -72,13 +80,11 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
         }else {
             log.error("userId, userName or role is null");
 
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    null,
-                    null,
-                    AuthorityUtils.NO_AUTHORITIES
-            );
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\": \"필수 헤더 값이 없습니다. X-User-Id, X-Username, X-Role 헤더가 필요합니다.\"}");
+            return;
 
-            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
         filterChain.doFilter(request, response);
