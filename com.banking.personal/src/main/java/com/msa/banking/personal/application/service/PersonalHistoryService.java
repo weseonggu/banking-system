@@ -1,5 +1,6 @@
 package com.msa.banking.personal.application.service;
 
+import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryRequestDto;
 import com.msa.banking.personal.application.event.AccountCompletedEventDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
@@ -26,4 +27,9 @@ public interface PersonalHistoryService {
 
     // 개인 내역 삭제
     void deletePersonHistory(Long historyId, UUID userId, String userRole, String userName);
+
+    /**
+     * 개인 내역 생성 (카테고리 미분류)-(카프카 알림 테스트용) TODO Account - Kafka 개발 완료 시 삭제
+     */
+    PersonalHistoryResponseDto createPersonalHistory(PersonalHistoryRequestDto requestDto, UUID userId, String userName);
 }

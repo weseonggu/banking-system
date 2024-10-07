@@ -6,7 +6,6 @@ import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.personal.application.dto.budget.BudgetRequestDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.domain.enums.BudgetPeriod;
-import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -107,5 +106,10 @@ public class Budget extends AuditEntity {
             return startDate.plusMonths(1);
         }
         throw new GlobalCustomException(ErrorCode.BUDGET_BAD_REQUEST);
+    }
+
+    // 총 사용 가격에 거래에서 일어난 비용 + 메서드
+    public void addTransactionAmount(BigDecimal transactionAmount) {
+        this.spentAmount = this.spentAmount.add(transactionAmount);
     }
 }
