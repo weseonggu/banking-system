@@ -52,13 +52,14 @@ public abstract class AuditEntity {
         isDelete = true;
     }
 
-    /**
-     * 기본적인 삭제 처리(Soft Delete)
-     * TODO userId 추가
-     */
-    public void delete(){
-        this.deletedAt = LocalDateTime.now();
-        this.isDelete = true;
+    // 생성 시 userName 추가
+    public void setCreateByUserName(String userName){
+        this.createdBy = userName;
+    }
+
+    // 수정 시 userName 추가
+    public void setUpdateByUserName(String userName){
+        this.updatedBy = userName;
     }
 
 }
