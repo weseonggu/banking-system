@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 public class AccountSearchRequestDto {
 
-    private UUID accountId;
     private String accountNumber;
     private String accountHolder;
     private AccountType type;

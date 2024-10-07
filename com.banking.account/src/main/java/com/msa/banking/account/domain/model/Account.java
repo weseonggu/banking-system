@@ -44,20 +44,36 @@ public class Account extends AuditEntity {
     @Column(nullable = false)
     private AccountType type;
 
-    public static Account createAccount(String accountNumber, AccountRequestDto requestDto, String username) {
+    @Convert(converter = EncryptAttributeConverter.class)    // 중요 데이터 암호화
+    @Column(nullable = false)
+    @Pattern(regexp = "^\\d{6}$", message = "비밀번호는 6자리이어야 합니다.")
+    private String accountPin;
+
+
+    public static Account createAccount(String accountNumber, AccountRequestDto requestDto) {
 
         return Account.builder()
                 .accountNumber(accountNumber)
                 .accountHolder(requestDto.accountHolder())
                 .status(requestDto.status())
                 .type(requestDto.type())
+                .accountPin(requestDto.accountPin())
                 .build();
     }
 
     // updatedBy는 contextholder에서 처리하거나 requestHeader에서 어노테이션?으로 처리해야한다.
-    // 계좌 상태, 잔액만 변경 가능
-    public void updateAccount(AccountStatus status, BigDecimal balance){
-        this.status = status;
+    // 계좌 잔액만 변경 가능
+    public void updateAccount(BigDecimal balance){
         this.balance = balance;
+    }
+
+    // 계좌 상태만 변경 가능
+    public void updateAccountStatus(AccountStatus status){
+        this.status = status;
+    }
+
+    // 계좌 비밀번호 변경
+    public void updateAccountPin(String accountPin){
+        this.accountPin = accountPin;
     }
 }

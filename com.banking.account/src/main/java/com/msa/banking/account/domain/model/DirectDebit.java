@@ -2,6 +2,7 @@ package com.msa.banking.account.domain.model;
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
 import com.msa.banking.account.presentation.dto.directDebit.DirectDebitRequestDto;
+import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class DirectDebit {
+public class DirectDebit extends AuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

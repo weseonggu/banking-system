@@ -4,7 +4,7 @@ import com.msa.banking.account.domain.model.TransactionType;
 
 import java.math.BigDecimal;
 
-public record TransactionsRequestDto(
+public record TransactionRequestDto(
 
         TransactionType type,
         BigDecimal amount,

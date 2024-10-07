@@ -1,7 +1,8 @@
 package com.msa.banking.account.domain.model;
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
-import com.msa.banking.account.presentation.dto.transactions.TransactionsRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.TransactionRequestDto;
+import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class AccountTransactions {
+public class AccountTransactions extends AuditEntity {
 
 
     @Id
@@ -49,7 +50,7 @@ public class AccountTransactions {
 
     // 계좌 거래 내역같은거는 어떤 특정 권한을 가진 주체가 생성하는 것이 아닌 시스템 상에서 생성하는 것인데 어떻게 해야하나? -> 거래 주차가 생성하는 것으로
     // 송금인 계좌 거래 내역 생성
-    public static AccountTransactions createSenderTransaction(Account account, TransactionsRequestDto requestDto) {
+    public static AccountTransactions createSenderTransaction(Account account, TransactionRequestDto requestDto) {
 
         return AccountTransactions.builder()
                 .account(account)
@@ -61,7 +62,7 @@ public class AccountTransactions {
     }
 
     // 수취인 계좌 거래 내역 생성
-    public static AccountTransactions createBeneficiaryTransaction(Account account, String originatingAccount, TransactionsRequestDto requestDto) {
+    public static AccountTransactions createBeneficiaryTransaction(Account account, String originatingAccount, TransactionRequestDto requestDto) {
 
         return AccountTransactions.builder()
                 .account(account)
@@ -72,9 +73,13 @@ public class AccountTransactions {
                 .build();
     }
 
-    // 거래 상태와, 거래 설명만 수정 가능
-    public void updateTransaction(TransactionStatus status, String description) {
+    // 거래 상태 수정
+    public void updateTransactionStatus(TransactionStatus status) {
         this.status = status;
+    }
+
+    // 거래 설명 수정
+    public void updateTransaction(String description) {
         this.description = description;
     }
 }

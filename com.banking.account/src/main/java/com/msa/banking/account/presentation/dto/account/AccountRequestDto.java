@@ -7,6 +7,7 @@ public record AccountRequestDto(
 
         String accountHolder,
         AccountStatus status,
-        AccountType type
+        AccountType type,
+        String accountPin
 ) {
 }
