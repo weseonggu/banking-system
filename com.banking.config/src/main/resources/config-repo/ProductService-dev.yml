@@ -58,6 +58,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
+        enable_lazy_load_no_trans: false
   http:
     encoding:
       enabled: true
@@ -114,3 +115,4 @@ logging:
     org.springframework.cache: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicTypeDescriptor: TRACE

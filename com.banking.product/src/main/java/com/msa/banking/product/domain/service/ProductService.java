@@ -6,7 +6,7 @@ import com.msa.banking.product.domain.model.CheckingDetail;
 import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.model.Product;
-import com.msa.banking.product.domain.repository.ProductRepository;
+import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -57,9 +58,19 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    // 상품 목록 조회
     @Transactional(readOnly = true)
-    @Cacheable(cacheNames = RedisCacheKey.ProdctListCache, key = "#condition.type + '_' + #pageable.getSort()")
+    @Cacheable(cacheNames = RedisCacheKey.ProdctListCache, key = "#condition.type + '_' + #pageable.getSort() + '_' + #pageable.getPageNumber()")
     public List<ResponseProductPage> findAllProducts(Pageable pageable, RequestSearchProductDto condition) {
         return productRepository.findAllProduct(pageable, condition);
     }
+
+    // 상품 디테일 검색
+    @Transactional(readOnly = true)
+    public Product findPrductInfo(UUID productId) {
+        return productRepository.findEntityGrapById(productId).orElseThrow(() -> new IllegalArgumentException("Product not found"));
+    }
+
+
+
 }
