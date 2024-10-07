@@ -1,6 +1,6 @@
 package com.msa.banking.product;
 
-import com.msa.banking.product.domain.ProductType;
+import com.msa.banking.product.lib.ProductType;
 import com.msa.banking.product.domain.model.CheckingDetail;
 import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;

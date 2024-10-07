@@ -123,6 +123,7 @@ public class ProductApplicationService {
     }
 
     // 상품 디테일 조회
+    @Transactional(readOnly = true)
     public ProductResponseDto findProductDetail(UUID productId) {
         Product product = productService.findPrductInfo(productId);
         ProductDetailDto detailDto;

@@ -1,4 +1,4 @@
-package com.msa.banking.product.domain;
+package com.msa.banking.product.lib;
 
 import lombok.Getter;
 

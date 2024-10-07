@@ -1,6 +1,6 @@
 package com.msa.banking.product.presentation.request;
 
-import com.msa.banking.product.domain.ProductType;
+import com.msa.banking.product.lib.ProductType;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

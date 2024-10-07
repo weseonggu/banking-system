@@ -1,7 +1,7 @@
 package com.msa.banking.product.domain.model;
 
 import com.msa.banking.common.base.AuditEntity;
-import com.msa.banking.product.domain.ProductType;
+import com.msa.banking.product.lib.ProductType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;

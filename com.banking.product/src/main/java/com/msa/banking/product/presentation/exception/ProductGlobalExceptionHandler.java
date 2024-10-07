@@ -6,6 +6,7 @@ import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundExc
 import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -75,4 +76,9 @@ public class ProductGlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+
+//    @ExceptionHandler(RedisConnectionFailureException.class)
+//    public ResponseEntity<?> handleRedisConnectionException(RedisConnectionFailureException ex) {
+//        return ResponseEntity.status(500).body("잠시 후 다시 시도해 주세요.");
+//    }
 }

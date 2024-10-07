@@ -2,7 +2,7 @@ package com.msa.banking.product.infrastructure.repository;
 
 import com.msa.banking.product.application.dto.QResponseProductPage;
 import com.msa.banking.product.application.dto.ResponseProductPage;
-import com.msa.banking.product.domain.ProductType;
+import com.msa.banking.product.lib.ProductType;
 import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import com.querydsl.core.BooleanBuilder;
