@@ -22,7 +22,8 @@ public class FeignClientInterceptor implements RequestInterceptor {
 
         // 시큐리티 컨텍스트가 null이 아닐 때만 실행
         SecurityContext context = SecurityContextHolder.getContext();
-        System.out.println("FeignClientInterceptor context = " + context);
+        log.info("context = {}", context);
+
         if (context != null) {
             // 시큐리티 컨텍스트에서 인증 정보 가져오기
             Authentication authentication = context.getAuthentication();

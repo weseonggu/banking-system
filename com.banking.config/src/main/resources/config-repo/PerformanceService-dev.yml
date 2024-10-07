@@ -1,11 +1,11 @@
-# Product Server dev config
+# Performance Server dev config
 
 server:
-  port: 19094
+  port: 19098
 
 spring:
   application:
-    name: ProductService  # 애플리케이션 이름을 'gateway-service'로 설정
+    name: PerformanceService  # 애플리케이션 이름을 'gateway-service'로 설정
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -25,17 +25,6 @@ spring:
         enabled: true
       env:
         enabled: true
-    aws:
-      credentials:
-        access-key: ${AWS_ACCESS_KEY_ID}
-        secret-key: ${AWS_SECRET_ACCESS_KEY}
-      region: ${AWS_REGION}
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 10MB
-      max-request-size: 50MB
-
   data:
     redis:
       host: localhost
@@ -45,24 +34,19 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/product
+    url: jdbc:postgresql://localhost:5433/performance
     username: banking
     password: banking20
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
-        show_sql: false
+        show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
-  http:
-    encoding:
-      enabled: true
-      charset: UTF-8
-      force: true
 
 eureka:
   client:
@@ -94,23 +78,31 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 common:
   bean:
     security:
       auth: true
       class: true
+
 service:
   jwt:
     secret-key: "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429080fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1"
-s3:
-  bucket-name: cargoflowlib
-  path: pdf
-test:
-  config-name: Product13-Server
 
-logging:
-  level:
-    org.springframework.cache: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true       # 서킷 브레이커 상태를 헬스 체크에 포함하여 모니터링 가능하게 설정
+        slidingWindowType: COUNT_BASED      # 서킷 브레이커가 동작할 때 호출 수를 기준으로 상태를 판단 (COUNT_BASED)
+        slidingWindowSize: 5                # 서킷 브레이커의 슬라이딩 윈도우 크기를 5로 설정하여 최근 5번의 호출을 저장
+        minimumNumberOfCalls: 5             # 서킷 브레이커가 동작하기 위해 필요한 최소 호출 수를 5로 설정
+        slowCallRateThreshold: 100          # 느린 호출의 비율이 100% 이상일 때 서킷 브레이커가 동작하도록 설정
+        slowCallDurationThreshold: 60000    # 느린 호출의 기준 시간 (60초). 60초 이상 걸리는 호출은 느린 호출로 간주
+        failureRateThreshold: 50            # 실패율이 50%를 넘으면 서킷 브레이커가 동작
+        permittedNumberOfCallsInHalfOpenState: 3  # 서킷 브레이커가 Half-open 상태일 때 허용되는 최대 호출 수 (3회)
+        waitDurationInOpenState: 20s        # Open 상태에서 Half-open 상태로 전환되기 전까지의 대기 시간 (20초)
