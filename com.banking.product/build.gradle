@@ -22,6 +22,8 @@ ext {
 }
 
 dependencies {
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
     // 유효성 검증
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     // config client
@@ -59,7 +61,7 @@ dependencies {
     // 스웨거
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
     // cloub bus
-//    implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
+    implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
 
     implementation(project(':com.banking.commonBean'))
 
