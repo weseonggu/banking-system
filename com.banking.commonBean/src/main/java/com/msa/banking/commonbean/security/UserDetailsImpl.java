@@ -1,7 +1,7 @@
 package com.msa.banking.commonbean.security;
 
-import com.msa.banking.common.auth.response.AuthFeignResponseDto;
-import lombok.RequiredArgsConstructor;
+import com.msa.banking.common.auth.dto.ForContext;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,10 +10,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
-@RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
+    @Getter
+    private UUID userId;
 
-    private final AuthFeignResponseDto authResponse;
+    private String username;
+
+    @Getter
+    private String role;
+
+    public UserDetailsImpl(ForContext context) {
+        this.userId = context.getId();
+        this.username = context.getUsername();
+        this.role = context.getRole();
+    }
 
     @Override
     public String getPassword() {
@@ -22,24 +32,12 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return authResponse.getUsername();
-    }
-
-    public UUID getUserId() {
-        return authResponse.getId();
-    }
-
-    public String getRole() {
-        return authResponse.getRole();
-    }
-
-    public String getSlackId() {
-        return authResponse.getSlackId();
+        return username;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String authority = authResponse.getRole();
+        String authority = role;
 
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
         Collection<GrantedAuthority> authorities = new ArrayList<>();

@@ -52,17 +52,17 @@ public class AuthService {
             Employee employee = AuthSignUpRequestDto.toEmployee(request);
 
             // 유저 ID 유니크 제약 조건 검증
-            if (existsByUsername(request.getUsername())) {
+            if (existsEmployeeByUsername(request.getUsername())) {
                 throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
             }
 
             // Email 유니크 제약 조건 검증
-            if (existsByEmail(request.getEmail())) {
+            if (existsEmployeeByEmail(request.getEmail())) {
                 throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
             }
 
             // PhoneNumber 유니크 제약 조건 검증
-            if (existsByPhoneNumber(request.getPhoneNumber())) {
+            if (existsEmployeeByPhoneNumber(request.getPhoneNumber())) {
                 throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
             }
 
@@ -94,17 +94,17 @@ public class AuthService {
             Customer customer = AuthSignUpRequestDto.toCustomer(request);
 
             // 유저 ID 유니크 제약 조건 검증
-            if (existsByUsername(request.getUsername())) {
+            if (existsCustomerByUsername(request.getUsername())) {
                 throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
             }
 
             // Email 유니크 제약 조건 검증
-            if (existsByEmail(request.getEmail())) {
+            if (existsCustomerByEmail(request.getEmail())) {
                 throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
             }
 
             // PhoneNumber 유니크 제약 조건 검증
-            if (existsByPhoneNumber(request.getPhoneNumber())) {
+            if (existsCustomerByPhoneNumber(request.getPhoneNumber())) {
                 throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
             }
 
@@ -185,29 +185,60 @@ public class AuthService {
     }
 
     /**
-     * username 유니크 제약 조건 검증
+     * 직원 username 유니크 제약 조건 검증
      * @param username
      * @return
      */
-    public boolean existsByUsername(String username) {
-        return employeeRepository.existsByUsername(username);
+    public boolean existsEmployeeByUsername(String username) {
+        boolean b = employeeRepository.existsByUsername(username);
+        System.out.println(b);
+        return b;
     }
 
     /**
-     * username 유니크 제약 조건 검증
+     * 고객 username 유니크 제약 조건 검증
+     * @param username
+     * @return
+     */
+    public boolean existsCustomerByUsername(String username) {
+        boolean b = customerRepository.existsByUsername(username);
+        System.out.println(b);
+        return b;
+    }
+
+    /**
+     * 직원 email 유니크 제약 조건 검증
      * @param email
      * @return
      */
-    public boolean existsByEmail(String email) {
+    public boolean existsEmployeeByEmail(String email) {
         return employeeRepository.existsByEmail(email);
     }
 
     /**
-     * username 유니크 제약 조건 검증
+     * 고객 email 유니크 제약 조건 검증
+     * @param email
+     * @return
+     */
+    public boolean existsCustomerByEmail(String email) {
+        return customerRepository.existsByEmail(email);
+    }
+
+    /**
+     * 직원 phoneNumber 유니크 제약 조건 검증
      * @param phoneNumber
      * @return
      */
-    public boolean existsByPhoneNumber(String phoneNumber) {
+    public boolean existsEmployeeByPhoneNumber(String phoneNumber) {
         return employeeRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    /**
+     * 고객 phoneNumber 유니크 제약 조건 검증
+     * @param phoneNumber
+     * @return
+     */
+    public boolean existsCustomerByPhoneNumber(String phoneNumber) {
+        return customerRepository.existsByPhoneNumber(phoneNumber);
     }
 }

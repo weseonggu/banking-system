@@ -4,17 +4,14 @@ import com.msa.banking.product.application.dto.PDFCache;
 import com.msa.banking.product.application.dto.ResponsePDFInfo;
 import com.msa.banking.product.application.dto.ResponsePDFUpload;
 import com.msa.banking.product.domain.model.PDFInfo;
-import com.msa.banking.product.domain.repository.PDFInfoRepository;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.lib.FileUtil;
 import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.io.InputStream;
 import java.util.UUID;
 

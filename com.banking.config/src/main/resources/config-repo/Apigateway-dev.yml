@@ -20,7 +20,7 @@ spring:
         - id: PersonalHistoryService
           uri: lb://PersonalHistoryService
           predicates:
-            - Path=/api/personal-histories/**
+            - Path=/api/personal-histories/**, /api/budgets/**
         - id: ProductService
           uri: lb://ProductService
           predicates:
@@ -29,6 +29,10 @@ spring:
           uri: lb://NotificationService
           predicates:
             - Path=/api/notifications/**
+        - id: PerformanceService
+          uri: lb://PerformanceService
+          predicates:
+            - Path=/api/performance/**
       discovery:
         locator:
           enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
