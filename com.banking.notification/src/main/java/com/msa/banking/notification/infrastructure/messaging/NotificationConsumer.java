@@ -28,5 +28,12 @@ public class NotificationConsumer {
         notificationService.creatednotify(request);
     }
 
+    @KafkaListener(topics = "notification-budgetOverRun", groupId = "personalHistory-group")
+    public void budgetOverRunNotification(String message) throws SlackApiException, IOException, URISyntaxException {
+        // 메세지 역직렬화
+        NotificationRequestDto request = EventSerializer.deserialize(message, NotificationRequestDto.class);
 
+        // DB 저장 및 슬랙 전송
+        notificationService.creatednotify(request);
+    }
 }
