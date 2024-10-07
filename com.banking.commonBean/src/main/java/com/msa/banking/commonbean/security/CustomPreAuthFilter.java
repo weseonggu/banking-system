@@ -62,20 +62,20 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
             }
 
             // Redis에서 블랙리스트 확인
-            String authorization = request.getHeader("Authorization");
+//            String authorization = request.getHeader("Authorization");
 
-            if (authorization != null && authorization.startsWith("Bearer ")) {
-                String token = authorization.substring(7);
-
-                if (redisTemplate.hasKey(token)) {
-                    // 블랙리스트에 있으면 인증 실패 처리
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("{\"error\": \"해당 토큰은 로그아웃 처리되었습니다.\"}");
-                    SecurityContextHolder.clearContext();
-                    return;
-                }
-            }
+//            if (authorization != null && authorization.startsWith("Bearer ")) {
+//                String token = authorization.substring(7);
+//
+//                if (redisTemplate.hasKey(token)) {sss
+//                    // 블랙리스트에 있으면 인증 실패 처리
+//                    response.setContentType("application/json;charset=UTF-8");
+//                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                    response.getWriter().write("{\"error\": \"해당 토큰은 로그아웃 처리되었습니다.\"}");
+//                    SecurityContextHolder.clearContext();
+//                    return;
+//                }
+//            }
 
         }else {
             log.error("userId, userName or role is null");

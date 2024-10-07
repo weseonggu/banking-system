@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,6 +121,8 @@ public class ProductApplicationService {
         Pageable newPageable = PageRequest.of(pageNumber, pageSize, sort);
 
         return productService.findAllProducts(newPageable, condition);
+
+
     }
 
     // 상품 디테일 조회

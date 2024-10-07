@@ -77,8 +77,8 @@ public class ProductGlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-//    @ExceptionHandler(RedisConnectionFailureException.class)
-//    public ResponseEntity<?> handleRedisConnectionException(RedisConnectionFailureException ex) {
-//        return ResponseEntity.status(500).body("잠시 후 다시 시도해 주세요.");
-//    }
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public ResponseEntity<?> handleRedisConnectionException(RedisConnectionFailureException ex) {
+        return ResponseEntity.status(500).body("잠시 후 다시 시도해 주세요.");
+    }
 }

@@ -8,11 +8,14 @@ import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
+import io.lettuce.core.RedisCommandTimeoutException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -63,11 +67,14 @@ public class ProductService {
     @Cacheable(cacheNames = RedisCacheKey.ProdctListCache, key = "#condition.type + '_' + #pageable.getSort() + '_' + #pageable.getPageNumber()",
             unless = "#result == null")
     public List<ResponseProductPage> findAllProducts(Pageable pageable, RequestSearchProductDto condition) {
-        return productRepository.findAllProduct(pageable, condition);
+            return productRepository.findAllProduct(pageable, condition);
     }
+
 
     // 상품 디테일 검색
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = RedisCacheKey.ProdctListCache, key = "#productId",
+            unless = "#result == null")
     public Product findPrductInfo(UUID productId) {
         return productRepository.findEntityGrapById(productId).orElseThrow(() -> new IllegalArgumentException("Product not found"));
     }
