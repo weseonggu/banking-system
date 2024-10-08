@@ -29,9 +29,10 @@ public enum ErrorCode {
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 2001, "user not found"),
     // 400 Bad Request
-    PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password."),
+    PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password. 6회 이상 틀릴 경우 비밀번호 초기화를 해야합니다."),
     // 403 Forbidden
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
+    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 6회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
     // 400 Bad Request
     ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
     // 409 Conflict

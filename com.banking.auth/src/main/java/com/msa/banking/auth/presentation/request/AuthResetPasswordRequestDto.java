@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthSignInRequestDto {
+public class AuthResetPasswordRequestDto {
 
     @NotBlank(message = "아이디는 필수 입니다.")
     private String username;
@@ -22,9 +22,4 @@ public class AuthSignInRequestDto {
             message = "비밀번호는 대소문자, 숫자, 특수문자를 포함해야 합니다."
     )
     private String password;
-
-    @NotBlank(message = "본인의 권한은 필수 입니다.")
-    @Pattern(regexp = "MASTER|MANAGER|CUSTOMER", message = "권한은 MASTER, MANAGER, CUSTOMER 중 하나여야 합니다.")
-    private String role;
-
 }
