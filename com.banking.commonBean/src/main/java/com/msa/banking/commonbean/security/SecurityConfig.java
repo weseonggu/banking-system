@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -24,7 +23,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final CustomPreAuthFilter customPreAuthFilter;
-    private final LogoutService logoutService;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -44,11 +42,6 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(customPreAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        http.logout(logoutConfig -> logoutConfig
-                .logoutUrl("/api/auth/logout")
-                .addLogoutHandler(logoutService)
-                .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()));
 
         // Auth Server 를 제외한 다른 모듈을요청 접근 설정
         http.authorizeHttpRequests((auth) -> auth

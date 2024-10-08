@@ -1,8 +1,10 @@
 package com.msa.banking.auth.application.service;
 
 import com.msa.banking.auth.application.jwt.JwtUtil;
+import com.msa.banking.auth.domain.model.BlackListToken;
 import com.msa.banking.auth.domain.model.Customer;
 import com.msa.banking.auth.domain.model.Employee;
+import com.msa.banking.auth.infrastructure.repository.BlackListTokenRepository;
 import com.msa.banking.auth.infrastructure.repository.CustomerRepository;
 import com.msa.banking.auth.infrastructure.repository.EmployeeRepository;
 import com.msa.banking.auth.presentation.request.AuthSignInRequestDto;
@@ -15,15 +17,25 @@ import com.msa.banking.common.notification.NotiType;
 import com.msa.banking.common.notification.NotificationRequestDto;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +48,11 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final BlackListTokenRepository blackListTokenRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    @Value("${service.jwt.secret-key}")
+    private String secretKey;
 
     /**
      * 회원가입
@@ -240,5 +257,43 @@ public class AuthService {
      */
     public boolean existsCustomerByPhoneNumber(String phoneNumber) {
         return customerRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    /**
+     * 블랙리스트 토큰 저장
+     * @param request
+     */
+    @Transactional
+    public void logout(HttpServletRequest request) {
+        String authorization = request.getHeader("Authorization");
+
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring(7);
+
+            // JWT 토큰의 만료 시간 추출 (JWT 파싱 로직에 따라 구현)
+            long expiration = getExpirationTimeFromJwt(token);
+
+            // Redis에 토큰을 블랙리스트로 추가, 만료 시간 동안 저장
+            redisTemplate.opsForValue().set(token, "logout", expiration, TimeUnit.MILLISECONDS);
+
+            // db에 토큰을 블랙리스트로 추가
+            BlackListToken blackListToken = BlackListToken.create(token, LocalDateTime.now().plusNanos(expiration * 1_000_000));
+
+            blackListTokenRepository.save(blackListToken);
+
+            log.info("JWT 토큰이 블랙리스트에 추가되었습니다: " + token);
+        } else {
+            throw new GlobalCustomException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
+    /**
+     * 토큰 남은 시간 추출
+     * @param token
+     * @return
+     */
+    private long getExpirationTimeFromJwt(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
     }
 }
