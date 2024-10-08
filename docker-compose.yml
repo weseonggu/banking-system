@@ -47,9 +47,9 @@ services:
     image: confluentinc/cp-zookeeper:latest
     platform: linux/amd64
     ports:
-      - "2181:2181"
+      - "3181:3181"
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_CLIENT_PORT: 3181
       ZOOKEEPER_TICK_TIME: 2000
     deploy:
       resources:
@@ -67,7 +67,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:3181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
@@ -84,7 +84,7 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:3181
       KAFKA_CLUSTERS_0_READONLY: "false"
     deploy:
       resources:

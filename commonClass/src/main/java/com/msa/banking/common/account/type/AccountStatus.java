@@ -1,4 +1,4 @@
-package com.msa.banking.account.domain.model;
+package com.msa.banking.common.account.type;
 
 public enum AccountStatus {
     ACTIVE,  // 계좌 활성화

@@ -64,6 +64,7 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
             // Redis에서 블랙리스트 확인
             String authorization = request.getHeader("Authorization");
 
+
             if (authorization != null && authorization.startsWith("Bearer ")) {
                 String token = authorization.substring(7);
 
@@ -84,6 +85,7 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
 
                 }
             }
+
 
         }else {
             log.error("userId, userName or role is null");

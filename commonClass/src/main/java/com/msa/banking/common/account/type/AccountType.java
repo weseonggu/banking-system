@@ -1,4 +1,4 @@
-package com.msa.banking.account.domain.model;
+package com.msa.banking.common.account.type;
 
 public enum AccountType {
     CHECKING, // 입출금 계좌
