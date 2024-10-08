@@ -1,6 +1,7 @@
 package com.msa.banking.product.domain.model;
 
 import com.msa.banking.common.base.AuditEntity;
+import com.msa.banking.product.lib.ProductType;
 import com.msa.banking.product.lib.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,20 +21,22 @@ public class UsingProduct extends AuditEntity {
     @Column(name = "using_product_id")
     private UUID id;
 
-    @Column(unique = true, name = "user_id", nullable = false)
+    @Column( name = "user_id", nullable = false)
     private UUID userId;
 
     @Column(name = "subscription_date", nullable = false)
     private LocalDateTime subscriptionDate;
 
-    @Column(name = "status", nullable = false)
-    private SubscriptionStatus state;
+    @Column(name = "type", nullable = false)
+    private ProductType type;
 
-    @Column(name = "account_id")
+    @Column(unique = true, name = "account_id")
     private UUID accountId;
 
-    @Column(name = "product_id")
-    private UUID productId;
+    @Column(name = "name")
+    private String name;
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,4 +49,18 @@ public class UsingProduct extends AuditEntity {
     private CheckingInUse checkingInUse;
 
     //////////////////////////////////////////////////////////////////////////////////////
+
+    public static UsingProduct create(UUID userId, ProductType type, UUID accountId, String name){
+        return UsingProduct.builder()
+                .userId(userId)
+                .subscriptionDate(LocalDateTime.now())
+                .type(type)
+                .accountId(accountId)
+                .name(name)
+                .build();
+
+    }
+    public void addChckingInuse(CheckingInUse checkingInUse){
+        this.checkingInUse = checkingInUse;
+    }
 }

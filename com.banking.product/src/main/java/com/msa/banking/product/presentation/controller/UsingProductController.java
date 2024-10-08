@@ -1,5 +1,6 @@
 package com.msa.banking.product.presentation.controller;
 
+import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.product.application.service.UsingProductService;
@@ -40,11 +41,8 @@ public class UsingProductController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> signUpForCheckingProduct(@Valid @RequestBody RequsetJoinChecking requsetJoinChecking,
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        log.info("id: "+userDetails.getUserId());
-//        log.info("username: "+userDetails.getUsername());
-//        log.info("id: "+userDetails.getRole());
 
-        usingProductService.joinChcking(requsetJoinChecking);
+        usingProductService.joinChecking(requsetJoinChecking, userDetails);
         return null;
     }
 

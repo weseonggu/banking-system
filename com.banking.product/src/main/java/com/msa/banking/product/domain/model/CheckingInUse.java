@@ -20,10 +20,8 @@ public class CheckingInUse extends AuditEntity {
     @Column(name = "checking_in_use_id")
     private UUID id;
 
-    @Column(name = "type", nullable = false)
-    private ProductType type;
 
-    @Column(precision = 5, scale = 4, name = "interest_rate", nullable = false)
+    @Column(precision = 6, scale = 4, name = "interest_rate", nullable = false)
     private BigDecimal interestRate;
 
     @Column(name = "fee_waiver", nullable = false)
@@ -36,6 +34,11 @@ public class CheckingInUse extends AuditEntity {
 
     ///////////////////////////////////////////////////////////////////////
 
-
+    public  static CheckingInUse create(BigDecimal interestRate, Boolean feeWaiver) {
+        return CheckingInUse.builder()
+                .interestRate(interestRate)
+                .feeWaiver(feeWaiver)
+                .build();
+    }
 
 }
