@@ -143,7 +143,6 @@ public class TransactionsService {
             beneficiaryTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
         }
 
-
         transactionsRepository.save(senderTransaction);
         transactionsRepository.save(beneficiaryTransaction);
     }
