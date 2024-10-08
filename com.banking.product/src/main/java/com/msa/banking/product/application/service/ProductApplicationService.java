@@ -13,6 +13,7 @@ import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundExc
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
+import com.msa.banking.product.presentation.response.ResponseProductPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -120,9 +121,12 @@ public class ProductApplicationService {
         Pageable newPageable = PageRequest.of(pageNumber, pageSize, sort);
 
         return productService.findAllProducts(newPageable, condition);
+
+
     }
 
     // 상품 디테일 조회
+    @Transactional(readOnly = true)
     public ProductResponseDto findProductDetail(UUID productId) {
         Product product = productService.findPrductInfo(productId);
         ProductDetailDto detailDto;

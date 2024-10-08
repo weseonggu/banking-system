@@ -12,9 +12,4 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController {
 
     private final NotificationService notificationService;
-
-
-
-
-
 }

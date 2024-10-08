@@ -3,7 +3,7 @@ package com.msa.banking.product.presentation.controller;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.product.application.dto.ProductResponseDto;
-import com.msa.banking.product.application.dto.ResponseProductPage;
+import com.msa.banking.product.presentation.response.ResponseProductPage;
 import com.msa.banking.product.application.service.ProductApplicationService;
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
@@ -11,10 +11,12 @@ import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,7 +40,8 @@ public class ProductController {
     @PostMapping(value = "/create/checking")
     @LogDataChange
     // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
-    public ResponseEntity<?> createCheckingProduct(@RequestBody RequestCreateCheckingProduct product) {
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    public ResponseEntity<?> createCheckingProduct(@Valid @RequestBody RequestCreateCheckingProduct product) {
         // 어플리케이션 계층 서비스 호츌
         applicationService.createCheckingProduct(product);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -53,7 +56,8 @@ public class ProductController {
     @PostMapping(value = "/create/loan")
     @LogDataChange
     // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
-    public ResponseEntity<?> createLoanProduct(@RequestBody RequestCreateLoanProduct product) {
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    public ResponseEntity<?> createLoanProduct(@Valid @RequestBody RequestCreateLoanProduct product) {
         // 어플리케이션 계층 서비스 호츌
         applicationService.createLoanProduct(product);
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -66,6 +70,7 @@ public class ProductController {
     })
     @GetMapping(value = "/board")
     // TODO: 인증자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> findProucts(Pageable pageable, RequestSearchProductDto condition) {
         // 어플리케이션 계층 서비스 호츌
         List<ResponseProductPage> list = applicationService.findAllProduct(pageable, condition);
@@ -84,6 +89,7 @@ public class ProductController {
     })
     @GetMapping(value = "/detail")
     // TODO: 인증자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> findProuctDetail(@RequestParam("porduct_id") UUID productId) {
         // 어플리케이션 계층 서비스 호츌
         ProductResponseDto dto = applicationService.findProductDetail(productId);

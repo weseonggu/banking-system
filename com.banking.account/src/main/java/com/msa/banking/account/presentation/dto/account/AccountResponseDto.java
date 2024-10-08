@@ -1,7 +1,7 @@
 package com.msa.banking.account.presentation.dto.account;
 
-import com.msa.banking.account.domain.model.AccountStatus;
-import com.msa.banking.account.domain.model.AccountType;
+import com.msa.banking.common.account.type.AccountStatus;
+import com.msa.banking.common.account.type.AccountType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

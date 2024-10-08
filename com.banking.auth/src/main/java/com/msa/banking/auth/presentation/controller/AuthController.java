@@ -6,12 +6,14 @@ import com.msa.banking.auth.presentation.request.AuthSignUpRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -52,5 +54,17 @@ public class AuthController {
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "user logged in", token));
     }
 
+    /**
+     * 로그아웃
+     * @param request
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        log.info("로그아웃 시도 중 ");
 
+        authService.logout(request);
+
+        log.info("JWT 토큰이 블랙리스트에 추가되었습니다");
+        return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.UPDATE_SUCCESS.getStatus(), "logout success", "로그아웃 완료"));
+    }
 }
