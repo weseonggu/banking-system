@@ -4,11 +4,11 @@ import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
+import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryRequestDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
 import com.msa.banking.personal.application.service.PersonalHistoryService;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
-import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -41,7 +41,7 @@ public class PersonalHistoryController {
                 new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "searchPersonalHistory", personalHistoryListPage));
     }
 
-    // 개인 내역 단건 조회
+    // 개인 내역 단 건 조회
     @GetMapping("/{history_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     public ResponseEntity<?> findPersonalHistoryById(@PathVariable("history_id") Long historyId,
@@ -65,8 +65,9 @@ public class PersonalHistoryController {
 
         UUID userId = userDetails.getUserId();
         String role = userDetails.getRole();
+        String userName = userDetails.getUsername();
 
-        PersonalHistoryResponseDto responseDto = personalHistoryService.updatePersonalHistoryCategory(personalHistoryUpdateDto, historyId, userId, role);
+        PersonalHistoryResponseDto responseDto = personalHistoryService.updatePersonalHistoryCategory(personalHistoryUpdateDto, historyId, userId, role, userName);
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(SuccessCode.UPDATE_SUCCESS.getStatus(), "updatePersonalHistoryCategory", responseDto));
@@ -80,11 +81,29 @@ public class PersonalHistoryController {
 
         UUID userId = userDetails.getUserId();
         String role = userDetails.getRole();
+        String userName = userDetails.getUsername();
 
-        personalHistoryService.deletePersonHistory(historyId, userId, role);
+        personalHistoryService.deletePersonHistory(historyId, userId, role,userName);
 
         return ResponseEntity.ok(
-                new SuccessResponse<>(SuccessCode.DELETE_SUCCESS.getStatus(), "updatePersonalHistoryCategory", null));
+                new SuccessResponse<>(SuccessCode.DELETE_SUCCESS.getStatus(), "updatePersonalHistoryCategory", "개인 내역 삭제되었습니다."));
+    }
+
+    /**
+     * 개인 내역 생성 (카테고리 미분류) -(카프카 알림 테스트용) TODO Account - Kafka 개발 완료 시 삭제
+     */
+    @PostMapping("")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    public ResponseEntity<?> createPersonalHistory(@RequestBody PersonalHistoryRequestDto requestDto,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        UUID userId = userDetails.getUserId();
+        String userName = userDetails.getUsername();
+
+        PersonalHistoryResponseDto responseDto = personalHistoryService.createPersonalHistory(requestDto,userId,userName);
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(SuccessCode.INSERT_SUCCESS.getStatus(), "createPersonalHistory", responseDto));
     }
 
 }

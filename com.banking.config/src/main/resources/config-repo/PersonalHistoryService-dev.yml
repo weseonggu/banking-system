@@ -13,6 +13,8 @@ spring:
         enabled: true
       env:
         enabled: true
+  main:
+    allow-bean-definition-overriding: true # 동일한 이름의 빈이 존재할 때 덮어쓰기를 허용하도록 설정
 
   data:
     redis:

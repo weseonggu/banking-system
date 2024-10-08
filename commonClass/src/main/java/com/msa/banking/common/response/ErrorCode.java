@@ -26,7 +26,6 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, 1006, "서비스가 아직 준비되지 않았습니다."),
 
     /* 유저 2000번대 */
-
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 2001, "user not found"),
     // 400 Bad Request
@@ -42,6 +41,22 @@ public enum ErrorCode {
 
 
     /* 계좌 3000번대 */
+    // 중복 계좌
+    ACCOUNT_NUMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, 3001, "중복된 계좌번호입니다."),
+    // 계좌 not found
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, 3002,"해당 계좌를 찾을 수 없습니다."),
+    // 자동 이체 not found
+    DIRECTDEBIT_NOT_FOUND(HttpStatus.NOT_FOUND, 3003, "해당 자동 이체 내역을 찾을 수 없습니다."),
+    // 계좌 거래 내역 not found
+    TRANSACTION_NOT_FOUND(HttpStatus.NOT_FOUND, 3004, "해당 계좌 거래 내역을 찾을 수 없습니다."),
+    // 비밀 번호 not match
+    ACCOUNTPIN_NOT_MATCH(HttpStatus.UNAUTHORIZED, 3004, "비밀 번호가 일치하지 않습니다."),
+    // 중대 시스템 오류 거래 금액 not match
+    BALANCE_NOT_MATCH(HttpStatus.CONFLICT, 3007, "거래 금액이 최종 잔액과 일치하지 않습니다."),
+    // 인출 불가
+    WITHDRAWAL_NOT_POSSIBLE(HttpStatus.BAD_REQUEST, 3008, "인출 잔액이 모자랍니다."),
+
+
     /* 알림 4000번대 */
     SLACK_ERROR(HttpStatus.BAD_REQUEST, 4000, "슬랙 ID 가 잘못 되었거나, 현재 메세지를 보낼 수 없는 상태입니다."),
     /* 개인내역 5000번대 */
