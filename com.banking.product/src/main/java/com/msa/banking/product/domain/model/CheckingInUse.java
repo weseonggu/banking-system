@@ -2,9 +2,7 @@ package com.msa.banking.product.domain.model;
 
 import com.msa.banking.common.base.AuditEntity;
 import com.msa.banking.product.lib.ProductType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -22,14 +20,21 @@ public class CheckingInUse extends AuditEntity {
     @Column(name = "checking_in_use_id")
     private UUID id;
 
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     private ProductType type;
 
-    @Column(precision = 5, scale = 4, name = "interest_rate")
+    @Column(precision = 5, scale = 4, name = "interest_rate", nullable = false)
     private BigDecimal interestRate;
 
-    @Column(name = "fee_waiver")
+    @Column(name = "fee_waiver", nullable = false)
     private Boolean feeWaiver;
+
+    ///////////////////////////////////////////////////////////////////////
+
+    @OneToOne(mappedBy = "checkingInUse", fetch = FetchType.LAZY)
+    private UsingProduct usingProduct;
+
+    ///////////////////////////////////////////////////////////////////////
 
 
 

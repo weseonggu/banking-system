@@ -13,11 +13,11 @@ import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundExc
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
+import com.msa.banking.product.presentation.response.ResponseProductPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

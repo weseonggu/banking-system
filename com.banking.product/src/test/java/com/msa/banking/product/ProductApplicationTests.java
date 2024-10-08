@@ -1,6 +1,6 @@
 package com.msa.banking.product;
 
-import com.msa.banking.product.application.dto.ResponseProductPage;
+import com.msa.banking.product.presentation.response.ResponseProductPage;
 import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import org.junit.jupiter.api.Test;

@@ -3,13 +3,14 @@ package com.msa.banking.product.lib;
 import lombok.Getter;
 
 @Getter
-public enum SubscriptionStatus {
-    USING("실행 중"),
+public enum LoanState {
+    RUNNING("실행 중"),
     CANCLE("해지"),
-    STOP("휴면 중");
+    OVERDUE("연체 중"),
+    BEFOREEXECUTION("실행 전");
 
     private final String value;
-    SubscriptionStatus(String value) {
+    LoanState(String value) {
         this.value = value;
     }
 

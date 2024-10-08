@@ -2,10 +2,9 @@ package com.msa.banking.product.presentation.controller;
 
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
-import com.msa.banking.product.application.dto.ResponsePDFInfo;
-import com.msa.banking.product.application.dto.ResponsePDFUpload;
+import com.msa.banking.product.presentation.response.ResponsePDFInfo;
+import com.msa.banking.product.presentation.response.ResponsePDFUpload;
 import com.msa.banking.product.application.service.PDFInfoApplicationService;
-import com.msa.banking.product.application.service.UploadService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 

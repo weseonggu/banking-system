@@ -1,8 +1,8 @@
 package com.msa.banking.product.application.service;
 
 import com.msa.banking.product.application.dto.PDFCache;
-import com.msa.banking.product.application.dto.ResponsePDFInfo;
-import com.msa.banking.product.application.dto.ResponsePDFUpload;
+import com.msa.banking.product.presentation.response.ResponsePDFInfo;
+import com.msa.banking.product.presentation.response.ResponsePDFUpload;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.lib.FileUtil;

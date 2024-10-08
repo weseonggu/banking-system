@@ -1,8 +1,7 @@
 package com.msa.banking.product.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.msa.banking.product.lib.LoanState;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -23,17 +22,27 @@ public class LoanInUse {
     @Column(name = "loan_in_use_id")
     private UUID id;
 
-    @Column(name = "loan_amount")
+    @Column(name = "loan_amount", nullable = false)
     private double loanAmount;
 
-    @Column(precision = 6, scale = 4, name = "interest_rate")
+    @Column(precision = 6, scale = 4, name = "interest_rate",  nullable = false)
     private BigDecimal interestRate;
 
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
+
+    @Column(name = "status", nullable = false)
+    private LoanState status;
+
+    ///////////////////////////////////////////////////////////////////////
+
+    @OneToOne(mappedBy = "loanInUse", fetch = FetchType.LAZY)
+    private UsingProduct usingProduct;
+
+    ///////////////////////////////////////////////////////////////////////
 
 
 

@@ -1,4 +1,4 @@
-package com.msa.banking.product.application.dto;
+package com.msa.banking.product.presentation.response;
 
 import com.msa.banking.product.lib.ProductType;
 import com.querydsl.core.annotations.QueryProjection;
