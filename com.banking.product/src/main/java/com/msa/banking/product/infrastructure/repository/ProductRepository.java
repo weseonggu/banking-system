@@ -2,6 +2,7 @@ package com.msa.banking.product.infrastructure.repository;
 
 import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
+import com.msa.banking.product.lib.ProductType;
 import feign.Param;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,13 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, Product
     })
     @Query("SELECT p FROM Product p WHERE p.id = :productId")
     Optional<Product> findEntityGrapById(@Param("productId")UUID productId);
+
+    @Query("SELECT COUNT(p) > 0 FROM Product p " +
+            "WHERE p.id = :productId " +
+            "AND p.isDelete = :deleted " +
+            "AND CURRENT_TIMESTAMP BETWEEN p.validFrom AND p.validTo "+
+            "AND p.type = :type")
+    Boolean existsByIdWhereIsDeleted(@Param("productId") UUID productId, @Param("deleted") Boolean deleted, @Param("type") ProductType type);
+
+
 }

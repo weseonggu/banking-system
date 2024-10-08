@@ -1,11 +1,14 @@
 package com.msa.banking.product.domain.model;
 
+import com.msa.banking.common.base.AuditEntity;
 import com.msa.banking.product.lib.LoanState;
+import com.msa.banking.product.lib.ProductType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
+import java.rmi.server.UID;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -15,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class LoanInUse {
+public class LoanInUse extends AuditEntity {
 
     @Id
     @UuidGenerator
@@ -34,6 +37,7 @@ public class LoanInUse {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private LoanState status;
 
@@ -44,6 +48,15 @@ public class LoanInUse {
 
     ///////////////////////////////////////////////////////////////////////
 
+    public static LoanInUse create(double loanAmount, String name, BigDecimal interestRate, long month){
+        return LoanInUse.builder()
+                .loanAmount(loanAmount)
+                .interestRate(interestRate)
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusMonths(month))
+                .status(LoanState.BEFOREEXECUTION)
+                .build();
+    }
 
 
 

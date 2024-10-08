@@ -27,6 +27,7 @@ public class UsingProduct extends AuditEntity {
     @Column(name = "subscription_date", nullable = false)
     private LocalDateTime subscriptionDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private ProductType type;
 
@@ -35,6 +36,9 @@ public class UsingProduct extends AuditEntity {
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "product_id")
+    private UUID productId;
 
 
 
@@ -50,17 +54,22 @@ public class UsingProduct extends AuditEntity {
 
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static UsingProduct create(UUID userId, ProductType type, UUID accountId, String name){
+    public static UsingProduct create(UUID userId, ProductType type, UUID accountId, String name, UUID productId){
         return UsingProduct.builder()
                 .userId(userId)
                 .subscriptionDate(LocalDateTime.now())
                 .type(type)
                 .accountId(accountId)
                 .name(name)
+                .productId(productId)
                 .build();
 
     }
     public void addChckingInuse(CheckingInUse checkingInUse){
         this.checkingInUse = checkingInUse;
+    }
+
+    public void addLoanInuse(LoanInUse loanInUse){
+        this.loanInUse = loanInUse;
     }
 }

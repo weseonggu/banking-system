@@ -38,4 +38,7 @@ public class RequsetJoinChecking{
     @NotNull(message = "필수 입력 사항입니다.")
     @NotBlank(message = "필수 입력 사항입니다.")
     private String name;
+
+    @NotNull(message = "필수 입력 사항입니다.")
+    private UUID productId;
 }
