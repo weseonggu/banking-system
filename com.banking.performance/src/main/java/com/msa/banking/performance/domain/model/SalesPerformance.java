@@ -35,7 +35,7 @@ public class SalesPerformance extends AuditEntity {
     @Column(name = "loan_count", nullable = false)
     private Long loanCount;
 
-    @Column(name = "deposit_count", nullable = false)
+    @Column(name = "deposit_count")
     private Long depositCount;
 
     // 연도별 평가
@@ -46,24 +46,21 @@ public class SalesPerformance extends AuditEntity {
     @Column(name = "evaluation_month")
     private YearMonth evaluationMonth;
 
-    public SalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, Long depositCount, Year evaluationYear, YearMonth evaluationMonth) {
+    // 월별 생성자
+    public SalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, YearMonth evaluationMonth) {
         this.totalTransactionAmount = totalTransactionAmount;
         this.loanCount = loanCount;
-        this.depositCount = depositCount;
-        this.evaluationYear = evaluationYear;
         this.evaluationMonth = evaluationMonth;
     }
 
     /**
-     * 생성 메서드
+     * 월별 생성 메서드
      * @param totalTransactionAmount
      * @param loanCount
-     * @param depositCount
-     * @param evaluationYear
      * @param evaluationMonth
      * @return
      */
-    public static SalesPerformance createSalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, Long depositCount, Year evaluationYear, YearMonth evaluationMonth) {
-        return new SalesPerformance(totalTransactionAmount, loanCount, depositCount, evaluationYear, evaluationMonth);
+    public static SalesPerformance createSalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, YearMonth evaluationMonth) {
+        return new SalesPerformance(totalTransactionAmount, loanCount, evaluationMonth);
     }
 }
