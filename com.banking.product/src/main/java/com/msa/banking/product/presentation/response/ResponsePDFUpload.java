@@ -1,4 +1,4 @@
-package com.msa.banking.product.application.dto;
+package com.msa.banking.product.presentation.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,9 +1,9 @@
 package com.msa.banking.account.presentation.controller;
 
 import com.msa.banking.account.application.service.AccountService;
-import com.msa.banking.account.domain.model.AccountStatus;
+import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.account.presentation.dto.account.AccountListResponseDto;
-import com.msa.banking.account.presentation.dto.account.AccountRequestDto;
+import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.account.presentation.dto.account.AccountResponseDto;
 import com.msa.banking.account.presentation.dto.account.AccountSearchRequestDto;
 import com.msa.banking.commonbean.security.UserDetailsImpl;

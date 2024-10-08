@@ -2,11 +2,11 @@ package com.msa.banking.account.application.service;
 
 import com.msa.banking.account.application.mapper.AccountMapper;
 import com.msa.banking.account.domain.model.Account;
-import com.msa.banking.account.domain.model.AccountStatus;
+import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.infrastructure.accountgenerator.AccountNumberGenerator;
 import com.msa.banking.account.presentation.dto.account.AccountListResponseDto;
-import com.msa.banking.account.presentation.dto.account.AccountRequestDto;
+import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.account.presentation.dto.account.AccountResponseDto;
 import com.msa.banking.account.presentation.dto.account.AccountSearchRequestDto;
 import com.msa.banking.common.base.UserRole;

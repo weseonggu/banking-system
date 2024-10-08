@@ -85,6 +85,7 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
                 }
             }
 
+
         }else {
             log.error("userId, userName or role is null");
 

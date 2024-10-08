@@ -3,9 +3,11 @@ package com.msa.banking.product.presentation.exception;
 import com.msa.banking.common.response.ErrorResponse;
 import com.msa.banking.product.presentation.exception.custom.CustomDuplicateKeyException;
 import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
+import com.msa.banking.product.presentation.exception.custom.TryAgainException;
 import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,6 +73,22 @@ public class ProductGlobalExceptionHandler {
                 HttpStatus.CONFLICT.value(),
                 "CONFLICT",
                 "나중에 다시 시도해주세요",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public ResponseEntity<?> handleRedisConnectionException(RedisConnectionFailureException ex) {
+        return ResponseEntity.status(500).body("잠시 후 다시 시도해 주세요.");
+    }
+
+    @ExceptionHandler(TryAgainException.class)
+    public ResponseEntity<ErrorResponse> handleTryAgainException(RuntimeException ex, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "SERVICE_UNAVAILABLE",
+                ex.getMessage(),
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);

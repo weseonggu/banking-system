@@ -1,6 +1,5 @@
-package com.msa.banking.product.application.dto;
+package com.msa.banking.product.presentation.response;
 
-import com.msa.banking.product.domain.model.PDFInfo;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

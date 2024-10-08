@@ -2,8 +2,10 @@ package com.msa.banking.account.domain.model;
 
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
-import com.msa.banking.account.presentation.dto.account.AccountRequestDto;
+import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.common.base.AuditEntity;
+import com.msa.banking.common.account.type.AccountStatus;
+import com.msa.banking.common.account.type.AccountType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;

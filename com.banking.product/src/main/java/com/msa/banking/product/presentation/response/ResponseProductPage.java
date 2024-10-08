@@ -1,8 +1,7 @@
-package com.msa.banking.product.application.dto;
+package com.msa.banking.product.presentation.response;
 
-import com.msa.banking.product.domain.ProductType;
+import com.msa.banking.product.lib.ProductType;
 import com.querydsl.core.annotations.QueryProjection;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
