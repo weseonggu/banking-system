@@ -27,11 +27,19 @@ public class RequestJoinLoan {
     private double loanAmount;
 
     @NotNull(message = "필수 입력 사항입니다.")
+    @NotBlank(message = "필수 입력 사항입니다.")
+    private String name;
+
+    @NotNull(message = "필수 입력 사항입니다.")
     @DecimalMin(value = "0.0", inclusive = false, message = "Interest rate must be greater than zero")
     @Digits(integer = 2, fraction = 4, message = "Interest rate should be a decimal value with up to 3 integer digits and 2 fractional digits")
     private BigDecimal interestRate;
 
     @NotNull(message = "필수 입력 사항입니다.")
-    @NotBlank(message = "필수 입력 사항입니다.")
-    private String name;
+    private UUID productId;
+
+    @NotNull(message = "필수 입력 사항입니다.")
+    private long month;
+
+
 }
