@@ -18,6 +18,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class UserService {
     private final CustomerRepository customerRepository;
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 내부 API 직원 테이블 전용
@@ -40,7 +42,7 @@ public class UserService {
      * @param userId
      * @return
      */
-    @Cacheable(cacheNames = "EmployeeCache", key = "#userId")
+    @Cacheable(cacheNames = "EmployeeCache", key = "#userId", condition = "@checkRedisState.isRedisAvailable()")
     public AuthResponseDto findEmployeeUsername(UUID userId) {
         Employee findEmployee = employeeRepository.findById(userId).orElseThrow(() ->
                 new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
@@ -54,7 +56,7 @@ public class UserService {
      * @param userId
      * @return
      */
-    @Cacheable(cacheNames = "CustomerCache", key = "#userId")
+    @Cacheable(cacheNames = "CustomerCache", key = "#userId", condition = "@checkRedisState.isRedisAvailable()")
     public AuthResponseDto findCustomerUsername(UUID userId) {
 
         Customer findCustomer = customerRepository.findById(userId).orElseThrow(() ->
@@ -72,7 +74,7 @@ public class UserService {
      * @param role
      * @return
      */
-    @Cacheable(cacheNames = "CustomerCache", key = "#customerId")
+    @Cacheable(cacheNames = "CustomerCache", key = "#customerId", condition = "@checkRedisState.isRedisAvailable()")
     public AuthResponseDto findCustomerById(UUID customerId, UUID userId, String role) {
 
         // 고객 권한일 때 본인 정보가 아니면 에러
@@ -96,7 +98,7 @@ public class UserService {
      * @param role
      * @return
      */
-    @Cacheable(cacheNames = "EmployeeCache", key = "#employeeId")
+    @Cacheable(cacheNames = "EmployeeCache", key = "#employeeId", condition = "@checkRedisState.isRedisAvailable()")
     public AuthResponseDto findEmployeeById(UUID employeeId, UUID userId, String role) {
         
         // 매니저 권한일 때 본인 정보가 아니면 에러
@@ -122,7 +124,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    @CachePut(cacheNames = "CustomerCache", key = "#customerId")
+    @CachePut(cacheNames = "CustomerCache", key = "#customerId", condition = "@checkRedisState.isRedisAvailable()")
     @CacheEvict(cacheNames = "CustomerSearchCache", allEntries = true)
     public AuthResponseDto updateCustomer(UUID customerId, AuthRequestDto request, UUID userId, String role) {
 
@@ -156,7 +158,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    @CachePut(cacheNames = "EmployeeCache", key = "#customerId")
+    @CachePut(cacheNames = "EmployeeCache", key = "#customerId", condition = "@checkRedisState.isRedisAvailable()")
     @CacheEvict(cacheNames = "EmployeeSearchCache", allEntries = true)
     public AuthResponseDto updateEmployee(UUID employeeId, AuthRequestDto request, UUID userId, String role) {
 
@@ -185,7 +187,7 @@ public class UserService {
      * @param pageable
      * @return
      */
-    @Cacheable(cacheNames = "CustomerSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}")
+    @Cacheable(cacheNames = "CustomerSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}", condition = "@checkRedisState.isRedisAvailable()")
     public Page<AuthResponseDto> findAllCustomer(Pageable pageable, SearchRequestDto condition) {
         return customerRepository.findPagingAllCustomer(pageable, condition);
     }
@@ -196,7 +198,7 @@ public class UserService {
      * @param condition
      * @return
      */
-    @Cacheable(cacheNames = "EmployeeSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}")
+    @Cacheable(cacheNames = "EmployeeSearchCache", key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, #condition.hashCode()}", condition = "@checkRedisState.isRedisAvailable()")
     public Page<AuthResponseDto> findAllEmployee(Pageable pageable, SearchRequestDto condition) {
         return employeeRepository.findPagingAllEmployee(pageable, condition);
     }
@@ -207,25 +209,24 @@ public class UserService {
      * @return
      */
     @Transactional
-    public String rollbackSignUp(NotificationRequestDto request) {
+    public void rollbackSignUp(NotificationRequestDto request) {
         if (UserRole.MASTER.equals(request.getRole()) || UserRole.MANAGER.equals(request.getRole())) {
 
             // 직원 조회
             Employee findEmployee = employeeRepository.findById(request.getUserId()).orElseThrow(() ->
                     new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
+            // 직원 삭제
             employeeRepository.delete(findEmployee);
 
-            return request.getSlackId() + " 슬랙 ID 가 유효하지 않거나 현재 슬랙을 통한 회원가입 완료 메세지를 보낼 수 없어 회원가입이 불가합니다.";
         } else {
 
             // 고객 조회
             Customer findCustomer = customerRepository.findById(request.getUserId()).orElseThrow(() ->
                     new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
+            // 고객 삭제
             customerRepository.delete(findCustomer);
-
-            return request.getSlackId() + " 슬랙 ID 가 유효하지 않거나 현재 슬랙을 통한 회원가입 완료 메세지를 보낼 수 없어 회원가입이 불가합니다.";
         }
 
     }
