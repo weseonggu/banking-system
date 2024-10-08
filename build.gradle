@@ -5,13 +5,10 @@ plugins {
 }
 
 
-
-
 subprojects {
     apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
-
 
 
     // 관리하는 모듈의 공통 dependencies
