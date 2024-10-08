@@ -67,13 +67,21 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
             if (authorization != null && authorization.startsWith("Bearer ")) {
                 String token = authorization.substring(7);
 
-                if (redisTemplate.hasKey(token)) {
-                    // 블랙리스트에 있으면 인증 실패 처리
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("{\"error\": \"해당 토큰은 로그아웃 처리되었습니다.\"}");
-                    SecurityContextHolder.clearContext();
-                    return;
+                try {
+                    // Redis에서 해당 토큰이 블랙리스트에 있는지 확인
+                    if (redisTemplate != null && redisTemplate.hasKey(token)) {
+                        // 블랙리스트에 있으면 인증 실패 처리
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getWriter().write("{\"error\": \"해당 토큰은 로그아웃 처리되었습니다.\"}");
+                        SecurityContextHolder.clearContext();
+                        return;
+                    }
+                } catch (Exception e) {
+                    // Redis에서 조회 중 예외 발생 시 처리
+                    log.error("Redis 조회 중 오류 발생: {}", e.getMessage());
+                    // Redis가 실패해도 인증 로직은 계속 처리 (필요에 따라 로직 수정 가능)
+
                 }
             }
 

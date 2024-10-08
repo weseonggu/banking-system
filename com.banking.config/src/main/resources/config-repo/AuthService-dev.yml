@@ -32,6 +32,7 @@ spring:
       port: 6379
       username: default
       password: systempass
+      timeout: 3000
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -89,6 +90,9 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  health:
+    redis:
+      enabled: false
 
 common:
   bean:
