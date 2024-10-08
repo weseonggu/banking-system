@@ -6,7 +6,6 @@ import com.msa.banking.account.domain.model.AccountTransactions;
 import com.msa.banking.account.domain.model.TransactionStatus;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
-import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
 import com.msa.banking.account.presentation.dto.transactions.TransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
@@ -49,20 +48,12 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public TransactionResponseDto createWithdrawal(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role) {
-
-        // 비밀번호 암호화
-        String encryptedPin = encryptor.encrypt(accountPin);
+    public TransactionResponseDto createWithdrawal(UUID accountId, String accountPin, TransactionRequestDto request, String username, String role) {
 
         // 출금하려는 계좌 찾기
         Account account = accountRepository.findById(accountId)
                 .filter(p -> !p.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
-
-        // 비밀번호 확인
-        if (!account.getAccountPin().equals(encryptedPin)) {
-            throw new GlobalCustomException(ErrorCode.ACCOUNTPIN_NOT_MATCH);
-        }
 
         // 출금하기
         // 계좌 잔액 체크
@@ -70,6 +61,9 @@ public class TransactionsService {
         if(request.amount().compareTo(account.getBalance()) > 0) {
             throw new GlobalCustomException(ErrorCode.WITHDRAWAL_NOT_POSSIBLE);
         }
+
+        // 비밀번호 확인 (출금 전에 바로 처리)
+        checkAccountPin(accountId, accountPin);
 
         // 계좌 거래 생성
         AccountTransactions transaction =
@@ -96,7 +90,7 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public TransactionResponseDto createTransafer(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role) {
+    public void createTransafer(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role) {
 
         String encryptedPin = encryptor.encrypt(accountPin);
 
@@ -106,10 +100,67 @@ public class TransactionsService {
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 수취인의 계좌 찾기
+        Account beneficiaryAccount = accountRepository.findByAccountNumber(request.beneficiaryAccount())
+                .filter(p -> !p.getIsDelete())
+                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 계좌 잔액 체크
+        if(request.amount().compareTo(senderAccount.getBalance()) > 0) {
+            throw new GlobalCustomException(ErrorCode.WITHDRAWAL_NOT_POSSIBLE);
+        }
+
+        // 송금인 비밀번호 확인 (출금 전에 바로 처리)
+        checkAccountPin(accountId, accountPin);
+
+        /**
+         * 송금인, 수취인 계좌 거래 생성 시 하나라도 실패하면 둘다 롤백해야함.
+         **/
+        // 송금인 계좌 거래 생성
+        AccountTransactions senderTransaction =
+                AccountTransactions.createSenderTransaction(senderAccount, request);
+
+        // 수취인 계좌 거래 생성
+        AccountTransactions beneficiaryTransaction =
+                AccountTransactions.createBeneficiaryTransaction(beneficiaryAccount, senderAccount.getAccountNumber(), request);
+
+        // 송금인 계좌 이체 금액 차감
+        BigDecimal totalSenderBalance =  senderAccount.getBalance().subtract(request.amount());
+        senderAccount.updateAccount(totalSenderBalance);
+
+        // 수취인 계좌 이체 금액 추가
+        BigDecimal totalBeneficiaryBalance =  beneficiaryAccount.getBalance().add(request.amount());
+        beneficiaryAccount.updateAccount(totalBeneficiaryBalance);
+
+        // 송금인/수취인 계좌 잔액과 해당 계좌 거래 내역 합산 비교
+        if(!senderAccount.getBalance().equals(transactionsRepository.getTotalBalance(accountId)) ||
+            !beneficiaryAccount.getBalance().equals(transactionsRepository.getTotalBalance(beneficiaryAccount.getAccountId())))
+        {
+            senderTransaction.updateTransactionStatus(TransactionStatus.FAILED);
+            beneficiaryTransaction.updateTransactionStatus(TransactionStatus.FAILED);
+            throw new GlobalCustomException(ErrorCode.BALANCE_NOT_MATCH);
+        } else {
+            senderTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
+            beneficiaryTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
+        }
 
 
+        transactionsRepository.save(senderTransaction);
+        transactionsRepository.save(beneficiaryTransaction);
     }
 
+
+    @LogDataChange
+    @Transactional
+    public void checkAccountPin(UUID accountId, String accountPin) {
+
+        // 비밀번호 암호화
+        String encryptedPin = encryptor.encrypt(accountPin);
+
+        // 비밀번호 확인
+        if ( accountRepository.getAccountPin(accountId).equals(encryptedPin)) {
+            throw new GlobalCustomException(ErrorCode.ACCOUNTPIN_NOT_MATCH);
+        }
+    }
 
 
     // TODO: 계좌 거래 상태를 본인이 수정하는가? 거래가 이루어진 상태를 분류해서 로직을 다시 설정해야함.

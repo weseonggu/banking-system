@@ -20,4 +20,8 @@ public interface AccountRepository extends JpaRepository<Account, UUID>, Account
     // 계좌 아이디로 소유자 이름 가져오기
     @Query("SELECT a.accountHolder FROM Account a WHERE a.accountId = :accountId")
     String getAccountHolder(@Param("accountId") UUID accountId);
+
+    // 계좌 아이디로 해당 비밀번호 가져오기
+    @Query("SELECT a.accountPin FROM Account a WHERE a.accountId = :accountId")
+    String getAccountPin(@Param("accountId") UUID accountId);
 }
