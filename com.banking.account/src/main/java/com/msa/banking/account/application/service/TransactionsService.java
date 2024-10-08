@@ -6,6 +6,8 @@ import com.msa.banking.account.domain.model.AccountTransactions;
 import com.msa.banking.account.domain.model.TransactionStatus;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
+import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
+import com.msa.banking.account.presentation.dto.transactions.TransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsSearchRequestDto;
@@ -13,11 +15,14 @@ import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
+import org.jasypt.encryption.StringEncryptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -26,49 +31,84 @@ public class TransactionsService {
     private final TransactionsRepository transactionsRepository;
     private final AccountRepository accountRepository;
     private final TransactionsMapper transactionsMapper;
+    private final StringEncryptor encryptor;
 
-    public TransactionsService(TransactionsRepository transactionsRepository, AccountRepository accountRepository, TransactionsMapper transactionsMapper) {
+    @Autowired
+    public TransactionsService(TransactionsRepository transactionsRepository, AccountRepository accountRepository, TransactionsMapper transactionsMapper, StringEncryptor encryptor) {
         this.transactionsRepository = transactionsRepository;
         this.accountRepository = accountRepository;
         this.transactionsMapper = transactionsMapper;
+        this.encryptor = encryptor;
     }
 
 
-    /**
-     * 입금 기능(저축 + 대출 상환 포함 가능)
-        최종 잔액 조회 시 전체 잔액을 합산 후 반영
-     **/
-    @LogDataChange
-    @Transactional
-    public TransactionResponseDto createDeposit(UUID accountId, String username, String role) {
-
-        Account account = accountRepository.findById(accountId)
-                .filter(p -> !p.getIsDelete())
-                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
-
-        // 고객의 경우 본인만이 계좌 입금 거래 가능
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(account.getCreatedBy())){
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        } else {
-
-        }
-    }
-
+    // TODO: 입금 기능이 필요한가? 비밀번호를 3번 이상 틀리면 본인 인증 확인 필요.
     /**
      * 출금 + 결제 기능
 
      **/
-//    @LogDataChange
-//    @Transactional
-//    public TransactionResponseDto createWithdrawal(UUID accountId) {
-//
-//
-//    }
+    @LogDataChange
+    @Transactional
+    public TransactionResponseDto createWithdrawal(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role) {
+
+        // 비밀번호 암호화
+        String encryptedPin = encryptor.encrypt(accountPin);
+
+        // 출금하려는 계좌 찾기
+        Account account = accountRepository.findById(accountId)
+                .filter(p -> !p.getIsDelete())
+                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 비밀번호 확인
+        if (!account.getAccountPin().equals(encryptedPin)) {
+            throw new GlobalCustomException(ErrorCode.ACCOUNTPIN_NOT_MATCH);
+        }
+
+        // 출금하기
+        // 계좌 잔액 체크
+        // BigDecimal은 객체이기 때문에, 값을 비교하려면 compareTo() 메서드를 사용해야 한다.
+        if(request.amount().compareTo(account.getBalance()) > 0) {
+            throw new GlobalCustomException(ErrorCode.WITHDRAWAL_NOT_POSSIBLE);
+        }
+
+        // 계좌 거래 생성
+        AccountTransactions transaction =
+                AccountTransactions.createSenderTransaction(account, request);
+
+        BigDecimal totalBalance =  account.getBalance().subtract(request.amount());
+        account.updateAccount(totalBalance);
+
+        // 계좌 잔액과 해당 계좌 거래 내역 합산 비교
+        if(!account.getBalance().equals(transactionsRepository.getTotalBalance(accountId))){
+            transaction.updateTransactionStatus(TransactionStatus.FAILED);
+            throw new GlobalCustomException(ErrorCode.BALANCE_NOT_MATCH);
+        } else {
+            transaction.updateTransactionStatus(TransactionStatus.COMPLETED);
+        }
+
+        transactionsRepository.save(transaction);
+        return transactionsMapper.toDto(transaction);
+    }
 
     /**
      * 이체 기능(저축 + 대출 상환 포함 가능)
 
      **/
+    @LogDataChange
+    @Transactional
+    public TransactionResponseDto createTransafer(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role) {
+
+        String encryptedPin = encryptor.encrypt(accountPin);
+
+        // 송금인의 계좌 찾기
+        Account senderAccount = accountRepository.findById(accountId)
+                .filter(p -> !p.getIsDelete())
+                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 수취인의 계좌 찾기
+
+
+    }
 
 
 

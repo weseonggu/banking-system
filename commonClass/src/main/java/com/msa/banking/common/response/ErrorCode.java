@@ -49,7 +49,12 @@ public enum ErrorCode {
     DIRECTDEBIT_NOT_FOUND(HttpStatus.NOT_FOUND, 3003, "해당 자동 이체 내역을 찾을 수 없습니다."),
     // 계좌 거래 내역 not found
     TRANSACTION_NOT_FOUND(HttpStatus.NOT_FOUND, 3004, "해당 계좌 거래 내역을 찾을 수 없습니다."),
-
+    // 비밀 번호 not match
+    ACCOUNTPIN_NOT_MATCH(HttpStatus.UNAUTHORIZED, 3004, "비밀 번호가 일치하지 않습니다."),
+    // 중대 시스템 오류 거래 금액 not match
+    BALANCE_NOT_MATCH(HttpStatus.CONFLICT, 3007, "거래 금액이 최종 잔액과 일치하지 않습니다."),
+    // 인출 불가
+    WITHDRAWAL_NOT_POSSIBLE(HttpStatus.BAD_REQUEST, 3008, "인출 잔액이 모자랍니다."),
 
 
     /* 알림 4000번대 */
