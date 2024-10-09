@@ -1,6 +1,7 @@
 package com.msa.banking.account.presentation.controller;
 
 import com.msa.banking.account.application.service.TransactionsService;
+import com.msa.banking.account.presentation.dto.transactions.TransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsSearchRequestDto;
@@ -13,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/account-transactions")
 public class TransactionsController {
@@ -21,6 +24,34 @@ public class TransactionsController {
 
     public TransactionsController(TransactionsService transactionsService) {
         this.transactionsService = transactionsService;
+    }
+
+
+    // 출금 거래 생성
+    @PostMapping("/{account_id}/withdrawal")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    public ResponseEntity<TransactionResponseDto> createWithdrawal(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestParam String accountPin,
+            @RequestBody TransactionRequestDto request) {
+
+        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole()));
+    }
+
+
+    // 이체 거래 생성
+    @PostMapping("/{account_id}/transfer")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    public ResponseEntity<Void> createTransfer(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestParam String accountPin,
+            @RequestBody TransactionRequestDto request) {
+
+        transactionsService.createTransafer(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole());
+
+        return ResponseEntity.noContent().build();
     }
 
 
@@ -47,6 +78,7 @@ public class TransactionsController {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(transactionsService.getTransactions(search, pageable));
     }
+
 
     // 거래 상세 조회
     @GetMapping("/{transaction_id}")

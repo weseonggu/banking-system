@@ -66,7 +66,7 @@ public class AccountController {
 
 
     // 계좌 비밀번호 변경
-    @PatchMapping("/{account_id}/balance")
+    @PatchMapping("/{account_id}/accountPin")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     public ResponseEntity<Void> updateAccountPin(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
