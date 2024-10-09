@@ -159,7 +159,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    @CachePut(cacheNames = "EmployeeCache", key = "#customerId", condition = "@checkRedisState.isRedisAvailable()")
+    @CachePut(cacheNames = "EmployeeCache", key = "#employeeId", condition = "@checkRedisState.isRedisAvailable()")
     @CacheEvict(cacheNames = "EmployeeSearchCache", allEntries = true)
     public AuthResponseDto updateEmployee(UUID employeeId, AuthRequestDto request, UUID userId, String role) {
 
