@@ -41,6 +41,11 @@ public class DirectDebitService {
     public DirectDebitResponseDto createDirectDebit(
             UUID accountId, DirectDebitRequestDto request, String username, String role) {
 
+        // 이체 날짜 검증
+        if(!isValidTransferDay(request.transferDate())){
+            throw new GlobalCustomException(ErrorCode.TRANSFERDATE_NOT_AVAILABLE);
+        }
+
         Account account = accountRepository.findById(accountId)
                 .filter(p -> !p.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
@@ -62,6 +67,10 @@ public class DirectDebitService {
         @Transactional
     public DirectDebitResponseDto updateDirectDebit(
             UUID directDebitId, DirectDebitStatus status, DirectDebitRequestDto request, String username, String role) {
+
+        if(!isValidTransferDay(request.transferDate())){
+            throw new GlobalCustomException(ErrorCode.TRANSFERDATE_NOT_AVAILABLE);
+        }
 
         DirectDebit directDebit = directDebitRepository.findById(directDebitId)
                 .filter(p -> !p.getIsDelete())
@@ -116,5 +125,12 @@ public class DirectDebitService {
         } else {
             return directDebitMapper.toDto(directDebit);
         }
+    }
+
+    // 날짜 검증
+    public boolean isValidTransferDay(int dayOfMonth) {
+        // dayOfMonth 값이 1~31 사이인지 먼저 확인
+        if (dayOfMonth < 1 || dayOfMonth > 31) return false;
+        else return true;
     }
 }

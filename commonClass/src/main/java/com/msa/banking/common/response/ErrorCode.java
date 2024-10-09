@@ -56,7 +56,8 @@ public enum ErrorCode {
     BALANCE_NOT_MATCH(HttpStatus.CONFLICT, 3007, "거래 금액이 최종 잔액과 일치하지 않습니다."),
     // 인출 불가
     WITHDRAWAL_NOT_POSSIBLE(HttpStatus.BAD_REQUEST, 3008, "인출 잔액이 모자랍니다."),
-
+    // 이체 날짜 오류
+    TRANSFERDATE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, 3009, "해당 이체 날짜는 설정이 불가합니다."),
 
     /* 알림 4000번대 */
     SLACK_ERROR(HttpStatus.BAD_REQUEST, 4000, "슬랙 ID 가 잘못 되었거나, 현재 메세지를 보낼 수 없는 상태입니다."),
