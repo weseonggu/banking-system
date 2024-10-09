@@ -43,12 +43,12 @@ public class PerformanceScheduler {
         // 계좌 리스트
         List<UUID> accountIds = deserialize.getAccountIds();
 
-        // 현재월의 시작일
-        YearMonth month = YearMonth.now();
-        LocalDateTime startDateTime = month.atDay(1).atStartOfDay();
+        // 전월의 시작일
+        YearMonth lastMonth = YearMonth.now().minusMonths(1);
+        LocalDateTime startDateTime = lastMonth.atDay(1).atStartOfDay();
 
-        // 현재월 마지막일
-        LocalDateTime endDateTime = month.atEndOfMonth().atTime(23, 59, 59);
+        // 전월의 마지막일
+        LocalDateTime endDateTime = lastMonth.atEndOfMonth().atTime(23, 59, 59);
 
         // 계좌 리스트 조회
         List<String> findAccountNumber = accountRepository.findByAccountIdInAndCreatedAtBetween(accountIds, startDateTime, endDateTime);

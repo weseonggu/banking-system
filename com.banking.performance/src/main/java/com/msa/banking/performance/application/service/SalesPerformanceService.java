@@ -35,7 +35,7 @@ public class SalesPerformanceService {
         SalesPerformance salesPerformance = SalesPerformance.createSalesPerformance(
                 deserialize.getTotalAmount(),
                 Long.parseLong(String.valueOf(deserialize.getLoanCount())),
-                YearMonth.now()
+                YearMonth.now().minusMonths(1)
         );
 
         // DB 저장

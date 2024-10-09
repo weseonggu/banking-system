@@ -19,5 +19,6 @@ public interface TransactionsRepository extends JpaRepository<AccountTransaction
 
     @Query("select SUM(t.amount) from AccountTransactions t where t.beneficiaryAccount in :accountList and t.createdAt between :startDateTime and :endDateTime and t.isDelete = false")
     BigDecimal findByBeneficiaryAccountInAndCreatedAtBetween(@Param("accountList") List<String> accountList,
+                                                             @Param("startDateTime") LocalDateTime startDateTime,
                                                              @Param("endDateTime") LocalDateTime endDateTime);
 }
