@@ -1,4 +1,4 @@
-package com.msa.banking.personal.domain.enums;
+package com.msa.banking.common.personal;
 
 public enum PersonalHistoryType {
     DEPOSIT,           // 입금

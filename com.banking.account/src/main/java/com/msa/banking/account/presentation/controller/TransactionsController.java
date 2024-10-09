@@ -36,7 +36,7 @@ public class TransactionsController {
             @RequestParam String accountPin,
             @RequestBody TransactionRequestDto request) {
 
-        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole()));
+        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId()));
     }
 
 
@@ -49,7 +49,7 @@ public class TransactionsController {
             @RequestParam String accountPin,
             @RequestBody TransactionRequestDto request) {
 
-        transactionsService.createTransafer(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole());
+        transactionsService.createTransfer(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId());
 
         return ResponseEntity.noContent().build();
     }
