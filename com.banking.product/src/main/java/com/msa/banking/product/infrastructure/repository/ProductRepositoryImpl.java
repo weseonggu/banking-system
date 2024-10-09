@@ -1,9 +1,9 @@
 package com.msa.banking.product.infrastructure.repository;
 
+import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
 import com.msa.banking.product.presentation.response.QResponseProductPage;
 import com.msa.banking.product.presentation.response.ResponseProductPage;
 import com.msa.banking.product.lib.ProductType;
-import com.msa.banking.product.domain.repository.ProductRepositoryCustom;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -31,7 +31,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<ResponseProductPage> findAllProduct(Pageable pageable, RequestSearchProductDto condition) {
+    public List<ResponseProductPage> findAllProductsPage(Pageable pageable, RequestSearchProductDto condition) {
 
         Sort sort = pageable.getSort();
 

@@ -5,6 +5,7 @@ import com.msa.banking.product.presentation.exception.custom.CustomDuplicateKeyE
 import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
 import com.msa.banking.product.presentation.exception.custom.TryAgainException;
 import com.msa.banking.product.presentation.exception.custom.UnsupportedExtensionsException;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.RedisConnectionFailureException;
@@ -88,6 +89,16 @@ public class ProductGlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.SERVICE_UNAVAILABLE.value(),
                 "SERVICE_UNAVAILABLE",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ErrorResponse> handleFeignException(RuntimeException ex, HttpServletRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
                 ex.getMessage(),
                 request.getRequestURI()
         );

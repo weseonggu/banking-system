@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,7 @@ public class PdfInfoController {
     @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @LogDataChange
     // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'MASTER')")
     public ResponseEntity<?> UploadPdf(@RequestPart("pdf") MultipartFile pdfFile) {
         // 어플리케이션 계층 서비스 호츌
         ResponsePDFUpload pdfUpload = pdfInfoService.createPDFInfo(pdfFile);
@@ -59,6 +61,7 @@ public class PdfInfoController {
     })
     @GetMapping("/download/pdf")
     // TODO: 인증자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<InputStreamResource> getImage(@RequestParam(value = "file") Long fileName) throws IOException {
 
         ResponsePDFInfo pdfInfo = pdfInfoService.getPdf(fileName);

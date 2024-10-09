@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ProductRepositoryCustom {
-    List<ResponseProductPage> findAllProduct(Pageable pageable, RequestSearchProductDto condition);
+    List<ResponseProductPage> findAllProductsPage(Pageable pageable, RequestSearchProductDto condition);
 }
