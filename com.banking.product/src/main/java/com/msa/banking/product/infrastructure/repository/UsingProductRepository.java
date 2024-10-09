@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface UsingProductRepository extends JpaRepository<UsingProduct, UUID>, UsingProductRepositoryCustom {
@@ -15,4 +16,6 @@ public interface UsingProductRepository extends JpaRepository<UsingProduct, UUID
     @Query("SELECT u FROM UsingProduct u WHERE u.loanInUse IS NOT NULL AND u.createdAt BETWEEN :startDateTime AND :endDateTime AND u.isDelete = false")
     List<UsingProduct> findByLoanInUseIsNotNullAndCreatedAtBetween(@Param("startDateTime") LocalDateTime startDateTime,
                                                                    @Param("endDateTime") LocalDateTime endDateTime);
+
+    Optional<UsingProduct> findByAccountIdAndIsDeleteFalse(UUID accountId);
 }
