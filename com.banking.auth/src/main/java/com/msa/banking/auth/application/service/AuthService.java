@@ -165,7 +165,7 @@ public class AuthService {
 
             // 비밀번호 일치 확인
             if (!passwordEncoder.matches(request.getPassword(), findEmployee.getPassword())) {
-                throw new GlobalCustomException(ErrorCode.PASSWORD_BAD_REQUEST);
+                throw new GlobalCustomException(ErrorCode.EMPLOYEE_PASSWORD_BAD_REQUEST);
             }
 
 
@@ -193,7 +193,7 @@ public class AuthService {
                 userService.updateLoginAttempts(request.getUsername());
 
 
-                throw new GlobalCustomException(ErrorCode.PASSWORD_BAD_REQUEST);
+                throw new GlobalCustomException(ErrorCode.CUSTOMER_PASSWORD_BAD_REQUEST);
 
             }
 
