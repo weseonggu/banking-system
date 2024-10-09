@@ -42,6 +42,7 @@ public class TransactionsService {
 
 
     // TODO: 입금 기능이 필요한가? 비밀번호를 3번 이상 틀리면 본인 인증 확인 필요.
+    // TODO: 거래 발생 시 거래 알림
     /**
      * 출금 + 결제 기능
 
@@ -84,9 +85,9 @@ public class TransactionsService {
         return transactionsMapper.toDto(transaction);
     }
 
+
     /**
      * 이체 기능(저축 + 대출 상환 포함 가능)
-
      **/
     @LogDataChange
     @Transactional
@@ -149,7 +150,6 @@ public class TransactionsService {
 
 
     @LogDataChange
-    @Transactional
     public void checkAccountPin(UUID accountId, String accountPin) {
 
         // 비밀번호 암호화
@@ -163,7 +163,6 @@ public class TransactionsService {
 
 
     // TODO: 계좌 거래 상태를 본인이 수정하는가? 거래가 이루어진 상태를 분류해서 로직을 다시 설정해야함.
-    // TODO: 거래 실패 시 롤백, 내부에서 호출.
     // 거래 상태 수정
     @LogDataChange
     @Transactional
@@ -180,6 +179,7 @@ public class TransactionsService {
             return transactionsMapper.toDto(transaction);
         }
     }
+
 
     // 거래 설명 수정
     @LogDataChange
@@ -198,6 +198,7 @@ public class TransactionsService {
         }
     }
 
+
     // TODO: 자신의 계좌 거래를 조회가 가능해야 함.
     // 거래 전체 조회
     @LogDataChange
@@ -206,6 +207,7 @@ public class TransactionsService {
 
         return transactionsRepository.searchTransactions(search, pageable);
     }
+
 
     // 거래 상세 조회
     @LogDataChange
