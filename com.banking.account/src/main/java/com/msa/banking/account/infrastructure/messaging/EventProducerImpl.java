@@ -1,9 +1,9 @@
-package com.msa.banking.personal.infrastructure.messaging;
+package com.msa.banking.account.infrastructure.messaging;
 
+import com.msa.banking.account.application.event.EventProducer;
 import com.msa.banking.common.event.EventSerializer;
 import com.msa.banking.common.event.Topic;
-import com.msa.banking.common.notification.NotificationRequestDto;
-import com.msa.banking.personal.application.event.EventProducer;
+import com.msa.banking.common.personal.PersonalHistoryRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,13 +15,14 @@ import org.springframework.stereotype.Service;
 public class EventProducerImpl implements EventProducer {
 
     private final KafkaTemplate<String, byte[]> kafkaTemplate;
-    private static final String TOPIC = Topic.NOTIFICATION_BUDGET_OVER_RUN.getTopic();
+
+    private static final String TOPIC = Topic.TRANSACTION_CREATE.getTopic();
 
     @Override
-    public void sendBudgetOverRunNotification(NotificationRequestDto notificationRequestDto) {
+    public void sendTransactionCreatedEvent(PersonalHistoryRequestDto personalHistoryRequestDto) {
 
         try {
-            byte[] message = EventSerializer.serialize(notificationRequestDto);
+            byte[] message = EventSerializer.serialize(personalHistoryRequestDto);
             kafkaTemplate.send(TOPIC, message);
             log.info("Notification sent to Kafka topic: " + TOPIC);
 
