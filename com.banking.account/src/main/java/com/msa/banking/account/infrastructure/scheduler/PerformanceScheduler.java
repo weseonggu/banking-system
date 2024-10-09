@@ -1,5 +1,6 @@
 package com.msa.banking.account.infrastructure.scheduler;
 
+import com.msa.banking.account.domain.model.TransactionType;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
 import com.msa.banking.common.event.EventSerializer;
@@ -40,7 +41,7 @@ public class PerformanceScheduler {
         // 대출 가입 건수
         int loanCount = deserialize.getLoanCount();
 
-        // 계좌 리스트
+        // 계좌 ID 리스트
         List<UUID> accountIds = deserialize.getAccountIds();
 
         // 전월의 시작일
@@ -51,10 +52,10 @@ public class PerformanceScheduler {
         LocalDateTime endDateTime = lastMonth.atEndOfMonth().atTime(23, 59, 59);
 
         // 계좌 리스트 조회
-        List<String> findAccountNumber = accountRepository.findByAccountIdInAndCreatedAtBetween(accountIds, startDateTime, endDateTime);
+//        List<String> findAccountNumber = accountRepository.findByAccountIdInAndCreatedAtBetween(accountIds, startDateTime, endDateTime);
 
-        // 토탈 거래 금액
-        BigDecimal totalAmount = transactionsRepository.findByBeneficiaryAccountInAndCreatedAtBetween(findAccountNumber, startDateTime, endDateTime);
+        // 대출 토탈 거래 금액
+        BigDecimal totalAmount = transactionsRepository.findTotalAmount(accountIds, TransactionType.LOAN_REPAYMENT, startDateTime, endDateTime);
 
         SlackIdAndLoanAndAmountDto request = new SlackIdAndLoanAndAmountDto(slackIds, loanCount, totalAmount);
 
