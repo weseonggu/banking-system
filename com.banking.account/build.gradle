@@ -23,6 +23,8 @@ ext {
 }
 
 dependencies {
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
     // 유효성 검증
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 

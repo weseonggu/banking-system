@@ -7,6 +7,7 @@ import com.msa.banking.auth.domain.model.Employee;
 import com.msa.banking.auth.infrastructure.repository.BlackListTokenRepository;
 import com.msa.banking.auth.infrastructure.repository.CustomerRepository;
 import com.msa.banking.auth.infrastructure.repository.EmployeeRepository;
+import com.msa.banking.auth.presentation.request.AuthResetPasswordRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignInRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignUpRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
@@ -26,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +49,7 @@ public class AuthService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final BlackListTokenRepository blackListTokenRepository;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserService userService;
 
     @Value("${service.jwt.secret-key}")
     private String secretKey;
@@ -153,8 +153,10 @@ public class AuthService {
      * @param request
      * @return
      */
+    @Transactional
     public String signInAuth(AuthSignInRequestDto request, HttpServletResponse response) {
 
+        // 직원 로그인
         if (request.getRole().equals(UserRole.MASTER.name()) || request.getRole().equals(UserRole.MANAGER.name())) {
 
             // 가입 여부 확인
@@ -163,7 +165,7 @@ public class AuthService {
 
             // 비밀번호 일치 확인
             if (!passwordEncoder.matches(request.getPassword(), findEmployee.getPassword())) {
-                throw new GlobalCustomException(ErrorCode.PASSWORD_BAD_REQUEST);
+                throw new GlobalCustomException(ErrorCode.EMPLOYEE_PASSWORD_BAD_REQUEST);
             }
 
 
@@ -173,16 +175,30 @@ public class AuthService {
             response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
             return "login successful";
-        } else {
+
+        } else { // 회원 로그인
 
             // 가입 여부 확인
             Customer findCustomer = customerRepository.findByUsername(request.getUsername()).orElseThrow(() ->
                     new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
-            // 비밀번호 일치 확인
-            if (!passwordEncoder.matches(request.getPassword(), findCustomer.getPassword())) {
-                throw new GlobalCustomException(ErrorCode.PASSWORD_BAD_REQUEST);
+            // 비밀번호 6회 이상 오류로 계정 잠김 에러
+            if (findCustomer.isAccountLock()) {
+                throw new GlobalCustomException(ErrorCode.ACCOUNT_LOCKED);
             }
+
+            // 비밀번호 일치 확인 | 틀렸을 경우 로그인 시도 횟수 증가 | 6회 이상 틀렸을 경우 계정 잠금
+            if (!passwordEncoder.matches(request.getPassword(), findCustomer.getPassword())) {
+                // 로그인 시도 횟수 +1 증가 | 계정 잠금 활성화
+                userService.updateLoginAttempts(request.getUsername());
+
+
+                throw new GlobalCustomException(ErrorCode.CUSTOMER_PASSWORD_BAD_REQUEST);
+
+            }
+
+            // 로그인 성공 시 시도 횟수 초기화
+            findCustomer.resetLoginAttemps();
 
             String token = jwtUtil.createToken(findCustomer.getId().toString(), findCustomer.getUsername(), findCustomer.getRole().name());
 
@@ -295,5 +311,24 @@ public class AuthService {
     private long getExpirationTimeFromJwt(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
         return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
+
+    /**
+     * 고객 비밀번호 초기화
+     * @param request
+     */
+    @Transactional
+    public void resetPassword(AuthResetPasswordRequestDto request) {
+
+        // 고객 조회
+        Customer findCustomer = customerRepository.findByUsername(request.getUsername()).orElseThrow(() ->
+                new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 비밀번호 인코딩
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // 비밀번호 변경 및 계정 잠금 비활성화
+        findCustomer.updatePassword(request.getPassword());
+
     }
 }

@@ -30,7 +30,7 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         log.info("path: {}", path);
 
-        if (path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn")) {
+        if (path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn") || path.startsWith("/api/auth/reset-password")) {
             filterChain.doFilter(request, response);
             return;
         }
