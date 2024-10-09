@@ -1,6 +1,7 @@
 package com.msa.banking.auth.presentation.controller;
 
 import com.msa.banking.auth.application.service.AuthService;
+import com.msa.banking.auth.presentation.request.AuthResetPasswordRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignInRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignUpRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
@@ -25,6 +26,7 @@ public class AuthController {
 
     /**
      * 회원가입
+     *
      * @param request
      * @return
      */
@@ -40,6 +42,7 @@ public class AuthController {
 
     /**
      * 로그인
+     *
      * @param request
      * @return
      */
@@ -56,6 +59,7 @@ public class AuthController {
 
     /**
      * 로그아웃
+     *
      * @param request
      */
     @PostMapping("/logout")
@@ -66,5 +70,20 @@ public class AuthController {
 
         log.info("JWT 토큰이 블랙리스트에 추가되었습니다");
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.UPDATE_SUCCESS.getStatus(), "logout success", "로그아웃 완료"));
+    }
+
+    /**
+     * 고객 비밀번호 초기화
+     * @param request
+     * @return
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody AuthResetPasswordRequestDto request) {
+        log.info("비밀번호 초기화 시도 중 | request: {}", request);
+
+        authService.resetPassword(request);
+
+        log.info("비밀번호 초기화 완료");
+        return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.UPDATE_SUCCESS.getStatus(), "password reset success", "비밀번호 초기화 완료"));
     }
 }

@@ -106,3 +106,6 @@ resilience4j:
         failureRateThreshold: 50            # 실패율이 50%를 넘으면 서킷 브레이커가 동작
         permittedNumberOfCallsInHalfOpenState: 3  # 서킷 브레이커가 Half-open 상태일 때 허용되는 최대 호출 수 (3회)
         waitDurationInOpenState: 20s        # Open 상태에서 Half-open 상태로 전환되기 전까지의 대기 시간 (20초)
+
+slack:
+  botKey: ${SLACK_API_TOKEN}

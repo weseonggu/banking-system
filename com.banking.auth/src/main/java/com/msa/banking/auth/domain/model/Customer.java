@@ -52,6 +52,12 @@ public class Customer extends AuditEntity {
     @Column(name = "slack_id", nullable = false)
     private String slackId;
 
+    @Column(name = "login_attempts", nullable = false)
+    private int loginAttempts;  // 로그인 실패 횟수
+
+    @Column(name = "account_lock",nullable = false)
+    private boolean accountLock;  // 계정 잠금 여부
+
     public Customer(String username, String password, String name, String email, String phoneNumber, Address address, UserRole role, String slackId) {
         this.username = username;
         this.password = password;
@@ -127,5 +133,36 @@ public class Customer extends AuditEntity {
         }
 
         return this;
+    }
+
+    /**
+     * 비밀번호 오류 횟수 증가
+     */
+    public void loginAttempsCount() {
+        this.loginAttempts = this.loginAttempts + 1;
+    }
+
+    /**
+     * 계정 잠금 활성화
+     */
+    public void accountLock() {
+        this.accountLock = true;
+    }
+
+    /**
+     * 계정 시도 횟수 초기화
+     */
+    public void resetLoginAttemps() {
+        this.loginAttempts = 0;
+    }
+
+    /**
+     * 비밀번호 변경
+     * @param password
+     */
+    public void updatePassword(String password) {
+        this.loginAttempts = 0;
+        this.accountLock = false;
+        this.password = password;
     }
 }

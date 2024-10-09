@@ -25,6 +25,8 @@ dependencies {
     // kafka
     implementation 'org.springframework.kafka:spring-kafka'
 
+    // slack
+    implementation 'com.slack.api:slack-api-client:1.30.0'
 
     // 시큐리티
     implementation 'org.springframework.boot:spring-boot-starter-security'
