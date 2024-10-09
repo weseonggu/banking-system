@@ -24,9 +24,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/postgres
-    username: postgres
-    password: 1234
+    url: jdbc:postgresql://localhost:5433/account
+    username: banking
+    password: banking20
 
   jpa:
     hibernate:

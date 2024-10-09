@@ -5,7 +5,7 @@ import com.msa.banking.product.domain.model.CheckingDetail;
 import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
 import com.msa.banking.product.domain.model.Product;
-import com.msa.banking.product.infrastructure.repository.LoanDetailRepository;
+import com.msa.banking.product.domain.repository.LoanDetailRepository;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.domain.service.ProductService;
 import org.junit.jupiter.api.Test;

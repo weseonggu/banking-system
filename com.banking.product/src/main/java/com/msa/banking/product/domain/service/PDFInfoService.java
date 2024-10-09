@@ -3,7 +3,7 @@ package com.msa.banking.product.domain.service;
 import com.msa.banking.product.application.dto.PDFCache;
 import com.msa.banking.product.config.redis.RedisCacheKey;
 import com.msa.banking.product.domain.model.PDFInfo;
-import com.msa.banking.product.infrastructure.repository.PDFInfoRepository;
+import com.msa.banking.product.domain.repository.PDFInfoRepository;
 import com.msa.banking.product.presentation.exception.custom.CustomDuplicateKeyException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.ConstraintViolationException;

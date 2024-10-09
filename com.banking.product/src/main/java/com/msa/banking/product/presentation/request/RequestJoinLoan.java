@@ -1,10 +1,7 @@
 package com.msa.banking.product.presentation.request;
 
 import com.msa.banking.product.lib.ProductType;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +37,10 @@ public class RequestJoinLoan {
 
     @NotNull(message = "필수 입력 사항입니다.")
     private long month;
+
+    @NotNull(message = "필수 입력 사항입니다.")
+    @Pattern(regexp = "^\\d{6}$", message = "6자리 숫자여야 합니다.")
+    private String accountPin;// 비번
 
 
 }

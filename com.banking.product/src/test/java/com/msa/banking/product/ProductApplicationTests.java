@@ -30,7 +30,7 @@ class ProductApplicationTests {
 
         RequestSearchProductDto requestSearchProductDto = new RequestSearchProductDto(null, null, null, null);
 
-        List<ResponseProductPage> data =  productRepository.findAllProduct(pageable, requestSearchProductDto);
+        List<ResponseProductPage> data =  productRepository.findAllProductsPage(pageable, requestSearchProductDto);
         System.out.println("결과1");
         for (ResponseProductPage responseProductPage : data) {
             System.out.println("결과2");
