@@ -75,4 +75,12 @@ public class UsingProductController {
         );
         return ResponseEntity.ok(response);
     }
+
+    // TODO: 페이징 사용자 id로 가입 중인 상품 조회
+
+    // TODO: 사용중인 상품 상세 조회
+
+    // TODO: 대출 실행
+
+    // TODO: 대출 해지
 }
