@@ -1,5 +1,7 @@
 package com.msa.banking.account.application.service;
 
+import com.msa.banking.account.application.event.EventProducer;
+import com.msa.banking.account.application.mapper.EnumMapper;
 import com.msa.banking.account.application.mapper.TransactionsMapper;
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.AccountTransactions;
@@ -11,33 +13,46 @@ import com.msa.banking.account.presentation.dto.transactions.TransactionResponse
 import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsSearchRequestDto;
 import com.msa.banking.common.base.UserRole;
+import com.msa.banking.common.notification.NotiType;
+import com.msa.banking.common.notification.NotificationRequestDto;
+import com.msa.banking.common.personal.PersonalHistoryRequestDto;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
+import lombok.extern.log4j.Log4j2;
 import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
+@Log4j2
 public class TransactionsService {
 
     private final TransactionsRepository transactionsRepository;
     private final AccountRepository accountRepository;
     private final TransactionsMapper transactionsMapper;
     private final StringEncryptor encryptor;
+    private final ProductService productService;
+    private final EventProducer eventProducer;
 
     @Autowired
-    public TransactionsService(TransactionsRepository transactionsRepository, AccountRepository accountRepository, TransactionsMapper transactionsMapper, StringEncryptor encryptor) {
+    public TransactionsService(TransactionsRepository transactionsRepository, AccountRepository accountRepository, TransactionsMapper transactionsMapper, StringEncryptor encryptor, ProductService productService, EventProducer eventProducer
+    ) {
         this.transactionsRepository = transactionsRepository;
         this.accountRepository = accountRepository;
         this.transactionsMapper = transactionsMapper;
         this.encryptor = encryptor;
+        this.productService = productService;
+        this.eventProducer = eventProducer;
     }
 
 
@@ -49,7 +64,7 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public TransactionResponseDto createWithdrawal(UUID accountId, String accountPin, TransactionRequestDto request, String username, String role) {
+    public TransactionResponseDto createWithdrawal(UUID accountId, String accountPin, TransactionRequestDto request, String username, String role, UUID userId) {
 
         // 출금하려는 계좌 찾기
         Account account = accountRepository.findById(accountId)
@@ -82,6 +97,37 @@ public class TransactionsService {
         }
 
         transactionsRepository.save(transaction);
+
+        // accountId -> userId 조회
+        ResponseEntity<?> responseEntity = productService.findByAccountId(transaction.getAccount().getAccountId(), userId, role);
+        log.info(responseEntity.getBody());
+
+        // Kafka 이벤트 생성 및 전송
+        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
+            Object dataObject = responseBody.get("data");
+
+            if (dataObject instanceof Map<?, ?> dataMap) {
+                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
+
+                log.info("UserId: " + getUserId);
+
+                // personalHistoryRequestDto 객체 생성
+                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
+                        .userId(getUserId)
+                        .amount(transaction.getAmount())
+                        .type(EnumMapper.toPersonalHistoryType(transaction.getType()))
+                        .description(transaction.getDescription())
+                        .transactionDate(LocalDateTime.now())
+                        .build();
+
+                // Kafka 이벤트 전송
+                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
+
+            } else {
+                log.error("Invalid data format in response body");
+            }
+        }
+
         return transactionsMapper.toDto(transaction);
     }
 
@@ -91,7 +137,7 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public void createTransafer(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role) {
+    public void createTransfer(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role, UUID userId) {
 
         String encryptedPin = encryptor.encrypt(accountPin);
 
@@ -146,6 +192,36 @@ public class TransactionsService {
 
         transactionsRepository.save(senderTransaction);
         transactionsRepository.save(beneficiaryTransaction);
+
+        // accountId -> userId 조회
+        ResponseEntity<?> responseEntity = productService.findByAccountId(senderTransaction.getAccount().getAccountId(), userId, role);
+        log.info(responseEntity.getBody());
+
+        // Kafka 이벤트 생성 및 전송
+        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
+            Object dataObject = responseBody.get("data");
+
+            if (dataObject instanceof Map<?, ?> dataMap) {
+                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
+
+                log.info("UserId: " + getUserId);
+
+                // personalHistoryRequestDto 객체 생성
+                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
+                        .userId(getUserId)
+                        .amount(senderTransaction.getAmount())
+                        .type(EnumMapper.toPersonalHistoryType(senderTransaction.getType()))
+                        .description(senderTransaction.getDescription())
+                        .transactionDate(LocalDateTime.now())
+                        .build();
+
+                // Kafka 이벤트 전송
+                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
+
+            } else {
+                log.error("Invalid data format in response body");
+            }
+        }
     }
 
 

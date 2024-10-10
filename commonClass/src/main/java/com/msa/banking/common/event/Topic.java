@@ -13,7 +13,9 @@ public enum Topic {
     PERFORMANCE_MASTER_SLACK_LIST_LOAN_LIST("performance-master-slack-list-loan-list"),
     PERFORMANCE_MASTER_SLACK_LIST_LOAN_COUNT_TOTAL_AMOUNT("performance-master-slack-list-loan-total-amount"),
     PERFORMANCE_PRODUCT_COUNT("performance-product-count"),
-    TRANSFER("notification-transfer");
+    TRANSFER("notification-transfer"),
+    NOTIFICATION_BUDGET_OVER_RUN("notification-budgetOverRun"),
+    TRANSACTION_CREATE("transaction-create");
 
     private final String topic;
 
