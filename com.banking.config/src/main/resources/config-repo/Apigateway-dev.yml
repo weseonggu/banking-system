@@ -16,7 +16,7 @@ spring:
         - id: AccountService
           uri: lb://AccountService
           predicates:
-            - Path=/account/**
+            - Path=/api/account-transactions/**, /api/direct-debits/**, /api/accounts/**
         - id: PersonalHistoryService
           uri: lb://PersonalHistoryService
           predicates:

@@ -8,13 +8,17 @@ import com.msa.banking.personal.application.dto.budget.BudgetResponseDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.application.service.BudgetService;
 import com.msa.banking.personal.domain.model.Budget;
+import com.msa.banking.personal.domain.model.PersonalHistory;
 import com.msa.banking.personal.domain.repository.BudgetRepository;
+import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,6 +26,7 @@ import java.util.UUID;
 public class BudgetServiceImpl implements BudgetService {
 
     private final BudgetRepository budgetRepository;
+    private final PersonalHistoryJpaRepository personalHistoryRepository;
 
     /**
      * 예산 설정 목록 조회
@@ -55,6 +60,11 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     @Transactional
     public BudgetResponseDto createBudget(BudgetRequestDto budgetRequestDto, String userRole, UUID userId, String userName) {
+
+        LocalDateTime startDate = budgetRequestDto.getStartDate();
+        LocalDateTime endDate = Budget.calculateEndDate(startDate, budgetRequestDto.getPeriod());
+
+        List<PersonalHistory> personalHistoryList = personalHistoryRepository.findPersonalHistoryByDateRange(userId, startDate, endDate);
 
         Budget budget = Budget.createBudget(budgetRequestDto, userId, userName);
         budgetRepository.save(budget);
