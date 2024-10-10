@@ -62,6 +62,11 @@ public class LoanInUse extends AuditEntity {
         super.setUpdateByUserName(name);
     }
 
+    public void runLoan(String name) {
+        this.status = LoanState.RUNNING;
+        super.setUpdateByUserName(name);
+    }
+
 
 
 

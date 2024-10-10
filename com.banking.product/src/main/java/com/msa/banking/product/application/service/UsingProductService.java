@@ -28,9 +28,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -177,23 +179,12 @@ public class UsingProductService {
         return usingProductRepository.findAllUsingProductPages(newPageable, condition);
     }
 
-    public UsingProductResponseDto findByAccountId(UUID accountId, UUID userId, String userRole){
-
-        UsingProduct usingProduct = usingProductRepository.findByAccountIdAndIsDeleteFalse(accountId).orElseThrow(
-                () -> new IllegalArgumentException("잘못된 AccountId 입니다."));
-
-        if (userRole.equals("CUSTOMER") && !userId.equals(usingProduct.getUserId())) {
-            throw new GlobalCustomException(ErrorCode.USER_FORBIDDEN);
-        }
-
-        return UsingProductResponseDto.toDTO(usingProduct);
-    }
-
     /**
      * 대출 승인 로직
      * @param id 가입한 상품 id
      * @param userDetails 인가 정보
      */
+    @Transactional
     public void changeLoanSate(UUID id, UserDetailsImpl userDetails) {
         // 가입신청한 상품 찾기
         UsingProduct usingProduct =usingProductRepository.findByIdEntityGraph(id)
@@ -212,4 +203,57 @@ public class UsingProductService {
 
         usingProductRepository.save(usingProduct);
     }
+
+    /**
+     * 대출 실행
+     * @param id 실행 할 대출 id
+     * @param userDetails
+     */
+    @Transactional
+    public void changeLoanSateToRun(UUID id, UserDetailsImpl userDetails) {
+        // 실행할 데이터 검색
+        UsingProduct usingProduct =usingProductRepository.findByIdEntityGraph(id)
+                .orElseThrow(() -> new IllegalArgumentException("데이터가 없습니다."));
+
+        // 요청 이 본인 인지 확인
+        if(userDetails.getUserId().equals(usingProduct.getUserId())){
+            throw new AccessDeniedException("본인 만 요청 가능합니다.");
+        }
+
+        if(usingProduct.getLoanInUse()==null){
+            throw new IllegalArgumentException("데이터가 없거나 실행 전 상태가 아닙니다.");
+        }
+        // 데이터가 실행전 상태인지 확인
+        if(!usingProduct.getLoanInUse().getStatus().equals(LoanState.BEFOREEXECUTION)){
+            throw new IllegalArgumentException("대출 실행 가능한 상태가 아닙니다.");
+        }
+        // 계좌 증액 요청
+        accountClient.updateAccount(usingProduct.getAccountId(), BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()));
+
+        // 대출 실행 전으로 변경
+        usingProduct.getLoanInUse().approvalLoan(userDetails.getUsername());
+
+        usingProductRepository.save(usingProduct);
+
+
+    }
+
+
+
+/////////////////////////////////////////////   다른 마이크로 서비스    ///////////////////////////////////////////////////////////
+
+    public UsingProductResponseDto findByAccountId(UUID accountId, UUID userId, String userRole){
+
+        UsingProduct usingProduct = usingProductRepository.findByAccountIdAndIsDeleteFalse(accountId).orElseThrow(
+                () -> new IllegalArgumentException("잘못된 AccountId 입니다."));
+
+        if (userRole.equals("CUSTOMER") && !userId.equals(usingProduct.getUserId())) {
+            throw new GlobalCustomException(ErrorCode.USER_FORBIDDEN);
+        }
+
+        return UsingProductResponseDto.toDTO(usingProduct);
+    }
+
+
+
 }

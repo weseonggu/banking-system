@@ -4,7 +4,7 @@ import com.msa.banking.account.application.service.AccountService;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.account.presentation.dto.account.AccountListResponseDto;
 import com.msa.banking.common.account.dto.AccountRequestDto;
-import com.msa.banking.account.presentation.dto.account.AccountResponseDto;
+import com.msa.banking.common.account.dto.AccountResponseDto;
 import com.msa.banking.account.presentation.dto.account.AccountSearchRequestDto;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;

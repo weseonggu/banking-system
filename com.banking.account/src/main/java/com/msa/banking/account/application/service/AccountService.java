@@ -7,7 +7,7 @@ import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.infrastructure.accountgenerator.AccountNumberGenerator;
 import com.msa.banking.account.presentation.dto.account.AccountListResponseDto;
 import com.msa.banking.common.account.dto.AccountRequestDto;
-import com.msa.banking.account.presentation.dto.account.AccountResponseDto;
+import com.msa.banking.common.account.dto.AccountResponseDto;
 import com.msa.banking.account.presentation.dto.account.AccountSearchRequestDto;
 import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.response.ErrorCode;
