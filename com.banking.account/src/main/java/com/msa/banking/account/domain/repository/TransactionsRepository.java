@@ -1,6 +1,7 @@
 package com.msa.banking.account.domain.repository;
 
 import com.msa.banking.account.domain.model.AccountTransactions;
+import com.msa.banking.account.domain.model.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,8 +18,9 @@ public interface TransactionsRepository extends JpaRepository<AccountTransaction
     @Query("SELECT SUM(t.amount) FROM AccountTransactions t WHERE t.account.accountId = :accountId")
     BigDecimal getTotalBalance(@Param("accountId") UUID accountId);
 
-    @Query("select SUM(t.amount) from AccountTransactions t where t.beneficiaryAccount in :accountList and t.createdAt between :startDateTime and :endDateTime and t.isDelete = false")
-    BigDecimal findByBeneficiaryAccountInAndCreatedAtBetween(@Param("accountList") List<String> accountList,
-                                                             @Param("startDateTime") LocalDateTime startDateTime,
-                                                             @Param("endDateTime") LocalDateTime endDateTime);
+    @Query("select SUM(t.amount) from AccountTransactions t where t.account.accountId in :accountIds and t.type = :type and t.createdAt between :startDateTime and :endDateTime and t.isDelete = false")
+    BigDecimal findTotalAmount(@Param("accountIds") List<UUID> accountIds,
+                               @Param("type") TransactionType type,
+                               @Param("startDateTime") LocalDateTime startDateTime,
+                               @Param("endDateTime") LocalDateTime endDateTime);
 }

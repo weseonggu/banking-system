@@ -127,6 +127,8 @@ public class DirectDebitService {
         }
     }
 
+    // TODO: 자동이체 계좌를 스케줄러로 이체
+
     // 날짜 검증
     public boolean isValidTransferDay(int dayOfMonth) {
         // dayOfMonth 값이 1~31 사이인지 먼저 확인

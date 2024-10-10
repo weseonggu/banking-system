@@ -4,8 +4,11 @@ import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.account.type.AccountType;
 import com.msa.banking.common.base.UserRole;
+import com.msa.banking.common.response.ErrorCode;
+import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.product.application.dto.UsingProductPage;
+import com.msa.banking.product.application.dto.UsingProductResponseDto;
 import com.msa.banking.product.domain.model.CheckingInUse;
 import com.msa.banking.product.domain.model.LoanInUse;
 import com.msa.banking.product.domain.model.UsingProduct;
@@ -146,5 +149,17 @@ public class UsingProductService {
         Pageable newPageable = PageRequest.of(pageNumber, pageSize, sort);
         // DB 조회
         return usingProductRepository.findAllUsingProductPages(newPageable, condition);
+    }
+
+    public UsingProductResponseDto findByAccountId(UUID accountId, UUID userId, String userRole){
+
+        UsingProduct usingProduct = usingProductRepository.findByAccountIdAndIsDeleteFalse(accountId).orElseThrow(
+                () -> new IllegalArgumentException("잘못된 AccountId 입니다."));
+
+        if (userRole.equals("CUSTOMER") && !userId.equals(usingProduct.getUserId())) {
+            throw new GlobalCustomException(ErrorCode.USER_FORBIDDEN);
+        }
+
+        return UsingProductResponseDto.toDTO(usingProduct);
     }
 }

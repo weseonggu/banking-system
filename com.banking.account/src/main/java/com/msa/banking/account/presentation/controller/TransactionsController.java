@@ -27,6 +27,20 @@ public class TransactionsController {
     }
 
 
+    // 입금 거래 생성
+    @PostMapping("/{account_id}/deposit")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    public ResponseEntity<TransactionResponseDto> createDeposit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestBody TransactionRequestDto request) {
+
+        return ResponseEntity.ok(transactionsService.createDeposit(accountId, request,  userDetails.getUsername(), userDetails.getRole()));
+    }
+
+
+
+
     // 출금 거래 생성
     @PostMapping("/{account_id}/withdrawal")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
@@ -36,7 +50,7 @@ public class TransactionsController {
             @RequestParam String accountPin,
             @RequestBody TransactionRequestDto request) {
 
-        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole()));
+        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId()));
     }
 
 
@@ -49,7 +63,7 @@ public class TransactionsController {
             @RequestParam String accountPin,
             @RequestBody TransactionRequestDto request) {
 
-        transactionsService.createTransafer(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole());
+        transactionsService.createTransfer(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId());
 
         return ResponseEntity.noContent().build();
     }
