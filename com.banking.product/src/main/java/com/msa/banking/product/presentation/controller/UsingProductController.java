@@ -1,11 +1,14 @@
 package com.msa.banking.product.presentation.controller;
 
+import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import com.msa.banking.product.application.dto.UsingProductPage;
+import com.msa.banking.product.application.dto.UsingProductResponseDto;
 import com.msa.banking.product.application.service.UsingProductService;
-import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.presentation.request.RequestJoinLoan;
+import com.msa.banking.product.presentation.request.RequestUsingProductConditionDto;
 import com.msa.banking.product.presentation.request.RequsetJoinChecking;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,16 +16,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -41,7 +42,7 @@ public class UsingProductController {
     })
     @PostMapping(value = "/join/checking")
     @LogDataChange
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'MANAGER')")
     public ResponseEntity<?> signUpForCheckingProduct(@Valid @RequestBody RequsetJoinChecking requsetJoinChecking,
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -77,10 +78,48 @@ public class UsingProductController {
     }
 
     // TODO: 페이징 사용자 id로 가입 중인 상품 조회
+    @Operation(summary = "사용자 가입 상품 조회 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "가입 상품 목록"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "조회 실패")
+    })
+    @GetMapping(value = "/using/financial")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<SuccessResponse> fingUsingFinancial(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                              RequestUsingProductConditionDto condition,
+                                                              Pageable page) {
+        List<UsingProductPage> data  = usingProductService.fingUsingProductPage(page, condition, userDetails);
+        SuccessResponse response = new SuccessResponse<>(
+                HttpStatus.OK.value(),
+                "가입한 상품 목록입니다.",
+                data
+        );
+        return ResponseEntity.ok(response);
+    }
 
     // TODO: 사용중인 상품 상세 조회
 
     // TODO: 대출 실행
 
     // TODO: 대출 해지
+    
+    // AccountId로 UsingProduct 조회
+    @Operation(summary = "accountId로 UsingProduct 조회 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "조회 실패")
+    })
+    @GetMapping("/find/{accountId}")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    public ResponseEntity<?> findByAccountId(@PathVariable UUID accountId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        String userRole = userDetails.getRole();
+        UUID userId = userDetails.getUserId();
+
+        UsingProductResponseDto responseDto = usingProductService.findByAccountId(accountId, userId, userRole);
+
+        return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "findByAccountId", responseDto));
+    }
 }

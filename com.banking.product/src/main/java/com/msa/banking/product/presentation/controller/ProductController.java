@@ -39,7 +39,6 @@ public class ProductController {
     })
     @PostMapping(value = "/create/checking")
     @LogDataChange
-    // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<?> createCheckingProduct(@Valid @RequestBody RequestCreateCheckingProduct product) {
         // 어플리케이션 계층 서비스 호츌
@@ -55,7 +54,6 @@ public class ProductController {
     })
     @PostMapping(value = "/create/loan")
     @LogDataChange
-    // TODO: 관리자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     public ResponseEntity<?> createLoanProduct(@Valid @RequestBody RequestCreateLoanProduct product) {
         // 어플리케이션 계층 서비스 호츌
@@ -69,7 +67,6 @@ public class ProductController {
             @ApiResponse(responseCode = "401", description = "권한이 없음")
     })
     @GetMapping(value = "/board")
-    // TODO: 인증자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> findProucts(Pageable pageable, RequestSearchProductDto condition) {
         // 어플리케이션 계층 서비스 호츌
@@ -88,7 +85,6 @@ public class ProductController {
             @ApiResponse(responseCode = "401", description = "권한이 없음")
     })
     @GetMapping(value = "/detail")
-    // TODO: 인증자만 접근 가능하도록 @hasAnyAuthority() 설정 해야함
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> findProuctDetail(@RequestParam("porduct_id") UUID productId) {
         // 어플리케이션 계층 서비스 호츌

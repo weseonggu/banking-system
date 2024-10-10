@@ -1,6 +1,7 @@
 package com.msa.banking.personal.infrastructure.messaging;
 
 import com.msa.banking.common.event.EventSerializer;
+import com.msa.banking.common.event.Topic;
 import com.msa.banking.common.notification.NotificationRequestDto;
 import com.msa.banking.personal.application.event.EventProducer;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +15,7 @@ import org.springframework.stereotype.Service;
 public class EventProducerImpl implements EventProducer {
 
     private final KafkaTemplate<String, byte[]> kafkaTemplate;
-
-    // TODO common으로 토픽 뺴기
-    private static final String TOPIC = "notification-budgetOverRun";
+    private static final String TOPIC = Topic.NOTIFICATION_BUDGET_OVER_RUN.getTopic();
 
     @Override
     public void sendBudgetOverRunNotification(NotificationRequestDto notificationRequestDto) {

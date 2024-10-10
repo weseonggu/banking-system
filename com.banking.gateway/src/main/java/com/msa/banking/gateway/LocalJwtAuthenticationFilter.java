@@ -30,7 +30,7 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
         // 요청에서 요청 주소 빼기
         String path = exchange.getRequest().getURI().getPath();
 
-        // 로그인 및 회원가입 경로는 토큰 검증을 통과합니다.
+        // 로그인 및 회원가입 경로 등 토큰 검증을 통과합니다.
         if (isAuthorizationPassRequest(path)) {
             return chain.filter(exchange);
         }
@@ -88,7 +88,7 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
      */
     private boolean isAuthorizationPassRequest(String path) {
         //  signUp, signIn 및 추가 적인 통과요소 gateway 통과
-        return path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn");
+        return path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn") || path.startsWith("/api/auth/reset-password");
     }
 
     /**

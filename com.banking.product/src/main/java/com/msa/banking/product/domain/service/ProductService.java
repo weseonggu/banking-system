@@ -68,7 +68,7 @@ public class ProductService {
             unless = "#result == null", condition = "@checkRedisState.isRedisAvailable()")
     public List<ResponseProductPage> findAllProducts(Pageable pageable, RequestSearchProductDto condition) {
         log.info("캐시: "+ checkRedisState.isRedisAvailable());
-            return productRepository.findAllProduct(pageable, condition);
+            return productRepository.findAllProductsPage(pageable, condition);
     }
 
 

@@ -23,7 +23,7 @@ public class AuthSignInRequestDto {
     )
     private String password;
 
-    @NotBlank(message = "비밀번호는 필수 입니다.")
+    @NotBlank(message = "본인의 권한은 필수 입니다.")
     @Pattern(regexp = "MASTER|MANAGER|CUSTOMER", message = "권한은 MASTER, MANAGER, CUSTOMER 중 하나여야 합니다.")
     private String role;
 

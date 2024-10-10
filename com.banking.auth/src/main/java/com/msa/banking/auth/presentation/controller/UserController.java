@@ -7,6 +7,9 @@ import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -178,6 +181,23 @@ public class UserController {
 
         log.info("직원 정보 페이지 조회 완료");
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "employee paging selected", response));
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // TODO: 상품 가입시 유저ID와 실명이 DB에 내용과 일치하는지 조회 요청입니다. 만들어 주세요.
+    @Operation(summary = "사용자 사실 조회 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "true, false"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "조회 실패")
+    })
+    @GetMapping(value = "/user/check")
+    @PreAuthorize("isAuthenticated()")
+    public Boolean checkUserData(@RequestParam UUID userId, @RequestParam String name){
+        // 유저아이디와 name이 일치하는 데이터가 있는지 확인하는 로직을 구성해주세요.
+        return null;
     }
 
 }

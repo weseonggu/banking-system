@@ -19,6 +19,13 @@ public class NotificationConsumer {
 
     private final NotificationService notificationService;
 
+    /**
+     * 회원 가입 축하 메세지 전송
+     * @param message
+     * @throws SlackApiException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @KafkaListener(topics = "notification-signUp", groupId = "AuthService-group")
     public void listen(String message) throws SlackApiException, IOException, URISyntaxException {
         // 메세지 역직렬화

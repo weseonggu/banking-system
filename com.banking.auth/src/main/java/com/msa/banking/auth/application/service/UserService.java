@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -158,7 +159,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    @CachePut(cacheNames = "EmployeeCache", key = "#customerId", condition = "@checkRedisState.isRedisAvailable()")
+    @CachePut(cacheNames = "EmployeeCache", key = "#employeeId", condition = "@checkRedisState.isRedisAvailable()")
     @CacheEvict(cacheNames = "EmployeeSearchCache", allEntries = true)
     public AuthResponseDto updateEmployee(UUID employeeId, AuthRequestDto request, UUID userId, String role) {
 
@@ -229,5 +230,21 @@ public class UserService {
             customerRepository.delete(findCustomer);
         }
 
+    }
+
+    /**
+     * 로그인 시도 횟수 +1 증가
+     * 계정 잠금 활성화
+     * @param username
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateLoginAttempts(String username) {
+
+        Customer findCustomer = customerRepository.findByUsername(username).orElseThrow(() -> new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
+
+        findCustomer.loginAttempsCount();
+        if (findCustomer.getLoginAttempts() >= 6) {
+            findCustomer.accountLock();
+        }
     }
 }
