@@ -27,6 +27,20 @@ public class TransactionsController {
     }
 
 
+    // 입금 거래 생성
+    @PostMapping("/{account_id}/deposit")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    public ResponseEntity<TransactionResponseDto> createDeposit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestBody TransactionRequestDto request) {
+
+        return ResponseEntity.ok(transactionsService.createDeposit(accountId, request,  userDetails.getUsername(), userDetails.getRole()));
+    }
+
+
+
+
     // 출금 거래 생성
     @PostMapping("/{account_id}/withdrawal")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")

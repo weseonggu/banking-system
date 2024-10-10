@@ -48,8 +48,8 @@ public class AccountTransactions extends AuditEntity {
     private String beneficiaryAccount;
 
 
-    // 계좌 거래 내역같은거는 어떤 특정 권한을 가진 주체가 생성하는 것이 아닌 시스템 상에서 생성하는 것인데 어떻게 해야하나? -> 거래 주차가 생성하는 것으로
-    // 송금인 계좌 거래 내역 생성
+    // 계좌 거래 내역같은거는 어떤 특정 권한을 가진 주체가 생성하는 것이 아닌 시스템 상에서 생성하는 것인데 어떻게 해야하나? -> 거래 주체가 생성하는 것으로
+    // 송금인 계좌 거래 내역 or 단일 계좌 거래 내역 생성
     public static AccountTransactions createSenderTransaction(Account account, TransactionRequestDto requestDto) {
 
         return AccountTransactions.builder()
