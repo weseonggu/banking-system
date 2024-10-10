@@ -247,4 +247,15 @@ public class UserService {
             findCustomer.accountLock();
         }
     }
+
+    /**
+     * 고객 ID, name 같은지 여부 확인
+     * @param userId
+     * @param name
+     * @return
+     */
+    public boolean findByUserIdAndName(UUID userId, String name) {
+
+        return customerRepository.existsByIdAndName(userId, name);
+    }
 }
