@@ -2,6 +2,7 @@ package com.msa.banking.account.domain.model;
 
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
+import com.msa.banking.account.infrastructure.encryption.HashingUtil;
 import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.common.base.AuditEntity;
 import com.msa.banking.common.account.type.AccountStatus;
@@ -25,13 +26,12 @@ public class Account extends AuditEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID accountId;
 
-    // TODO: 알고리즘으로 랜덤 생성
-    @Convert(converter = EncryptAttributeConverter.class)    // 중요 데이터 암호화
+    // 커스텀 알고리즘으로 랜덤 생성
+    @Convert(converter = EncryptAttributeConverter.class)
     @Column(name = "account_number", nullable = false, unique = true)
-    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.")
     private String accountNumber;
 
-    @Convert(converter = EncryptAttributeConverter.class)
+    @Convert(converter = EncryptAttributeConverter.class)  // 중요 데이터 암호화
     @Column(nullable = false)
     private String accountHolder;
 
@@ -39,10 +39,11 @@ public class Account extends AuditEntity {
     @Builder.Default// precision
     private BigDecimal balance = BigDecimal.valueOf(0.00);
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Builder.Default
-    private AccountStatus status = AccountStatus.ACTIVE;
+    private AccountStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountType type;
 
@@ -57,15 +58,15 @@ public class Account extends AuditEntity {
         return Account.builder()
                 .accountNumber(accountNumber)
                 .accountHolder(requestDto.accountHolder())
-                .status(requestDto.status())
+                .status(requestDto.status() != null ? requestDto.status() : AccountStatus.ACTIVE)  // null 체크
                 .type(requestDto.type())
                 .accountPin(requestDto.accountPin())
                 .build();
     }
 
-    // updatedBy는 contextholder에서 처리하거나 requestHeader에서 어노테이션?으로 처리해야한다.
+    // updatedBy는 contextholder에서 처리하거나 requestHeader에서 어노테이션?으로 처리해야한다-> AuditorAwareImpl에서 처리
     // 계좌 잔액만 변경 가능
-    public void updateAccount(BigDecimal balance){
+    public void updateAccountBalance(BigDecimal balance){
         this.balance = balance;
     }
 

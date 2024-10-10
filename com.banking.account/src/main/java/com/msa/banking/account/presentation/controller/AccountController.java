@@ -37,6 +37,8 @@ public class AccountController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody final AccountRequestDto request) {
 
+        System.out.println(request.type());
+        System.out.println(request.status());
         return ResponseEntity.ok(accountService.createAccount(request, userDetails.getUsername()));
     }
 
@@ -51,19 +53,6 @@ public class AccountController {
 
         return ResponseEntity.ok(accountService.updateAccountStatus(accountId, status, userDetails.getUsername(), userDetails.getRole()));
     }
-
-
-    // 계좌 잔액 변경
-    @PatchMapping("/{account_id}/balance")
-    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
-    public ResponseEntity<AccountResponseDto> updateAccount(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable("account_id") UUID accountId,
-            @RequestParam BigDecimal balance) {
-
-        return ResponseEntity.ok(accountService.updateAccount(accountId, balance, userDetails.getUsername(), userDetails.getRole()));
-    }
-
 
     // 계좌 비밀번호 변경
     @PatchMapping("/{account_id}/accountPin")
