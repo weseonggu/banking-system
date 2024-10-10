@@ -56,11 +56,43 @@ public class TransactionsService {
     }
 
 
+    /**
+     * 입금 기능
+     **/
+    @LogDataChange
+    @Transactional
+    public TransactionResponseDto createDeposit(UUID accountId, TransactionRequestDto request, String username, String role) {
+
+        // 입금하려는 계좌 찾기
+        Account account = accountRepository.findById(accountId)
+                .filter(p -> !p.getIsDelete())
+                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 입금하기
+        // 계좌 거래 내역 생성
+        AccountTransactions depositTransaction =
+                AccountTransactions.createSenderTransaction(account, request);
+
+        // 금액 추가
+        BigDecimal totalBalance =  account.getBalance().add(request.amount());
+        account.updateAccount(totalBalance);
+
+        // 계좌 잔액과 해당 계좌 거래 내역 합산 비교
+        if(!account.getBalance().equals(transactionsRepository.getTotalBalance(accountId))){
+            depositTransaction.updateTransactionStatus(TransactionStatus.FAILED);
+            throw new GlobalCustomException(ErrorCode.BALANCE_NOT_MATCH);
+        } else {
+            depositTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
+        }
+
+        transactionsRepository.save(depositTransaction);
+        return transactionsMapper.toDto(depositTransaction);
+    }
+
     // TODO: 입금 기능이 필요한가? 비밀번호를 3번 이상 틀리면 본인 인증 확인 필요.
     // TODO: 거래 발생 시 거래 알림
     /**
      * 출금 + 결제 기능
-
      **/
     @LogDataChange
     @Transactional
@@ -82,24 +114,25 @@ public class TransactionsService {
         checkAccountPin(accountId, accountPin);
 
         // 계좌 거래 생성
-        AccountTransactions transaction =
+        AccountTransactions withdrawalTransaction =
                 AccountTransactions.createSenderTransaction(account, request);
 
+        // 금액 차감
         BigDecimal totalBalance =  account.getBalance().subtract(request.amount());
         account.updateAccount(totalBalance);
 
         // 계좌 잔액과 해당 계좌 거래 내역 합산 비교
         if(!account.getBalance().equals(transactionsRepository.getTotalBalance(accountId))){
-            transaction.updateTransactionStatus(TransactionStatus.FAILED);
+            withdrawalTransaction.updateTransactionStatus(TransactionStatus.FAILED);
             throw new GlobalCustomException(ErrorCode.BALANCE_NOT_MATCH);
         } else {
-            transaction.updateTransactionStatus(TransactionStatus.COMPLETED);
+            withdrawalTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
         }
 
-        transactionsRepository.save(transaction);
-
+        transactionsRepository.save(withdrawalTransaction);
+        
         // accountId -> userId 조회
-        ResponseEntity<?> responseEntity = productService.findByAccountId(transaction.getAccount().getAccountId(), userId, role);
+        ResponseEntity<?> responseEntity = productService.findByAccountId(withdrawalTransaction.getAccount().getAccountId(), userId, role);
         log.info(responseEntity.getBody());
 
         // Kafka 이벤트 생성 및 전송
@@ -114,9 +147,9 @@ public class TransactionsService {
                 // personalHistoryRequestDto 객체 생성
                 PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
                         .userId(getUserId)
-                        .amount(transaction.getAmount())
-                        .type(EnumMapper.toPersonalHistoryType(transaction.getType()))
-                        .description(transaction.getDescription())
+                        .amount(withdrawalTransaction.getAmount())
+                        .type(EnumMapper.toPersonalHistoryType(withdrawalTransaction.getType()))
+                        .description(withdrawalTransaction.getDescription())
                         .transactionDate(LocalDateTime.now())
                         .build();
 
@@ -127,11 +160,11 @@ public class TransactionsService {
                 log.error("Invalid data format in response body");
             }
         }
-
-        return transactionsMapper.toDto(transaction);
+        return transactionsMapper.toDto(withdrawalTransaction);
     }
 
 
+    // TODO: 이체 시 description null이면 송금인 이름으로 대체
     /**
      * 이체 기능(저축 + 대출 상환 포함 가능)
      **/
@@ -284,6 +317,7 @@ public class TransactionsService {
         return transactionsRepository.searchTransactions(search, pageable);
     }
 
+    // TODO: 입출금 및 예금 금리 이자 입금 스케줄러 이용.
 
     // 거래 상세 조회
     @LogDataChange
