@@ -159,9 +159,9 @@
 
 <br>
 
-## 🌐 Architecture
+## [🌐 Architecture](https://app.diagrams.net/#G151_in6e-LmIqjb2BRx6qJe-rbRhn41nI#%7B%22pageId%22%3A%22oj8mr0bkDiZCBoreKhVd%22%7D)
 
-![architecture PNG](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdrtUIW%2FbtsJt7nMSuM%2FqwA8EJ2y42CxYTFEkR5s9K%2Fimg.png)
+![banking_infra](https://github.com/user-attachments/assets/5e0f7e41-dec3-4967-ab86-571749e19615)
 
 <br>
 
