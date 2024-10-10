@@ -63,7 +63,7 @@ public class UsingProductController {
     })
     @PostMapping(value = "/join/loan")
     @LogDataChange
-    @PreAuthorize("hasAnyAuthority('MANAGER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
     public ResponseEntity<?> signUpForLoanProduct(@Valid @RequestBody RequestJoinLoan requsetJoinLoan,
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -99,6 +99,8 @@ public class UsingProductController {
     }
 
     // TODO: 사용중인 상품 상세 조회
+
+
 
     // TODO: 대출 실행
 

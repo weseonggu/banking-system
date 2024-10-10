@@ -48,7 +48,7 @@ public class UsingProductService {
 
         // 상품이 있는지 확인
         if(!productRepository.existsByIdWhereIsDeleted(requsetJoinChecking.getProductId(), false, requsetJoinChecking.getType())){
-            throw new IllegalArgumentException("없거나 거이상 가입이 불가는한 상품입니다.");
+            throw new IllegalArgumentException("없거나 거이상 가입이 불가능한 상품입니다.");
         }
 
         // 요청자 확인 직원일 경우 가능, 일반 사용자일경우 userDetails랑 dto의 id가 같은지 확인

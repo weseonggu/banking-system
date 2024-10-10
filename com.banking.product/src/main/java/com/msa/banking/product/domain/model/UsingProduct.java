@@ -15,6 +15,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
+@Table(indexes = {
+        @Index(name = "idx_using_product_user_id", columnList = "user_id")
+})
 public class UsingProduct extends AuditEntity {
     @Id
     @UuidGenerator
