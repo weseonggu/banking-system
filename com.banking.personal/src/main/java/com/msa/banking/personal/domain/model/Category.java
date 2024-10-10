@@ -15,7 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@SQLRestriction("is_delete = false")
 public class Category {
 
     @Id

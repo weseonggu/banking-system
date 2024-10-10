@@ -5,13 +5,14 @@ import com.msa.banking.personal.domain.model.Budget;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
 @Builder
-public class BudgetResponseDto {
+public class BudgetResponseDto implements Serializable {
 
     private UUID budgetId;
     private UUID userId;
