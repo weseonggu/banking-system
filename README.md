@@ -2,7 +2,8 @@
 
 # MSA 기반의 온라인 은행 뱅킹 시스템 플랫폼
 
-![image](https://media.istockphoto.com/id/640267784/ko/%EC%82%AC%EC%A7%84/%EC%9D%80%ED%96%89-%EB%B9%8C%EB%94%A9.jpg?s=2048x2048&w=is&k=20&c=3xvVGMcsLIwldGMgKBYZ2_5InzgXc3t6SB1V1tayWJw=)
+<img src="https://media.istockphoto.com/id/640267784/ko/%EC%82%AC%EC%A7%84/%EC%9D%80%ED%96%89-%EB%B9%8C%EB%94%A9.jpg?s=2048x2048&w=is&k=20&c=3xvVGMcsLIwldGMgKBYZ2_5InzgXc3t6SB1V1tayWJw=" alt="은행 이미지" width="500" height="300"/>
+
 
 
 ## 📝 Technologies & Tools (BE) 📝
