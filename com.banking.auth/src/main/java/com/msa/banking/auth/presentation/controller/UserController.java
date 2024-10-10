@@ -183,21 +183,28 @@ public class UserController {
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "employee paging selected", response));
     }
 
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    // TODO: 상품 가입시 유저ID와 실명이 DB에 내용과 일치하는지 조회 요청입니다. 만들어 주세요.
+    /**
+     * 고객 ID, name 같은지 여부 확인
+     * @param userId
+     * @param name
+     * @return
+     */
     @Operation(summary = "사용자 사실 조회 api")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "true, false"),
             @ApiResponse(responseCode = "401", description = "권한이 없음"),
             @ApiResponse(responseCode = "500", description = "조회 실패")
     })
-    @GetMapping(value = "/user/check")
+    @GetMapping(value = "/cutomer/check")
     @PreAuthorize("isAuthenticated()")
-    public Boolean checkUserData(@RequestParam UUID userId, @RequestParam String name){
+    public Boolean findByUserIdAndName(@RequestParam UUID userId, @RequestParam String name){
         // 유저아이디와 name이 일치하는 데이터가 있는지 확인하는 로직을 구성해주세요.
-        return null;
+        log.info("userId, name 일치 조회 시도 중 | userId: {}, name: {}", userId, name);
+
+        boolean response = userService.findByUserIdAndName(userId, name);
+
+        log.info("userId, name 일치 조회 완료 | userId: {}, name: {}", userId, name);
+        return response;
     }
 
 }
