@@ -1,21 +1,16 @@
 package com.msa.banking.account.application.service;
 
 import com.msa.banking.account.application.event.EventProducer;
-import com.msa.banking.account.application.mapper.EnumMapper;
 import com.msa.banking.account.application.mapper.TransactionsMapper;
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.AccountTransactions;
 import com.msa.banking.account.domain.model.TransactionStatus;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
-import com.msa.banking.account.presentation.dto.transactions.TransactionRequestDto;
-import com.msa.banking.account.presentation.dto.transactions.TransactionResponseDto;
-import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
-import com.msa.banking.account.presentation.dto.transactions.TransactionsSearchRequestDto;
+import com.msa.banking.account.infrastructure.encryption.HashingUtil;
+import com.msa.banking.account.presentation.dto.transactions.*;
+import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.base.UserRole;
-import com.msa.banking.common.notification.NotiType;
-import com.msa.banking.common.notification.NotificationRequestDto;
-import com.msa.banking.common.personal.PersonalHistoryRequestDto;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
@@ -24,13 +19,10 @@ import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -55,37 +47,43 @@ public class TransactionsService {
         this.eventProducer = eventProducer;
     }
 
-
+    // TODO: 모든 금융 거래에서 본인의 계좌일 경우에만 거래가능하게 함.
+    // TODO: 계좌가 휴면에 들면 입금하면 바로 활성화상태로 사용이 가능한가? 아니면 다른 확인 절차가 필요한가?
     /**
      * 입금 기능
      **/
     @LogDataChange
     @Transactional
-    public TransactionResponseDto createDeposit(UUID accountId, TransactionRequestDto request, String username, String role) {
+    public TransactionResponseDto createDeposit(UUID accountId, SingleTransactionRequestDto request, String username, String role) {
 
         // 입금하려는 계좌 찾기
         Account account = accountRepository.findById(accountId)
-                .filter(p -> !p.getIsDelete())
+                .filter(p -> !p.getIsDelete() && p.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 입금하기
         // 계좌 거래 내역 생성
         AccountTransactions depositTransaction =
-                AccountTransactions.createSenderTransaction(account, request);
+                AccountTransactions.createSingleDepositTransaction(account, request);
 
         // 금액 추가
-        BigDecimal totalBalance =  account.getBalance().add(request.amount());
-        account.updateAccount(totalBalance);
+        BigDecimal newBalance = account.getBalance().add(request.amount());
+        account.updateAccountBalance(newBalance);
+
+        // 계좌DB에 반영
+        accountRepository.save(account);
+        transactionsRepository.save(depositTransaction);
 
         // 계좌 잔액과 해당 계좌 거래 내역 합산 비교
-        if(!account.getBalance().equals(transactionsRepository.getTotalBalance(accountId))){
+        BigDecimal totalBalance = transactionsRepository.getTotalBalance(accountId);
+
+        if (!account.getBalance().equals(totalBalance)) {
             depositTransaction.updateTransactionStatus(TransactionStatus.FAILED);
             throw new GlobalCustomException(ErrorCode.BALANCE_NOT_MATCH);
         } else {
             depositTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
         }
 
-        transactionsRepository.save(depositTransaction);
         return transactionsMapper.toDto(depositTransaction);
     }
 
@@ -96,11 +94,11 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public TransactionResponseDto createWithdrawal(UUID accountId, String accountPin, TransactionRequestDto request, String username, String role, UUID userId) {
+    public TransactionResponseDto createWithdrawal(UUID accountId, SingleTransactionRequestDto request, String username, String role) {
 
         // 출금하려는 계좌 찾기
         Account account = accountRepository.findById(accountId)
-                .filter(p -> !p.getIsDelete())
+                .filter(p -> !p.getIsDelete() && p.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 출금하기
@@ -111,15 +109,20 @@ public class TransactionsService {
         }
 
         // 비밀번호 확인 (출금 전에 바로 처리)
-        checkAccountPin(accountId, accountPin);
+        checkAccountPin(accountId, request.accountPin());
 
         // 계좌 거래 생성
         AccountTransactions withdrawalTransaction =
-                AccountTransactions.createSenderTransaction(account, request);
+                AccountTransactions.createSingleWithdrawalTransaction(account, request);
+
+        transactionsRepository.save(withdrawalTransaction);
 
         // 금액 차감
         BigDecimal totalBalance =  account.getBalance().subtract(request.amount());
-        account.updateAccount(totalBalance);
+        account.updateAccountBalance(totalBalance);
+
+        accountRepository.save(account);
+
 
         // 계좌 잔액과 해당 계좌 거래 내역 합산 비교
         if(!account.getBalance().equals(transactionsRepository.getTotalBalance(accountId))){
@@ -129,37 +132,35 @@ public class TransactionsService {
             withdrawalTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
         }
 
-        transactionsRepository.save(withdrawalTransaction);
-        
         // accountId -> userId 조회
-        ResponseEntity<?> responseEntity = productService.findByAccountId(withdrawalTransaction.getAccount().getAccountId(), userId, role);
-        log.info(responseEntity.getBody());
+//        ResponseEntity<?> responseEntity = productService.findByAccountId(withdrawalTransaction.getAccount().getAccountId(), userId, role);
+//        log.info(responseEntity.getBody());
 
         // Kafka 이벤트 생성 및 전송
-        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
-            Object dataObject = responseBody.get("data");
-
-            if (dataObject instanceof Map<?, ?> dataMap) {
-                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
-
-                log.info("UserId: " + getUserId);
-
-                // personalHistoryRequestDto 객체 생성
-                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
-                        .userId(getUserId)
-                        .amount(withdrawalTransaction.getAmount())
-                        .type(EnumMapper.toPersonalHistoryType(withdrawalTransaction.getType()))
-                        .description(withdrawalTransaction.getDescription())
-                        .transactionDate(LocalDateTime.now())
-                        .build();
-
-                // Kafka 이벤트 전송
-                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
-
-            } else {
-                log.error("Invalid data format in response body");
-            }
-        }
+//        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
+//            Object dataObject = responseBody.get("data");
+//
+//            if (dataObject instanceof Map<?, ?> dataMap) {
+//                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
+//
+//                log.info("UserId: " + getUserId);
+//
+//                // personalHistoryRequestDto 객체 생성
+//                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
+//                        .userId(getUserId)
+//                        .amount(withdrawalTransaction.getAmount())
+//                        .type(EnumMapper.toPersonalHistoryType(withdrawalTransaction.getType()))
+//                        .description(withdrawalTransaction.getDescription())
+//                        .transactionDate(LocalDateTime.now())
+//                        .build();
+//
+//                // Kafka 이벤트 전송
+//                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
+//
+//            } else {
+//                log.error("Invalid data format in response body");
+//            }
+//        }
         return transactionsMapper.toDto(withdrawalTransaction);
     }
 
@@ -170,18 +171,19 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public void createTransfer(UUID accountId,String accountPin, TransactionRequestDto request, String username, String role, UUID userId) {
+    public void createTransfer(UUID accountId, TransferTransactionRequestDto request, String username, String role) {
 
-        String encryptedPin = encryptor.encrypt(accountPin);
+
+        validateAccountNumberFormat(request.beneficiaryAccount());
 
         // 송금인의 계좌 찾기
         Account senderAccount = accountRepository.findById(accountId)
-                .filter(p -> !p.getIsDelete())
+                .filter(p -> !p.getIsDelete() && p.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 수취인의 계좌 찾기
         Account beneficiaryAccount = accountRepository.findByAccountNumber(request.beneficiaryAccount())
-                .filter(p -> !p.getIsDelete())
+                .filter(p -> !p.getIsDelete() && p.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 계좌 잔액 체크
@@ -190,7 +192,7 @@ public class TransactionsService {
         }
 
         // 송금인 비밀번호 확인 (출금 전에 바로 처리)
-        checkAccountPin(accountId, accountPin);
+        checkAccountPin(accountId,  request.accountPin());
 
         /**
          * 송금인, 수취인 계좌 거래 생성 시 하나라도 실패하면 둘다 롤백해야함.
@@ -199,17 +201,25 @@ public class TransactionsService {
         AccountTransactions senderTransaction =
                 AccountTransactions.createSenderTransaction(senderAccount, request);
 
+        transactionsRepository.save(senderTransaction);
+
         // 수취인 계좌 거래 생성
         AccountTransactions beneficiaryTransaction =
                 AccountTransactions.createBeneficiaryTransaction(beneficiaryAccount, senderAccount.getAccountNumber(), request);
 
+        transactionsRepository.save(beneficiaryTransaction);
+
         // 송금인 계좌 이체 금액 차감
         BigDecimal totalSenderBalance =  senderAccount.getBalance().subtract(request.amount());
-        senderAccount.updateAccount(totalSenderBalance);
+        senderAccount.updateAccountBalance(totalSenderBalance);
+
+        accountRepository.save(senderAccount);
 
         // 수취인 계좌 이체 금액 추가
         BigDecimal totalBeneficiaryBalance =  beneficiaryAccount.getBalance().add(request.amount());
-        beneficiaryAccount.updateAccount(totalBeneficiaryBalance);
+        beneficiaryAccount.updateAccountBalance(totalBeneficiaryBalance);
+
+        accountRepository.save(beneficiaryAccount);
 
         // 송금인/수취인 계좌 잔액과 해당 계좌 거래 내역 합산 비교
         if(!senderAccount.getBalance().equals(transactionsRepository.getTotalBalance(accountId)) ||
@@ -223,52 +233,41 @@ public class TransactionsService {
             beneficiaryTransaction.updateTransactionStatus(TransactionStatus.COMPLETED);
         }
 
-        transactionsRepository.save(senderTransaction);
-        transactionsRepository.save(beneficiaryTransaction);
+
 
         // accountId -> userId 조회
-        ResponseEntity<?> responseEntity = productService.findByAccountId(senderTransaction.getAccount().getAccountId(), userId, role);
-        log.info(responseEntity.getBody());
+//        ResponseEntity<?> responseEntity = productService.findByAccountId(senderTransaction.getAccount().getAccountId(), userId, role);
+//        log.info(responseEntity.getBody());
 
         // Kafka 이벤트 생성 및 전송
-        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
-            Object dataObject = responseBody.get("data");
-
-            if (dataObject instanceof Map<?, ?> dataMap) {
-                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
-
-                log.info("UserId: " + getUserId);
-
-                // personalHistoryRequestDto 객체 생성
-                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
-                        .userId(getUserId)
-                        .amount(senderTransaction.getAmount())
-                        .type(EnumMapper.toPersonalHistoryType(senderTransaction.getType()))
-                        .description(senderTransaction.getDescription())
-                        .transactionDate(LocalDateTime.now())
-                        .build();
-
-                // Kafka 이벤트 전송
-                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
-
-            } else {
-                log.error("Invalid data format in response body");
-            }
-        }
+//        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
+//            Object dataObject = responseBody.get("data");
+//
+//            if (dataObject instanceof Map<?, ?> dataMap) {
+//                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
+//
+//                log.info("UserId: " + getUserId);
+//
+//                // personalHistoryRequestDto 객체 생성
+//                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
+//                        .userId(getUserId)
+//                        .amount(senderTransaction.getAmount())
+//                        .type(EnumMapper.toPersonalHistoryType(senderTransaction.getType()))
+//                        .description(senderTransaction.getDescription())
+//                        .transactionDate(LocalDateTime.now())
+//                        .build();
+//
+//                // Kafka 이벤트 전송
+//                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
+//
+//            } else {
+//                log.error("Invalid data format in response body");
+//            }
+//        }
     }
 
 
-    @LogDataChange
-    public void checkAccountPin(UUID accountId, String accountPin) {
 
-        // 비밀번호 암호화
-        String encryptedPin = encryptor.encrypt(accountPin);
-
-        // 비밀번호 확인
-        if ( accountRepository.getAccountPin(accountId).equals(encryptedPin)) {
-            throw new GlobalCustomException(ErrorCode.ACCOUNTPIN_NOT_MATCH);
-        }
-    }
 
 
     // TODO: 계좌 거래 상태를 본인이 수정하는가? 거래가 이루어진 상태를 분류해서 로직을 다시 설정해야함.
@@ -332,6 +331,27 @@ public class TransactionsService {
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
         } else {
             return transactionsMapper.toDto(transaction);
+        }
+    }
+
+    @LogDataChange
+    public void checkAccountPin(UUID accountId, String accountPin) {
+
+        // 비밀번호 암호화
+        String encryptedPin = encryptor.encrypt(accountPin);
+
+        // 비밀번호 확인
+        if ( accountRepository.getAccountPin(accountId).equals(encryptedPin)) {
+            throw new GlobalCustomException(ErrorCode.ACCOUNTPIN_NOT_MATCH);
+        }
+    }
+
+
+    // 계좌 번호 검증
+    @LogDataChange
+    public void validateAccountNumberFormat(String accountNumber) {
+        if (!accountNumber.matches("\\d{3}-\\d{4}-\\d{7}")) {
+            throw new IllegalArgumentException("계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.");
         }
     }
 }

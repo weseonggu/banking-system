@@ -15,6 +15,7 @@ public record AccountResponseDto(
         BigDecimal balance,
         AccountStatus status,
         AccountType type,
+        String accountPin,
         LocalDateTime createdAt,
         String createdBy,
         LocalDateTime updatedAt,

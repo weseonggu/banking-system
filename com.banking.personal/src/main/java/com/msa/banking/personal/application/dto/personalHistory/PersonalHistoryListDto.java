@@ -6,12 +6,13 @@ import com.msa.banking.personal.domain.model.PersonalHistory;
 import lombok.Builder;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class PersonalHistoryListDto {
+public class PersonalHistoryListDto implements Serializable {
 
     private Long historyId;
     private String categoryName;

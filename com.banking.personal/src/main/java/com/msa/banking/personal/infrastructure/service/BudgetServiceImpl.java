@@ -8,13 +8,23 @@ import com.msa.banking.personal.application.dto.budget.BudgetResponseDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.application.service.BudgetService;
 import com.msa.banking.personal.domain.model.Budget;
+import com.msa.banking.personal.domain.model.PersonalHistory;
 import com.msa.banking.personal.domain.repository.BudgetRepository;
+import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,11 +32,14 @@ import java.util.UUID;
 public class BudgetServiceImpl implements BudgetService {
 
     private final BudgetRepository budgetRepository;
+    private final PersonalHistoryJpaRepository personalHistoryRepository;
+    private final CacheManager cacheManager;
 
     /**
      * 예산 설정 목록 조회
      */
     @Override
+    @Cacheable(cacheNames = "budgetListCache")
     public Page<BudgetListDto> getBudgetList(Pageable pageable) {
 
         Page<Budget> budgetPage = budgetRepository.findAllByIsDeleteFalse(pageable);
@@ -37,6 +50,7 @@ public class BudgetServiceImpl implements BudgetService {
      * 예산 설정 단건 조회
      */
     @Override
+    @Cacheable(cacheNames = "budgetCache", key = "#budgetId")
     public BudgetResponseDto findBudgetById(UUID budgetId, String userRole, UUID userId) {
 
         Budget budget = budgetRepository.findById(budgetId).orElseThrow(
@@ -54,9 +68,16 @@ public class BudgetServiceImpl implements BudgetService {
      */
     @Override
     @Transactional
+    @CachePut(cacheNames = "budgetCache", key = "#result.budgetId")
     public BudgetResponseDto createBudget(BudgetRequestDto budgetRequestDto, String userRole, UUID userId, String userName) {
 
+        LocalDateTime startDate = budgetRequestDto.getStartDate();
+        LocalDateTime endDate = Budget.calculateEndDate(startDate, budgetRequestDto.getPeriod());
+
+        BigDecimal totalSpentAmount = personalHistoryRepository.findTotalAmountByDateRange(userId, startDate, endDate);
+
         Budget budget = Budget.createBudget(budgetRequestDto, userId, userName);
+        budget.addTransactionAmount(totalSpentAmount);
         budgetRepository.save(budget);
 
         return BudgetResponseDto.toDTO(budget);
@@ -68,6 +89,8 @@ public class BudgetServiceImpl implements BudgetService {
      */
     @Override
     @Transactional
+    @CachePut(cacheNames = "budgetCache", key = "#budgetId")
+    @CacheEvict(cacheNames = "budgetListCache", allEntries = true)
     public BudgetResponseDto updateBudget(UUID budgetId, BudgetUpdateDto budgetUpdateDto, String userRole, UUID userId, String userName) {
 
         Budget budget = budgetRepository.findById(budgetId).orElseThrow(
@@ -88,6 +111,7 @@ public class BudgetServiceImpl implements BudgetService {
      */
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "budgetCache", key = "#budgetId")
     public void deleteBudget(UUID budgetId, String userRole, UUID userId, String userName) {
 
         Budget budget = budgetRepository.findById(budgetId).orElseThrow(
@@ -99,9 +123,13 @@ public class BudgetServiceImpl implements BudgetService {
 
         budget.deleteBudget(userName);
         budgetRepository.save(budget);
-    }
 
-    // TODO 개인 내역이 추가 될 떄 예산쪽에서도 총 사용가격 실시간 반영 후 예산을 넘기면 슬랙 알림
+        // 전체 조회 캐시 삭제 (리스트 캐시)
+        Cache budgetListCache = cacheManager.getCache("budgetListCache");
+        if (budgetListCache != null) {
+            budgetListCache.clear();
+        }
+    }
 
     // 고객일 때, 자신의 개인 내역 검색
     public void checkUserAccess(UUID userId, String userRole, UUID budgetUserId) {

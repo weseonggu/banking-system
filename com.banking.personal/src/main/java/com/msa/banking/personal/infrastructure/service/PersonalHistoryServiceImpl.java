@@ -1,6 +1,5 @@
 package com.msa.banking.personal.infrastructure.service;
 
-import com.msa.banking.common.auth.response.AuthFeignResponseDto;
 import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.notification.NotiType;
 import com.msa.banking.common.notification.NotificationRequestDto;
@@ -23,6 +22,11 @@ import com.msa.banking.personal.domain.repository.CategoryRepository;
 import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -46,12 +50,14 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
     private final BudgetRepository budgetRepository;
     private final UserService userService;
     private final EventProducer eventProducer;
+    private final CacheManager cacheManager;
 
     /**
      * 개인 내역 목록 조회
      * 조건: 카테고리 이름, 상태
      */
     @Override
+    @Cacheable(cacheNames = "personalHistoryListCache")
     public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable) {
 
         Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable);
@@ -64,6 +70,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      */
     @Override
     @Transactional
+    @CachePut(cacheNames = "personalHistoryCache", key = "#result.historyId")
     public PersonalHistoryResponseDto createPersonalHistory(AccountCompletedEventDto accountCompletedEventDto) {
 
         // 계좌에서 거래가 일어났을 때 데이터를 받아서 개인 내역에 저장
@@ -134,6 +141,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      * 개인 내역 단 건 조회
      */
     @Override
+    @Cacheable(cacheNames = "personalHistoryCache", key = "#historyId")
     public PersonalHistoryResponseDto findPersonalHistoryById(Long historyId, UUID userId, String userRole) {
 
         PersonalHistory personalHistory = personalHistoryRepository.findById(historyId).orElseThrow(
@@ -152,6 +160,8 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      */
     @Override
     @Transactional
+    @CachePut(cacheNames = "personalHistoryCache", key = "#historyId")
+    @CacheEvict(cacheNames = "personalHistoryListCache", allEntries = true)
     public PersonalHistoryResponseDto updatePersonalHistoryCategory(PersonalHistoryUpdateDto personalHistoryUpdateDto, Long historyId, UUID userId, String userRole, String userName) {
 
         PersonalHistory personalHistory = personalHistoryRepository.findById(historyId).orElseThrow(
@@ -183,6 +193,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      */
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "personalHistoryCache", key = "#historyId")
     public void deletePersonHistory(Long historyId, UUID userId, String userRole, String userName) {
 
         log.info("deletePersonHistory Service-------------");
@@ -197,6 +208,12 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
 
         personalHistory.deletePersonalHistory(userName);
         personalHistoryRepository.save(personalHistory);
+
+        // 전체 조회 캐시 삭제 (리스트 캐시)
+        Cache personalHistoryListCache = cacheManager.getCache("personalHistoryListCache");
+        if (personalHistoryListCache != null) {
+            personalHistoryListCache.clear();
+        }
     }
 
     // 고객일 때, 자신의 개인 내역 검색
@@ -211,6 +228,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      */
     @Override
     @Transactional
+    @CachePut(cacheNames = "personalHistoryCache", key = "#result.historyId")
     public PersonalHistoryResponseDto createPersonalHistory(PersonalHistoryRequestDto requestDto, UUID userId, String userName) {
 
         // 계좌에서 거래가 일어났을 때 데이터를 받아서 개인 내역에 저장
@@ -266,7 +284,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
                                     .slackId(getSlackId)
                                     .role(UserRole.CUSTOMER)
                                     .type(NotiType.BUDGET_OVERRUN)
-                                    .message("설정한 예산 {}원을 초과했습니다.")
+                                    .message("설정한 예산을 초과했습니다.")
                                     .build();
 
                             // Kafka로 알림 전송

@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Getter
+@SQLRestriction("is_delete = false")
 public class Budget extends AuditEntity {
 
     @Id
@@ -98,7 +100,7 @@ public class Budget extends AuditEntity {
     }
 
     // 예산 종료일 계산
-    private static LocalDateTime calculateEndDate(LocalDateTime startDate, BudgetPeriod period) {
+    public static LocalDateTime calculateEndDate(LocalDateTime startDate, BudgetPeriod period) {
         if(period == BudgetPeriod.WEEKLY){
             return startDate.plusWeeks(1);
 
