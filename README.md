@@ -165,7 +165,7 @@
 
 <br>
 
-## [📋 ERD Diagram](https://www.erdcloud.com/d/9w7xiZJBzv7MvTwxH)
+## [📋 ERD Diagram](https://www.erdcloud.com/d/ASKpbKPHEcdRhuWDb)
 
-![75KzfBPRqYgYoW9qT](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fb0rwDD%2FbtsJF446vE3%2FCOC0Cvvu74U4bMvHhhpVU1%2Fimg.png)
+![banking_erd](https://github.com/user-attachments/assets/e2957ec5-f503-478c-822c-76c175fe51d4)
 
