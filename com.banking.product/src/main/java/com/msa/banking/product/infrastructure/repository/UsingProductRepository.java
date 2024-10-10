@@ -2,6 +2,7 @@ package com.msa.banking.product.infrastructure.repository;
 
 import com.msa.banking.product.domain.model.UsingProduct;
 import com.msa.banking.product.domain.repository.UsingProductRepositoryCustom;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,8 @@ public interface UsingProductRepository extends JpaRepository<UsingProduct, UUID
                                                                    @Param("endDateTime") LocalDateTime endDateTime);
 
     Optional<UsingProduct> findByAccountIdAndIsDeleteFalse(UUID accountId);
+
+    @EntityGraph(attributePaths = {"loanInUse"})
+    @Query("select u FROM UsingProduct  u WHERE u.id = :id")
+    Optional<UsingProduct> findByIdEntityGraph(@Param("id")UUID id);
 }

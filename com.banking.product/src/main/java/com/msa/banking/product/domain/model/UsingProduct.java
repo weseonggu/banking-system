@@ -75,4 +75,6 @@ public class UsingProduct extends AuditEntity {
     public void addLoanInuse(LoanInUse loanInUse){
         this.loanInUse = loanInUse;
     }
+
+
 }

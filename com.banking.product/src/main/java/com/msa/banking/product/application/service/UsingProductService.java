@@ -5,16 +5,19 @@ import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.account.type.AccountType;
 import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.response.ErrorCode;
+import com.msa.banking.commonbean.client.AuthClient;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.product.application.dto.UsingProductPage;
 import com.msa.banking.product.application.dto.UsingProductResponseDto;
 import com.msa.banking.product.domain.model.CheckingInUse;
 import com.msa.banking.product.domain.model.LoanInUse;
+import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.domain.model.UsingProduct;
 import com.msa.banking.product.infrastructure.client.AccountClient;
 import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.infrastructure.repository.UsingProductRepository;
+import com.msa.banking.product.lib.LoanState;
 import com.msa.banking.product.lib.ProductType;
 import com.msa.banking.product.presentation.request.RequestJoinLoan;
 import com.msa.banking.product.presentation.request.RequestUsingProductConditionDto;
@@ -39,6 +42,7 @@ public class UsingProductService {
     private final AccountClient accountClient;
     private final UsingProductRepository usingProductRepository;
     private final ProductRepository productRepository;
+    private final AuthClient authClient;
 
     /**
      * 입 출금 상품 가입
@@ -50,8 +54,11 @@ public class UsingProductService {
     public UUID joinChecking(RequsetJoinChecking requsetJoinChecking, UserDetailsImpl userDetails) {
 
         // 상품이 있는지 확인
-        if(!productRepository.existsByIdWhereIsDeleted(requsetJoinChecking.getProductId(), false, requsetJoinChecking.getType())){
-            throw new IllegalArgumentException("없거나 거이상 가입이 불가능한 상품입니다.");
+        Product product = productRepository.findByIdWhereIsDeleted(requsetJoinChecking.getProductId(), false, requsetJoinChecking.getType())
+                .orElseThrow(() -> new IllegalArgumentException("없거나 거이상 가입이 불가능한 상품입니다."));
+        // 가입할려는 강비의 타입이 같은지 확인
+        if(!product.getType().equals(requsetJoinChecking.getType())){
+            throw new IllegalArgumentException("입출금 상품 가입입니다. 다른 상품은 안됩니다.");
         }
 
         // 요청자 확인 직원일 경우 가능, 일반 사용자일경우 userDetails랑 dto의 id가 같은지 확인
@@ -60,7 +67,10 @@ public class UsingProductService {
                 throw new IllegalArgumentException("타인의 아이디로 가입 할 수 없습니다.");
             }
         }
-        // TODO: 사용자가 있는지 확인 요청  userId랑 name으로
+        // 사용자가 있는지 확인 요청  userId랑 name으로
+        if(!checkUserInfo(requsetJoinChecking.getUserId(), requsetJoinChecking.getName())){
+            throw new IllegalArgumentException("사용자 정보가 일치 하지 않습니다.");
+        }
         // 계좌 생성 요청 -> 응답으로 계좌 id(UUID)를 반환 예외처리
         AccountRequestDto requestDto = new AccountRequestDto(requsetJoinChecking.getName(),
                 AccountStatus.ACTIVE,
@@ -91,8 +101,10 @@ public class UsingProductService {
     @Transactional
     public UUID joinLoan(RequestJoinLoan requsetJoinLoan, UserDetailsImpl userDetails) {
         // 상품이 있는지 확인
-        if(!productRepository.existsByIdWhereIsDeleted(requsetJoinLoan.getProductId(), false, requsetJoinLoan.getType())){
-            throw new IllegalArgumentException("없거나 거이상 가입이 불가는한 상품입니다.");
+        Product product = productRepository.findByIdWhereIsDeleted(requsetJoinLoan.getProductId(), false, requsetJoinLoan.getType())
+                .orElseThrow(() -> new IllegalArgumentException("없거나 거이상 가입이 불가능한 상품입니다."));
+        if(!product.getType().equals(requsetJoinLoan.getType())){
+            throw new IllegalArgumentException("입출금 상품 가입입니다. 다른 상품은 안됩니다.");
         }
 
         // 요청자 확인 직원일 경우 가능, 일반 사용자일경우 userDetails랑 dto의 id가 같은지 확인
@@ -102,7 +114,10 @@ public class UsingProductService {
             }
         }
 
-        // TODO: 사용자가 있는지 확인 요청  userId랑 name으로
+        // 사용자가 있는지 확인 요청  userId랑 name으로
+        if(!checkUserInfo(requsetJoinLoan.getUserId(), requsetJoinLoan.getName())){
+            throw new IllegalArgumentException("사용자 정보가 일치 하지 않습니다.");
+        }
         // 계좌 생성 요청 -> 응답으로 계좌 id(UUID)를 반환 예외처리
         AccountRequestDto requestDto = new AccountRequestDto(requsetJoinLoan.getName(),
                 AccountStatus.ACTIVE,
@@ -113,7 +128,8 @@ public class UsingProductService {
 
 
         // 엔티티 생성 UsingProduct, LoanInUse 생성
-        LoanInUse loanInUse = LoanInUse.create(requsetJoinLoan.getLoanAmount(), requsetJoinLoan.getName(), requsetJoinLoan.getInterestRate(), requsetJoinLoan.getMonth());
+        LoanInUse loanInUse = LoanInUse.create(requsetJoinLoan.getLoanAmount(), requsetJoinLoan.getName(),
+                requsetJoinLoan.getInterestRate(), requsetJoinLoan.getMonth());
         UsingProduct usingProduct = UsingProduct.create(requsetJoinLoan.getUserId(), ProductType.NEGATIVE_LOANS,
                 response.getBody(), requsetJoinLoan.getName(), requsetJoinLoan.getProductId());
         usingProduct.addLoanInuse(loanInUse);
@@ -122,6 +138,16 @@ public class UsingProductService {
         usingProductRepository.save(usingProduct);
         // 성공 응답
         return response.getBody();
+    }
+
+    /**
+     * auth 서비스에 사용자 실명이 일치하는지 확인
+     * @param userId 사용자 id
+     * @param name 사용자 실명
+     * @return Boolean type
+     */
+    private Boolean checkUserInfo(UUID userId, String name){
+        return authClient.findByUserIdAndName(userId, name);
     }
 
     /**
@@ -161,5 +187,29 @@ public class UsingProductService {
         }
 
         return UsingProductResponseDto.toDTO(usingProduct);
+    }
+
+    /**
+     * 대출 승인 로직
+     * @param id 가입한 상품 id
+     * @param userDetails 인가 정보
+     */
+    public void changeLoanSate(UUID id, UserDetailsImpl userDetails) {
+        // 가입신청한 상품 찾기
+        UsingProduct usingProduct =usingProductRepository.findByIdEntityGraph(id)
+                .orElseThrow(() -> new IllegalArgumentException("데이터가 없습니다."));
+
+        if(usingProduct.getLoanInUse()==null){
+            throw new IllegalArgumentException("데이터가 없거나 신청상태가 아닙니다.");
+        }
+
+        // 데이터가 신청 상태인지 확인
+        if(!usingProduct.getLoanInUse().getStatus().equals(LoanState.APPLY)){
+            throw new IllegalArgumentException("이미 승인한 대출입니다.");
+        }
+        // 대출 실행 전으로 변경
+        usingProduct.getLoanInUse().approvalLoan(userDetails.getUsername());
+
+        usingProductRepository.save(usingProduct);
     }
 }

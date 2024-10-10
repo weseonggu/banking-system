@@ -23,4 +23,7 @@ public interface AuthClient {
 
     @GetMapping("/api/users/employee/{employee_id}")
     SuccessResponse<AuthFeignResponseDto> findOneEmployee(@PathVariable("employee_id") UUID employeeId);
+
+    @GetMapping(value = "/api/users/customer/check")
+    Boolean findByUserIdAndName(@RequestParam("userId") UUID userId, @RequestParam("name") String name);
 }

@@ -54,8 +54,12 @@ public class LoanInUse extends AuditEntity {
                 .interestRate(interestRate)
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusMonths(month))
-                .status(LoanState.BEFOREEXECUTION)
+                .status(LoanState.APPLY)
                 .build();
+    }
+    public void approvalLoan(String name) {
+        this.status = LoanState.BEFOREEXECUTION;
+        super.setUpdateByUserName(name);
     }
 
 

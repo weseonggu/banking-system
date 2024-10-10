@@ -77,7 +77,6 @@ public class UsingProductController {
         return ResponseEntity.ok(response);
     }
 
-    // TODO: 페이징 사용자 id로 가입 중인 상품 조회
     @Operation(summary = "사용자 가입 상품 조회 api")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "가입 상품 목록"),
@@ -98,13 +97,41 @@ public class UsingProductController {
         return ResponseEntity.ok(response);
     }
 
+
+
+    // TODO: 직원만 가능한 대출 승인
+    @Operation(summary = "대출 시청 승인 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "대출 승인"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "승인 실패")
+    })
+    @PatchMapping(value = "/using/loan/approval")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'MASTER')")
+    public ResponseEntity<SuccessResponse> approvalLoan(@RequestParam("using_product_id") UUID id,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        usingProductService.changeLoanSate(id, userDetails);
+
+        SuccessResponse response = new SuccessResponse<>(
+                HttpStatus.OK.value(),
+                "대출을 승인 했습니다.",
+                ""
+        );
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
     // TODO: 사용중인 상품 상세 조회
-
-
-
     // TODO: 대출 실행
 
     // TODO: 대출 해지
+
+
+
     
     // AccountId로 UsingProduct 조회
     @Operation(summary = "accountId로 UsingProduct 조회 api")

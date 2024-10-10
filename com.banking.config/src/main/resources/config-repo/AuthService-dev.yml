@@ -42,7 +42,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
@@ -53,7 +53,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
 
 service:
   jwt:
