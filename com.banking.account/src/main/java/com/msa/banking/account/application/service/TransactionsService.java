@@ -1,16 +1,17 @@
 package com.msa.banking.account.application.service;
 
 import com.msa.banking.account.application.event.EventProducer;
+import com.msa.banking.account.application.mapper.EnumMapper;
 import com.msa.banking.account.application.mapper.TransactionsMapper;
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.AccountTransactions;
 import com.msa.banking.account.domain.model.TransactionStatus;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
-import com.msa.banking.account.infrastructure.encryption.HashingUtil;
 import com.msa.banking.account.presentation.dto.transactions.*;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.base.UserRole;
+import com.msa.banking.common.personal.PersonalHistoryRequestDto;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
@@ -19,10 +20,13 @@ import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -94,7 +98,7 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public TransactionResponseDto createWithdrawal(UUID accountId, SingleTransactionRequestDto request, String username, String role) {
+    public TransactionResponseDto createWithdrawal(UUID accountId, SingleTransactionRequestDto request, String username, String role, UUID userId) {
 
         // 출금하려는 계좌 찾기
         Account account = accountRepository.findById(accountId)
@@ -133,34 +137,36 @@ public class TransactionsService {
         }
 
         // accountId -> userId 조회
-//        ResponseEntity<?> responseEntity = productService.findByAccountId(withdrawalTransaction.getAccount().getAccountId(), userId, role);
-//        log.info(responseEntity.getBody());
+        ResponseEntity<?> responseEntity = productService.findByAccountId(withdrawalTransaction.getAccount().getAccountId(), userId, role);
+        log.info(responseEntity.getBody());
 
         // Kafka 이벤트 생성 및 전송
-//        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
-//            Object dataObject = responseBody.get("data");
-//
-//            if (dataObject instanceof Map<?, ?> dataMap) {
-//                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
-//
-//                log.info("UserId: " + getUserId);
-//
-//                // personalHistoryRequestDto 객체 생성
-//                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
-//                        .userId(getUserId)
-//                        .amount(withdrawalTransaction.getAmount())
-//                        .type(EnumMapper.toPersonalHistoryType(withdrawalTransaction.getType()))
-//                        .description(withdrawalTransaction.getDescription())
-//                        .transactionDate(LocalDateTime.now())
-//                        .build();
-//
-//                // Kafka 이벤트 전송
-//                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
-//
-//            } else {
-//                log.error("Invalid data format in response body");
-//            }
-//        }
+        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
+            Object dataObject = responseBody.get("data");
+
+            if (dataObject instanceof Map<?, ?> dataMap) {
+                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
+
+                log.info("UserId: " + getUserId);
+
+                // personalHistoryRequestDto 객체 생성
+                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
+                        .userId(getUserId)
+                        .amount(withdrawalTransaction.getAmount())
+                        .type(EnumMapper.toPersonalHistoryType(withdrawalTransaction.getType()))
+                        .description(withdrawalTransaction.getDescription())
+                        .transactionDate(LocalDateTime.now())
+                        .build();
+
+                log.info(personalHistoryRequestDto);
+
+                // Kafka 이벤트 전송
+                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
+
+            } else {
+                log.error("Invalid data format in response body");
+            }
+        }
         return transactionsMapper.toDto(withdrawalTransaction);
     }
 
