@@ -1,10 +1,7 @@
 package com.msa.banking.account.presentation.controller;
 
 import com.msa.banking.account.application.service.TransactionsService;
-import com.msa.banking.account.presentation.dto.transactions.TransactionRequestDto;
-import com.msa.banking.account.presentation.dto.transactions.TransactionResponseDto;
-import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
-import com.msa.banking.account.presentation.dto.transactions.TransactionsSearchRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.*;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +30,7 @@ public class TransactionsController {
     public ResponseEntity<TransactionResponseDto> createDeposit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
-            @RequestBody TransactionRequestDto request) {
+            @RequestBody SingleTransactionRequestDto request) {
 
         return ResponseEntity.ok(transactionsService.createDeposit(accountId, request,  userDetails.getUsername(), userDetails.getRole()));
     }
@@ -47,10 +44,9 @@ public class TransactionsController {
     public ResponseEntity<TransactionResponseDto> createWithdrawal(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
-            @RequestParam String accountPin,
-            @RequestBody TransactionRequestDto request) {
+            @RequestBody SingleTransactionRequestDto request) {
 
-        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId()));
+        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, request, userDetails.getUsername(), userDetails.getRole()));
     }
 
 
@@ -60,10 +56,9 @@ public class TransactionsController {
     public ResponseEntity<Void> createTransfer(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
-            @RequestParam String accountPin,
-            @RequestBody TransactionRequestDto request) {
+            @RequestBody TransferTransactionRequestDto request) {
 
-        transactionsService.createTransfer(accountId, accountPin, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId());
+        transactionsService.createTransfer(accountId, request, userDetails.getUsername(), userDetails.getRole());
 
         return ResponseEntity.noContent().build();
     }

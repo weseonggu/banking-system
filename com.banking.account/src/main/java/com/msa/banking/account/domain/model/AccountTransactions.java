@@ -1,7 +1,8 @@
 package com.msa.banking.account.domain.model;
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
-import com.msa.banking.account.presentation.dto.transactions.TransactionRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.SingleTransactionRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.TransferTransactionRequestDto;
 import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
@@ -27,12 +28,14 @@ public class AccountTransactions extends AuditEntity {
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType type;
 
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private TransactionStatus status = TransactionStatus.PENDING;
@@ -49,20 +52,43 @@ public class AccountTransactions extends AuditEntity {
 
 
     // 계좌 거래 내역같은거는 어떤 특정 권한을 가진 주체가 생성하는 것이 아닌 시스템 상에서 생성하는 것인데 어떻게 해야하나? -> 거래 주체가 생성하는 것으로
-    // 송금인 계좌 거래 내역 or 단일 계좌 거래 내역 생성
-    public static AccountTransactions createSenderTransaction(Account account, TransactionRequestDto requestDto) {
+    // 단일 계좌 입금 거래 내역 생성
+    public static AccountTransactions createSingleDepositTransaction(Account account, SingleTransactionRequestDto requestDto) {
 
         return AccountTransactions.builder()
                 .account(account)
                 .type(requestDto.type())
                 .amount(requestDto.amount())
                 .description(requestDto.description())
+                .build();
+    }
+
+    // 단일 계좌 출금 거래 내역 생성
+    public static AccountTransactions createSingleWithdrawalTransaction(Account account, SingleTransactionRequestDto requestDto) {
+
+        return AccountTransactions.builder()
+                .account(account)
+                .type(requestDto.type())
+                .amount(requestDto.amount().negate()) // 금액을 음수로 변환
+                .description(requestDto.description())
+                .build();
+    }
+
+
+    // 송금인 계좌 거래 내역
+    public static AccountTransactions createSenderTransaction(Account account, TransferTransactionRequestDto requestDto) {
+
+        return AccountTransactions.builder()
+                .account(account)
+                .type(requestDto.type())
+                .amount(requestDto.amount().negate()) // 돈이 빠져나가므로 금액을 음수로 변환
+                .description(requestDto.description())
                 .beneficiaryAccount(requestDto.beneficiaryAccount())
                 .build();
     }
 
     // 수취인 계좌 거래 내역 생성
-    public static AccountTransactions createBeneficiaryTransaction(Account account, String originatingAccount, TransactionRequestDto requestDto) {
+    public static AccountTransactions createBeneficiaryTransaction(Account account, String originatingAccount, TransferTransactionRequestDto requestDto) {
 
         return AccountTransactions.builder()
                 .account(account)

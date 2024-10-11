@@ -38,6 +38,7 @@ public class DirectDebit extends AuditEntity {
     @Column(nullable = false)
     private Integer transferDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private DirectDebitStatus status = DirectDebitStatus.ACTIVE;

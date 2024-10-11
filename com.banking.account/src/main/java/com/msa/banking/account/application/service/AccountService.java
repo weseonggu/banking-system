@@ -40,6 +40,7 @@ public class AccountService {
     @Transactional
     public UUID createAccount(AccountRequestDto request, String username) {
 
+        // TODO: 실소유자명이 사용자의 실명과 일치하는지 체크
         // 계좌 번호를 특정 형식에 맞게 랜덤으로 생성
         String accountNumber = AccountNumberGenerator.generateAccountNumber();
 
@@ -54,6 +55,7 @@ public class AccountService {
         // 등록된 계좌ID 반환
         return account.getAccountId();
     }
+
 
 
     // TODO: 장기 휴면 시 계좌 상태를 어떻게 변경할 지 관건. 스케줄러 이용? 매니저가 변경?
@@ -77,24 +79,8 @@ public class AccountService {
     }
 
 
-    // TODO: 잔액 수정의 경우 이체 또는 결제시에 타인에 의해 수정되어야 하는데 이때 접근 권한을 어떻게 설정하는지가 고민이다.
-    // 계좌 잔액 변경
-    @LogDataChange
-    @Transactional
-    public AccountResponseDto updateAccount(UUID accountId, BigDecimal balance, String username, String role) {
-
-        Account account = accountRepository.findById(accountId)
-                .filter(p -> !p.getIsDelete())
-                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
-
-        account.updateAccount(balance);
-
-        // mapstruct 라이브러리를 사용하여 entity -> dto 변환
-        return accountMapper.toDto(account);
-    }
-
     // TODO: 계좌 비밀번호 변경 시 로직을 어떻게 짤 것인지 고민. 본인인지 확인하는 검증 로직
-    // 계좌 잔액 변경
+    // 계좌 비밀번호 변경
     @LogDataChange
     @Transactional
     public void updateAccountPin(UUID accountId, String pin, String username, String role) {
