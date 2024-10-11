@@ -243,7 +243,7 @@ public class UserService {
         Customer findCustomer = customerRepository.findByUsername(username).orElseThrow(() -> new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
         findCustomer.loginAttempsCount();
-        if (findCustomer.getLoginAttempts() >= 6) {
+        if (findCustomer.getLoginAttempts() >= 3) {
             findCustomer.accountLock();
         }
     }
