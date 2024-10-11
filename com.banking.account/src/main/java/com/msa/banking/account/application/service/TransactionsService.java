@@ -145,7 +145,7 @@ public class TransactionsService {
             Object dataObject = responseBody.get("data");
 
             if (dataObject instanceof Map<?, ?> dataMap) {
-                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
+                UUID getUserId = UUID.fromString((String) dataMap.get("userId"));
 
                 log.info("UserId: " + getUserId);
 
@@ -177,7 +177,7 @@ public class TransactionsService {
      **/
     @LogDataChange
     @Transactional
-    public void createTransfer(UUID accountId, TransferTransactionRequestDto request, String username, String role) {
+    public void createTransfer(UUID accountId, TransferTransactionRequestDto request, String username, String role, UUID userId) {
 
 
         validateAccountNumberFormat(request.beneficiaryAccount());
@@ -241,35 +241,35 @@ public class TransactionsService {
 
 
 
-        // accountId -> userId 조회
-//        ResponseEntity<?> responseEntity = productService.findByAccountId(senderTransaction.getAccount().getAccountId(), userId, role);
-//        log.info(responseEntity.getBody());
+        //accountId -> userId 조회
+        ResponseEntity<?> responseEntity = productService.findByAccountId(senderTransaction.getAccount().getAccountId(), userId, role);
+        log.info(responseEntity.getBody());
 
-        // Kafka 이벤트 생성 및 전송
-//        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
-//            Object dataObject = responseBody.get("data");
-//
-//            if (dataObject instanceof Map<?, ?> dataMap) {
-//                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
-//
-//                log.info("UserId: " + getUserId);
-//
-//                // personalHistoryRequestDto 객체 생성
-//                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
-//                        .userId(getUserId)
-//                        .amount(senderTransaction.getAmount())
-//                        .type(EnumMapper.toPersonalHistoryType(senderTransaction.getType()))
-//                        .description(senderTransaction.getDescription())
-//                        .transactionDate(LocalDateTime.now())
-//                        .build();
-//
-//                // Kafka 이벤트 전송
-//                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
-//
-//            } else {
-//                log.error("Invalid data format in response body");
-//            }
-//        }
+        //Kafka 이벤트 생성 및 전송
+        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
+            Object dataObject = responseBody.get("data");
+
+            if (dataObject instanceof Map<?, ?> dataMap) {
+                UUID getUserId = UUID.fromString((String) dataMap.get("userId"));
+
+                log.info("UserId: " + getUserId);
+
+                // personalHistoryRequestDto 객체 생성
+                PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
+                        .userId(getUserId)
+                        .amount(senderTransaction.getAmount())
+                        .type(EnumMapper.toPersonalHistoryType(senderTransaction.getType()))
+                        .description(senderTransaction.getDescription())
+                        .transactionDate(LocalDateTime.now())
+                        .build();
+
+                // Kafka 이벤트 전송
+                eventProducer.sendTransactionCreatedEvent(personalHistoryRequestDto);
+
+            } else {
+                log.error("Invalid data format in response body");
+            }
+        }
     }
 
 

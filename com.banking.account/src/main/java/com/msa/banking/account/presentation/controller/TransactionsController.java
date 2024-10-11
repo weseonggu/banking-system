@@ -58,7 +58,7 @@ public class TransactionsController {
             @PathVariable("account_id") UUID accountId,
             @RequestBody TransferTransactionRequestDto request) {
 
-        transactionsService.createTransfer(accountId, request, userDetails.getUsername(), userDetails.getRole());
+        transactionsService.createTransfer(accountId, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId());
 
         return ResponseEntity.noContent().build();
     }
