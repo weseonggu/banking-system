@@ -14,11 +14,11 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.UUID;
 
-public class PersonalHistoryJpaRepositoryImpl implements PersonalHistoryRepositoryCustom {
+public class PersonalHistoryRepositoryImpl implements PersonalHistoryRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    public PersonalHistoryJpaRepositoryImpl(EntityManager em) {
+    public PersonalHistoryRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
