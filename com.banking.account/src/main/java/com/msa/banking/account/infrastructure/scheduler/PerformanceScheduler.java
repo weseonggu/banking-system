@@ -1,6 +1,6 @@
 package com.msa.banking.account.infrastructure.scheduler;
 
-import com.msa.banking.account.domain.model.TransactionType;
+import com.msa.banking.common.account.type.TransactionType;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
 import com.msa.banking.common.event.EventSerializer;

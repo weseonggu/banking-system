@@ -2,6 +2,8 @@ package com.msa.banking.product.infrastructure.client;
 
 import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.common.account.dto.AccountResponseDto;
+import com.msa.banking.common.account.dto.SingleTransactionRequestDto;
+import com.msa.banking.common.account.dto.TransactionResponseDto;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.product.infrastructure.client.fallback.AccountClientFallback;
 import lombok.Getter;
@@ -20,8 +22,8 @@ public interface AccountClient {
     @PostMapping("/api/accounts")
     ResponseEntity<UUID> addAccount(@RequestBody AccountRequestDto accountRequestDto);
 
-    @PatchMapping("/api/accounts/{account_id}/balance")
-    public ResponseEntity<AccountResponseDto> updateAccount(
+    @PostMapping("/api/account-transactions/{account_id}/deposit")
+    public ResponseEntity<TransactionResponseDto> updateAccount(
             @PathVariable("account_id") UUID accountId,
-            @RequestParam("balance") BigDecimal balance);
+            @RequestBody SingleTransactionRequestDto request);
 }

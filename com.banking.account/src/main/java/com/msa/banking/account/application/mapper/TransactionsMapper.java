@@ -1,7 +1,7 @@
 package com.msa.banking.account.application.mapper;
 
 import com.msa.banking.account.domain.model.AccountTransactions;
-import com.msa.banking.account.presentation.dto.transactions.TransactionResponseDto;
+import com.msa.banking.common.account.dto.TransactionResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
 import org.mapstruct.Mapper;
 

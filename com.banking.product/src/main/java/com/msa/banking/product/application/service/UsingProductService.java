@@ -1,8 +1,10 @@
 package com.msa.banking.product.application.service;
 
 import com.msa.banking.common.account.dto.AccountRequestDto;
+import com.msa.banking.common.account.dto.SingleTransactionRequestDto;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.account.type.AccountType;
+import com.msa.banking.common.account.type.TransactionType;
 import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.client.AuthClient;
@@ -55,9 +57,14 @@ public class UsingProductService {
     @Transactional
     public UUID joinChecking(RequsetJoinChecking requsetJoinChecking, UserDetailsImpl userDetails) {
 
+        // 해지가 아닌 상태에서 중복 가입 불가능
+        if(usingProductRepository.existsByUserIdAndProductIdAndIsUsing(requsetJoinChecking.getUserId(), requsetJoinChecking.getProductId(), true)){
+            throw new IllegalArgumentException("상품 중복 가입입니다.");
+        }
+
         // 상품이 있는지 확인
         Product product = productRepository.findByIdWhereIsDeleted(requsetJoinChecking.getProductId(), false, requsetJoinChecking.getType())
-                .orElseThrow(() -> new IllegalArgumentException("없거나 거이상 가입이 불가능한 상품입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("없거나 더이상 가입이 불가능한 상품입니다."));
         // 가입할려는 강비의 타입이 같은지 확인
         if(!product.getType().equals(requsetJoinChecking.getType())){
             throw new IllegalArgumentException("입출금 상품 가입입니다. 다른 상품은 안됩니다.");
@@ -102,6 +109,12 @@ public class UsingProductService {
      */
     @Transactional
     public UUID joinLoan(RequestJoinLoan requsetJoinLoan, UserDetailsImpl userDetails) {
+
+        // 해지가 아닌 상태에서 중복 가입 불가능
+        if(usingProductRepository.existsByUserIdAndProductIdAndIsUsing(requsetJoinLoan.getUserId(), requsetJoinLoan.getProductId(), true)){
+            throw new IllegalArgumentException("상품 중복 가입입니다.");
+        }
+
         // 상품이 있는지 확인
         Product product = productRepository.findByIdWhereIsDeleted(requsetJoinLoan.getProductId(), false, requsetJoinLoan.getType())
                 .orElseThrow(() -> new IllegalArgumentException("없거나 거이상 가입이 불가능한 상품입니다."));
@@ -216,7 +229,7 @@ public class UsingProductService {
                 .orElseThrow(() -> new IllegalArgumentException("데이터가 없습니다."));
 
         // 요청 이 본인 인지 확인
-        if(userDetails.getUserId().equals(usingProduct.getUserId())){
+        if(!userDetails.getUserId().equals(usingProduct.getUserId())){
             throw new AccessDeniedException("본인 만 요청 가능합니다.");
         }
 
@@ -228,10 +241,16 @@ public class UsingProductService {
             throw new IllegalArgumentException("대출 실행 가능한 상태가 아닙니다.");
         }
         // 계좌 증액 요청
-        accountClient.updateAccount(usingProduct.getAccountId(), BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()));
+        SingleTransactionRequestDto dto = new SingleTransactionRequestDto(
+                TransactionType.DEPOSIT,
+                BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()),
+                usingProduct.getName()+"님 대출금 입금",
+                ""
+        );
+        accountClient.updateAccount(usingProduct.getAccountId(), dto);
 
         // 대출 실행 전으로 변경
-        usingProduct.getLoanInUse().approvalLoan(userDetails.getUsername());
+        usingProduct.getLoanInUse().runLoan(userDetails.getUsername());
 
         usingProductRepository.save(usingProduct);
 

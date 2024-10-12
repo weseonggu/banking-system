@@ -26,7 +26,7 @@ public class LoanInUse extends AuditEntity {
     private UUID id;
 
     @Column(name = "loan_amount", nullable = false)
-    private double loanAmount;
+    private Long loanAmount;
 
     @Column(precision = 6, scale = 4, name = "interest_rate",  nullable = false)
     private BigDecimal interestRate;
@@ -48,7 +48,7 @@ public class LoanInUse extends AuditEntity {
 
     ///////////////////////////////////////////////////////////////////////
 
-    public static LoanInUse create(double loanAmount, String name, BigDecimal interestRate, long month){
+    public static LoanInUse create(Long loanAmount, String name, BigDecimal interestRate, long month){
         return LoanInUse.builder()
                 .loanAmount(loanAmount)
                 .interestRate(interestRate)

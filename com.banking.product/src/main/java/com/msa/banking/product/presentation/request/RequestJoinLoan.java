@@ -21,7 +21,7 @@ public class RequestJoinLoan {
     private ProductType type;
 
     @NotNull(message = "필수 입력 사항입니다.")
-    private double loanAmount;
+    private Long loanAmount;
 
     @NotNull(message = "필수 입력 사항입니다.")
     @NotBlank(message = "필수 입력 사항입니다.")

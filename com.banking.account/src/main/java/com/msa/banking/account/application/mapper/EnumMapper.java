@@ -1,6 +1,6 @@
 package com.msa.banking.account.application.mapper;
 
-import com.msa.banking.account.domain.model.TransactionType;
+import com.msa.banking.common.account.type.TransactionType;
 import com.msa.banking.common.personal.PersonalHistoryType;
 
 public class EnumMapper {

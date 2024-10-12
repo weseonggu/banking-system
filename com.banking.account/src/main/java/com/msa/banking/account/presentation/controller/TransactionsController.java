@@ -2,6 +2,8 @@ package com.msa.banking.account.presentation.controller;
 
 import com.msa.banking.account.application.service.TransactionsService;
 import com.msa.banking.account.presentation.dto.transactions.*;
+import com.msa.banking.common.account.dto.SingleTransactionRequestDto;
+import com.msa.banking.common.account.dto.TransactionResponseDto;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

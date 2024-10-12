@@ -43,6 +43,8 @@ public class UsingProduct extends AuditEntity {
     @Column(name = "product_id")
     private UUID productId;
 
+    @Column(name = "is_using")
+    private Boolean isUsing;
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +67,7 @@ public class UsingProduct extends AuditEntity {
                 .accountId(accountId)
                 .name(name)
                 .productId(productId)
+                .isUsing(true)
                 .build();
 
     }
