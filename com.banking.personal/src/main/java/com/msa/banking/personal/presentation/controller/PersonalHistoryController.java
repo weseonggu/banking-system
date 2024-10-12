@@ -33,9 +33,12 @@ public class PersonalHistoryController {
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     public ResponseEntity<?> searchPersonalHistory(@RequestParam(value = "categoryName", required = false) String categoryName,
                                                    @RequestParam(value = "status", required = false) PersonalHistoryStatus status,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                    Pageable pageable) {
 
-        Page<PersonalHistoryListDto> personalHistoryListPage = personalHistoryService.searchPersonalHistory(categoryName, status, pageable);
+        UUID userId = userDetails.getUserId();
+        String userRole = userDetails.getRole();
+        Page<PersonalHistoryListDto> personalHistoryListPage = personalHistoryService.searchPersonalHistory(categoryName, status, pageable, userId, userRole);
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "searchPersonalHistory", personalHistoryListPage));

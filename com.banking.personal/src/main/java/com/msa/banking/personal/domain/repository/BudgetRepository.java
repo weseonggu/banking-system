@@ -16,5 +16,7 @@ public interface BudgetRepository {
 
     Page<Budget> findAllByIsDeleteFalse(Pageable pageable);
 
+    Page<Budget> findAllByUserId(UUID userId, Pageable pageable);
+
     List<Budget> findAllByUserIdAndPeriod(UUID userId, LocalDateTime transactionDate);
 }

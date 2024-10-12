@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.UUID;
 
 public class PersonalHistoryJpaRepositoryImpl implements PersonalHistoryRepositoryCustom {
 
@@ -29,6 +30,34 @@ public class PersonalHistoryJpaRepositoryImpl implements PersonalHistoryReposito
         List<PersonalHistory> results = queryFactory
                 .selectFrom(personalHistory)
                 .where(
+                        categoryNameEq(categoryName),
+                        statusEq(status)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // 전체 개수를 가져와서 페이징된 결과와 함께 반환
+        long total = queryFactory
+                .selectFrom(personalHistory)
+                .where(
+                        categoryNameEq(categoryName),
+                        statusEq(status)
+                )
+                .fetchCount();
+
+        return new PageImpl<>(results, pageable, total);
+    }
+
+    @Override
+    public Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, Pageable pageable, UUID userId) {
+        QPersonalHistory personalHistory = QPersonalHistory.personalHistory;
+
+        // QueryDSL을 이용한 검색
+        List<PersonalHistory> results = queryFactory
+                .selectFrom(personalHistory)
+                .where(
+                        personalHistory.userId.eq(userId),
                         categoryNameEq(categoryName),
                         statusEq(status)
                 )

@@ -58,10 +58,13 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      */
     @Override
     @Cacheable(cacheNames = "personalHistoryListCache")
-    public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable) {
+    public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable, UUID userId, String userRole) {
 
+        if (userRole.equals("CUSTOMER")) {
+            Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable, userId);
+            return personalHistoryPage.map(PersonalHistoryListDto::toDTO);
+        }
         Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable);
-
         return personalHistoryPage.map(PersonalHistoryListDto::toDTO);
     }
 
@@ -85,7 +88,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         List<Budget> budgets = budgetRepository.findAllByUserIdAndPeriod(userId, transactionDate);
 
         // 예산 설정이 존재하면
-        if(!budgets.isEmpty()){
+        if (!budgets.isEmpty()) {
             for (Budget budget : budgets) {
                 budget.addTransactionAmount(transactionAmount);
                 budgetRepository.save(budget);
@@ -148,7 +151,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
                 () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
 
-        if(userRole.equals("CUSTOMER")){
+        if (userRole.equals("CUSTOMER")) {
             checkUserAccess(userId, userRole, personalHistory.getUserId());
         }
 
@@ -168,7 +171,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
                 () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
 
-        if(userRole.equals("CUSTOMER")){
+        if (userRole.equals("CUSTOMER")) {
             checkUserAccess(userId, userRole, personalHistory.getUserId());
         }
 
@@ -202,7 +205,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
                 () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
 
-        if(userRole.equals("CUSTOMER")){
+        if (userRole.equals("CUSTOMER")) {
             checkUserAccess(userId, userRole, personalHistory.getUserId());
         }
 
@@ -242,7 +245,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         List<Budget> budgets = budgetRepository.findAllByUserIdAndPeriod(userId, transactionDate);
 
         // 예산 설정이 존재하면
-        if(!budgets.isEmpty()){
+        if (!budgets.isEmpty()) {
             for (Budget budget : budgets) {
                 budget.addTransactionAmount(transactionAmount);
                 budgetRepository.save(budget);
