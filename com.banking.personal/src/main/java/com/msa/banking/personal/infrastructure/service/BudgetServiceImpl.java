@@ -8,8 +8,8 @@ import com.msa.banking.personal.application.dto.budget.BudgetResponseDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.application.service.BudgetService;
 import com.msa.banking.personal.domain.model.Budget;
-import com.msa.banking.personal.domain.repository.BudgetRepository;
-import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
+import com.msa.banking.personal.infrastructure.repository.BudgetRepository;
+import com.msa.banking.personal.infrastructure.repository.PersonalHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -31,7 +31,7 @@ import java.util.UUID;
 public class BudgetServiceImpl implements BudgetService {
 
     private final BudgetRepository budgetRepository;
-    private final PersonalHistoryJpaRepository personalHistoryRepository;
+    private final PersonalHistoryRepository personalHistoryRepository;
     private final CacheManager cacheManager;
 
     /**
