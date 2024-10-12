@@ -39,8 +39,12 @@ public class BudgetServiceImpl implements BudgetService {
      */
     @Override
     @Cacheable(cacheNames = "budgetListCache")
-    public Page<BudgetListDto> getBudgetList(Pageable pageable) {
+    public Page<BudgetListDto> getBudgetList(Pageable pageable, UUID userId, String userRole) {
 
+        if(userRole.equals("CUSTOMER")){
+            Page<Budget> budgetPage = budgetRepository.findAllByUserId(userId, pageable);
+            return budgetPage.map(BudgetListDto::toDTO);
+        }
         Page<Budget> budgetPage = budgetRepository.findAllByIsDeleteFalse(pageable);
         return budgetPage.map(BudgetListDto::toDTO);
     }
