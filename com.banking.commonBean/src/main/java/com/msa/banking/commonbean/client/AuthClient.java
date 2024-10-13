@@ -5,6 +5,7 @@ import com.msa.banking.common.response.SuccessResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
@@ -23,4 +24,7 @@ public interface AuthClient {
 
     @GetMapping("/api/users/employee/{employee_id}")
     SuccessResponse<AuthFeignResponseDto> findOneEmployee(@PathVariable("employee_id") UUID employeeId);
+
+    @GetMapping(value = "/api/users/customer/check")
+    Boolean findByUserIdAndName(@RequestParam("userId") UUID userId, @RequestParam("name") String name);
 }

@@ -1,7 +1,6 @@
-package com.msa.banking.account.presentation.dto.transactions;
+package com.msa.banking.common.account.dto;
 
-import com.msa.banking.account.domain.model.TransactionStatus;
-import com.msa.banking.account.domain.model.TransactionType;
+import com.msa.banking.common.account.type.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

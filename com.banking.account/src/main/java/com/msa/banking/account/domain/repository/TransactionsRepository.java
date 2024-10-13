@@ -1,7 +1,7 @@
 package com.msa.banking.account.domain.repository;
 
 import com.msa.banking.account.domain.model.AccountTransactions;
-import com.msa.banking.account.domain.model.TransactionType;
+import com.msa.banking.common.account.type.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

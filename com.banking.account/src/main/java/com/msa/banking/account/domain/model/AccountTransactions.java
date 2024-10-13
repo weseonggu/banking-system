@@ -1,8 +1,10 @@
 package com.msa.banking.account.domain.model;
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
-import com.msa.banking.account.presentation.dto.transactions.SingleTransactionRequestDto;
+import com.msa.banking.common.account.dto.SingleTransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.TransferTransactionRequestDto;
+import com.msa.banking.common.account.dto.TransactionStatus;
+import com.msa.banking.common.account.type.TransactionType;
 import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
