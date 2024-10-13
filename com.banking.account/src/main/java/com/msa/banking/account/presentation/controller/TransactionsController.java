@@ -3,6 +3,7 @@ package com.msa.banking.account.presentation.controller;
 import com.msa.banking.account.application.service.TransactionsService;
 import com.msa.banking.account.presentation.dto.transactions.*;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import lombok.With;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +31,7 @@ public class TransactionsController {
     public ResponseEntity<TransactionResponseDto> createDeposit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
-            @RequestBody SingleTransactionRequestDto request) {
+            @RequestBody DepositTransactionRequestDto request) {
 
         return ResponseEntity.ok(transactionsService.createDeposit(accountId, request,  userDetails.getUsername(), userDetails.getRole()));
     }
@@ -44,9 +45,9 @@ public class TransactionsController {
     public ResponseEntity<TransactionResponseDto> createWithdrawal(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
-            @RequestBody SingleTransactionRequestDto request) {
+            @RequestBody WithdrawalTransactionRequestDto request) {
 
-        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, request, userDetails.getUsername(), userDetails.getRole()));
+        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, request, userDetails.getUserId(), userDetails.getRole()));
     }
 
 
@@ -58,7 +59,7 @@ public class TransactionsController {
             @PathVariable("account_id") UUID accountId,
             @RequestBody TransferTransactionRequestDto request) {
 
-        transactionsService.createTransfer(accountId, request, userDetails.getUsername(), userDetails.getRole());
+        transactionsService.createTransfer(accountId, request, userDetails.getUserId(), userDetails.getRole());
 
         return ResponseEntity.noContent().build();
     }

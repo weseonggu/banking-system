@@ -55,10 +55,11 @@ public class PerformanceScheduler {
 //        List<String> findAccountNumber = accountRepository.findByAccountIdInAndCreatedAtBetween(accountIds, startDateTime, endDateTime);
 
         // 대출 토탈 거래 금액
-        BigDecimal totalAmount = transactionsRepository.findTotalAmount(accountIds, TransactionType.LOAN_REPAYMENT, startDateTime, endDateTime);
-
-        SlackIdAndLoanAndAmountDto request = new SlackIdAndLoanAndAmountDto(slackIds, loanCount, totalAmount);
-
-        kafkaTemplate.send(Topic.PERFORMANCE_MASTER_SLACK_LIST_LOAN_COUNT_TOTAL_AMOUNT.getTopic(), EventSerializer.serialize(request));
+        // TODO: 수정 필요
+//        BigDecimal totalAmount = transactionsRepository.findTotalAmount(accountIds, TransactionType.LOAN_REPAYMENT, startDateTime, endDateTime);
+//
+//        SlackIdAndLoanAndAmountDto request = new SlackIdAndLoanAndAmountDto(slackIds, loanCount, totalAmount);
+//
+//        kafkaTemplate.send(Topic.PERFORMANCE_MASTER_SLACK_LIST_LOAN_COUNT_TOTAL_AMOUNT.getTopic(), EventSerializer.serialize(request));
     }
 }

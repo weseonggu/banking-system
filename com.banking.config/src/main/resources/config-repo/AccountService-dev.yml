@@ -5,9 +5,11 @@ server:
 
 spring:
   application:
-    name: AccountService  # 애플리케이션 이름을 'gateway-service'로 설정
+    name: AccountService
+
   kafka:
-    bootstrap-servers: http://localhost:9092
+    bootstrap-servers: localhost:9092
+
   cloud:
     bus:
       destination: banking-platform.dev.event.config-event.json
@@ -15,6 +17,7 @@ spring:
         enabled: true
       env:
         enabled: true
+
   data:
     redis:
       host: localhost
@@ -27,17 +30,47 @@ spring:
     url: jdbc:postgresql://localhost:5433/account
     username: banking
     password: banking20
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  batch:
+    datasource:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5433/batch_db
+      username: banking
+      password: banking20
+      hikari:
+        maximum-pool-size: 10
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
+      show_sql: true
+      format_sql: true
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
 
+  devtools:
+    restart:
+      enabled: false # 개발 도구 재시작 방지
+  logging:
+    level:
+      root: DEBUG  # 전체 애플리케이션에서 DEBUG 레벨 로그 출력
+      org.springframework: DEBUG  # 스프링 프레임워크 관련 로그 출력
+
+redisson:
+  singleServerConfig:
+    address: redis://localhost:6379
+    password: systempass
+    connectionPoolSize: 10
 
 jasypt:
   encryptor:
@@ -54,9 +87,9 @@ eureka:
     hostname: localhost
     metadata-map:
       instanceId: ${spring.application.name}:${spring.cloud.client.hostname}
-    lease-renewal-interval-in-seconds: 30  # 기본값은 30초, 서비스 상태 갱신 주기
-    lease-expiration-duration-in-seconds: 90  # 기본값은 90초, 서비스 갱신이 없을 때 만료 시간
-    health-check-url-path: /actuator/health # 헬스 체크를 통한 정상작동 확인
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    health-check-url-path: /actuator/health
 
 management:
   endpoints:

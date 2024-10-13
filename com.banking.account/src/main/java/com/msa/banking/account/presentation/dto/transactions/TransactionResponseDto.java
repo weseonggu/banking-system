@@ -1,5 +1,6 @@
 package com.msa.banking.account.presentation.dto.transactions;
 
+import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.TransactionStatus;
 import com.msa.banking.account.domain.model.TransactionType;
 
@@ -12,7 +13,8 @@ public record TransactionResponseDto(
         Long transactionId,
         UUID accountId,
         TransactionType type,
-        BigDecimal amount,
+        BigDecimal depositAmount,
+        BigDecimal withdrawalAmount,
         TransactionStatus status,
         String description,
         String originatingAccount,
@@ -24,5 +26,5 @@ public record TransactionResponseDto(
         LocalDateTime deletedAt,
         String deletedBy,
         Boolean isDelete
-) {
+){
 }
