@@ -20,6 +20,7 @@ import java.util.UUID;
 
 class ProductApplicationTests {
 
-
+    @Test
+    void contextLoads() {}
 
 }
