@@ -136,7 +136,7 @@ public class UsingProductService {
         // 계좌 생성 요청 -> 응답으로 계좌 id(UUID)를 반환 예외처리
         AccountRequestDto requestDto = new AccountRequestDto(requsetJoinLoan.getName(),
                 AccountStatus.ACTIVE,
-                AccountType.CHECKING,
+                AccountType.LOAN,
                 requsetJoinLoan.getAccountPin());
 
         ResponseEntity<UUID> response = accountClient.addAccount(requestDto);

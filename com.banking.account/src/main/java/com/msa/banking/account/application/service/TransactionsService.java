@@ -4,11 +4,16 @@ import com.msa.banking.account.application.event.EventProducer;
 import com.msa.banking.account.application.mapper.TransactionsMapper;
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.AccountTransactions;
-import com.msa.banking.account.domain.model.TransactionStatus;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
 import com.msa.banking.account.infrastructure.redisson.RedissonLock;
-import com.msa.banking.account.presentation.dto.transactions.*;
+import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
+import com.msa.banking.account.presentation.dto.transactions.TransactionsSearchRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.TransferTransactionRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.WithdrawalTransactionRequestDto;
+import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
+import com.msa.banking.common.account.dto.TransactionResponseDto;
+import com.msa.banking.common.account.dto.TransactionStatus;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.response.ErrorCode;
@@ -17,8 +22,6 @@ import com.msa.banking.commonbean.exception.GlobalCustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jasypt.encryption.StringEncryptor;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Log4j2
