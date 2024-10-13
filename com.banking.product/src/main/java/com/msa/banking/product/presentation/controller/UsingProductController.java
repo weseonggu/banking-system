@@ -4,6 +4,7 @@ import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import com.msa.banking.product.application.dto.UsingProductDetailDto;
 import com.msa.banking.product.application.dto.UsingProductPage;
 import com.msa.banking.product.application.dto.UsingProductResponseDto;
 import com.msa.banking.product.application.service.UsingProductService;
@@ -149,8 +150,27 @@ public class UsingProductController {
     // TODO: 대출 해지
 
 
-    // TODO: 사용중인 상품 상세 조회
+    // 사용중인 상품 상세 조회
+    @Operation(summary = "사용중인 상품 상세 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "대출 실행"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "실행 실패")
+    })
+    @GetMapping(value = "/using/product/detail")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'MANAGER', 'MASTER')")
+    public ResponseEntity<SuccessResponse> findUsingProductDetail(@RequestParam("using_product_id") UUID id,
+                                                       @AuthenticationPrincipal UserDetailsImpl userDetails){
 
+        UsingProductDetailDto dto = usingProductService.findUsingProductDetail(id, userDetails);
+
+        SuccessResponse response = new SuccessResponse<>(
+                HttpStatus.OK.value(),
+                "사용중인 상품 상세 내용입니다.",
+                dto
+        );
+        return ResponseEntity.ok(response);
+    }
 
  //////////////////////////////////////////////    다른 마이크로 서비스 요청     /////////////////////////////////////////////////////////
     // AccountId로 UsingProduct 조회

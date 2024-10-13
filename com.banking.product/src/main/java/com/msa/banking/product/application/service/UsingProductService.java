@@ -10,17 +10,19 @@ import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.client.AuthClient;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
-import com.msa.banking.product.application.dto.UsingProductPage;
-import com.msa.banking.product.application.dto.UsingProductResponseDto;
+import com.msa.banking.product.application.dto.*;
 import com.msa.banking.product.domain.model.CheckingInUse;
 import com.msa.banking.product.domain.model.LoanInUse;
 import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.domain.model.UsingProduct;
 import com.msa.banking.product.infrastructure.client.AccountClient;
+import com.msa.banking.product.infrastructure.client.AuthClient2;
 import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.infrastructure.repository.UsingProductRepository;
 import com.msa.banking.product.lib.LoanState;
 import com.msa.banking.product.lib.ProductType;
+import com.msa.banking.product.presentation.controller.join.JoinLoanLogic;
+import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
 import com.msa.banking.product.presentation.request.RequestJoinLoan;
 import com.msa.banking.product.presentation.request.RequestUsingProductConditionDto;
 import com.msa.banking.product.presentation.request.RequsetJoinChecking;
@@ -47,6 +49,7 @@ public class UsingProductService {
     private final UsingProductRepository usingProductRepository;
     private final ProductRepository productRepository;
     private final AuthClient authClient;
+
 
     /**
      * 입 출금 상품 가입
@@ -98,7 +101,7 @@ public class UsingProductService {
         // DB에저장
         usingProductRepository.save(usingProduct);
         // 성공 응답
-        return response.getBody();
+        return usingProduct.getId();
     }
 
     /**
@@ -109,7 +112,6 @@ public class UsingProductService {
      */
     @Transactional
     public UUID joinLoan(RequestJoinLoan requsetJoinLoan, UserDetailsImpl userDetails) {
-
         // 해지가 아닌 상태에서 중복 가입 불가능
         if(usingProductRepository.existsByUserIdAndProductIdAndIsUsing(requsetJoinLoan.getUserId(), requsetJoinLoan.getProductId(), true)){
             throw new IllegalArgumentException("상품 중복 가입입니다.");
@@ -152,7 +154,7 @@ public class UsingProductService {
         // DB에저장
         usingProductRepository.save(usingProduct);
         // 성공 응답
-        return response.getBody();
+        return usingProduct.getId();
     }
 
     /**
@@ -174,6 +176,9 @@ public class UsingProductService {
     public List<UsingProductPage> fingUsingProductPage(Pageable page, RequestUsingProductConditionDto condition, UserDetailsImpl userDetails) {
         // 일반 사용자일 경우 자기만 조회가능, 직원일 경우 실명을 가지고 조회 가능
         if(userDetails.getRole().equals(UserRole.CUSTOMER.getAuthority())){
+            if(!userDetails.getUserId().equals(condition.getUserid())){
+                throw new AccessDeniedException("타인의 정보는 볼 수 없습니다.");
+            }
             condition.setName(null);
         }
         // 검색 조건이 다 null 인경우
@@ -257,6 +262,35 @@ public class UsingProductService {
 
     }
 
+    /**
+     * 사용중인 상품 조회
+     * @param id
+     * @param userDetails
+     */
+    public UsingProductDetailDto findUsingProductDetail(UUID id, UserDetailsImpl userDetails) {
+
+        UsingProduct usingProduct = usingProductRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("상품을 가입하지 않았습니다."));
+
+        // 일반 사용자는 타인의 자료를 조회 할 수 없습니다.
+        if (userDetails.getRole().equals(UserRole.CUSTOMER.getAuthority())) {
+            if (!userDetails.getUserId().equals(usingProduct.getUserId())) {
+                throw new AccessDeniedException("타인의 정보는 볼 수 없습니다.");
+            }
+        }
+        UsingProductDetailDto detailDto;
+        if (usingProduct.getCheckingInUse() != null) {
+
+            detailDto = CheckingInUseDetailDto.of(usingProduct);
+
+        } else if (usingProduct.getLoanInUse() != null) {
+
+            detailDto = LoanInuseDetailDto.of(usingProduct);
+
+        } else {
+            throw new ResourceNotFoundException("Product details not found");
+        }
+        return detailDto;
+    }
 
 
 /////////////////////////////////////////////   다른 마이크로 서비스    ///////////////////////////////////////////////////////////

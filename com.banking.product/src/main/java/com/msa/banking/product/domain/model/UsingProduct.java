@@ -5,6 +5,8 @@ import com.msa.banking.product.lib.ProductType;
 import com.msa.banking.product.lib.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DialectOverride;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;

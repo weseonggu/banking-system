@@ -30,4 +30,10 @@ public interface UsingProductRepository extends JpaRepository<UsingProduct, UUID
     boolean existsByUserIdAndProductIdAndIsUsing(@Param("userId") UUID userId,
                                                  @Param("productId") UUID productId,
                                                  @Param("isUsing") boolean b);
+
+    @Query("SELECT u FROM UsingProduct u WHERE u.id = :id AND u.isDelete = false")
+    @EntityGraph(attributePaths = {
+            "loanInUse", "checkingInUse"
+    })
+    Optional<UsingProduct> findById(@Param("id") UUID id);
 }
