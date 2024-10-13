@@ -6,11 +6,11 @@ services:
     restart: always
     ports:
       - 9411:9411
-    deploy:
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 128M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.1"
+#          memory: 128M
 
   redis-stack:
     image: redis/redis-stack
@@ -20,11 +20,11 @@ services:
     ports:
       - 6379:6379
       - 8001:8001 # 레디스 인사이트 접속 포트
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 256M
 
   postgres:
     image: postgres:latest
@@ -38,29 +38,37 @@ services:
       POSTGRES_USER: 'banking'
       POSTGRES_PASSWORD: 'banking20'
       TZ: Asia/Seoul
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U banking -d auth" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 256M
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     platform: linux/amd64
+    restart: always
     ports:
       - "3181:3181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 3181
       ZOOKEEPER_TICK_TIME: 2000
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 256M
 
   kafka:
     image: wurstmeister/kafka:latest
     platform: linux/amd64
+    restart: always
     ports:
       - "9092:9092"
     environment:
@@ -71,15 +79,16 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:3181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 512M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 512M
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     platform: linux/amd64
+    restart: always
     ports:
       - "8080:8080"
     environment:
@@ -87,13 +96,108 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:3181
       KAFKA_CLUSTERS_0_READONLY: "false"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 128M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.1"
+#          memory: 128
 
+  config:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./config
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-stack:
+        condition: service_healthy
+
+  eureka:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./eureka
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - config
+
+  gateway:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    ports:
+      - "19092:19092"
+    depends_on:
+      - eureka
+
+  auth:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./auth
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - postgres
+      - redis-stack
+
+  account:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./account
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - auth
+
+  notification:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./notification
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - auth
+
+  performance:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./performance
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - gateway
+
+  personal:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./personal
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - gateway
+
+  product:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./product
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - gateway
 
 volumes:
   postgres_data:
     driver: local
+
+
