@@ -1,10 +1,13 @@
 package com.msa.banking.auth.presentation.controller;
 
 import com.msa.banking.auth.application.service.AuthService;
+import com.msa.banking.auth.infrastructure.scheduler.Scheduler;
 import com.msa.banking.auth.presentation.request.AuthResetPasswordRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignInRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignUpRequestDto;
+import com.msa.banking.auth.presentation.request.SlackNumberRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
+import com.msa.banking.common.auth.dto.SlackIdRequestDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final Scheduler scheduler;
 
     /**
      * 회원가입
@@ -74,6 +78,7 @@ public class AuthController {
 
     /**
      * 고객 비밀번호 초기화
+     *
      * @param request
      * @return
      */
@@ -85,5 +90,40 @@ public class AuthController {
 
         log.info("비밀번호 초기화 완료");
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.UPDATE_SUCCESS.getStatus(), "password reset success", "비밀번호 초기화 완료"));
+    }
+
+    /**
+     * 슬랙 인증 번호 발송
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/slack-code")
+    public ResponseEntity<?> slackCheck(@Valid @RequestBody SlackIdRequestDto request) {
+        log.info("슬랙 ID 인증번호 발급 시도 중 | slackId: {}", request.getSlackId());
+
+        String response = authService.slackCheck(request);
+
+        log.info("슬랙 ID 인증번호 발급 완료 | response: {}", response);
+        return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.INSERT_SUCCESS.getStatus(), "Successfully Issued", response));
+    }
+
+    /**
+     * 슬랙 인증 번호 검증
+     * @param request
+     * @return
+     */
+    @PostMapping("/slack-valid")
+    public ResponseEntity<?> slackCheckValid(@Valid @RequestBody SlackNumberRequestDto request) {
+        log.info("슬랙 인증번호 검증 시도 중 | slackNumber: {}", request.getSlackNumber());
+
+        String response = authService.slackCheckValid(request);
+
+        return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "Successfully Valid", response));
+    }
+
+    @GetMapping
+    public void test() {
+        scheduler.findAllMaster();
     }
 }
