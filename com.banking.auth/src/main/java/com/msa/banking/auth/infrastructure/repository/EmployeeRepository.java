@@ -23,4 +23,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID>, Emplo
 
     @Query("select e.slackId from Employee e where e.role = :role")
     List<String> findByRole(@Param("role") UserRole role);
+
+    boolean existsByUsernameAndIdNot(String username, UUID employeeId);
+
+    boolean existsByEmailAndIdNot(String email, UUID employeeId);
+
+    boolean existsByPhoneNumberAndIdNot(String phoneNumber, UUID employeeId);
 }

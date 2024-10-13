@@ -88,7 +88,9 @@ public class LocalJwtAuthenticationFilter implements GlobalFilter {
      */
     private boolean isAuthorizationPassRequest(String path) {
         //  signUp, signIn 및 추가 적인 통과요소 gateway 통과
-        return path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn") || path.startsWith("/api/auth/reset-password");
+        return path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn")
+                || path.startsWith("/api/auth/reset-password") || path.startsWith("/api/auth/slack-code")
+                || path.startsWith("/api/notifications/slack-code") || path.startsWith("/api/auth/slack-valid");
     }
 
     /**

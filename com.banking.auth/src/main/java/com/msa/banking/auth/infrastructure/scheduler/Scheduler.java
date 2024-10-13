@@ -28,7 +28,7 @@ public class Scheduler {
     /**
      * 매월 1일 00:00 분 상품 가입건수 MASTER 슬랙 전송 스케줄러
      */
-    @Scheduled(cron = "0 0 0 1 * ?")
+//    @Scheduled(cron = "0 0 0 1 * ?")
     public void findAllMaster() {
         log.info("상품 가입건수 스케줄러 | MASTER slackId 리스트 조회 시도 중 | product 메세지 전송 시도 중");
         

@@ -46,6 +46,7 @@ public class SecurityConfig {
         // Auth Server 를 제외한 다른 모듈을요청 접근 설정
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/notifications/slack-code/**").permitAll()
                 .requestMatchers("/product/**").permitAll()// 임시
                 .anyRequest().authenticated()
         );

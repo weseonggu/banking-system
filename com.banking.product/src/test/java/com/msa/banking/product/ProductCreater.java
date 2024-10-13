@@ -40,7 +40,7 @@ public class ProductCreater {
     @Test
     public void createCheckingProduct() {
         for (int i = 0; i<5000; i++){
-            PDFInfo pdf = PDFInfo.create("testfile 다운 안됩니다.","1cc72db1-4e3b-4f8a-bce5-a56e425c2b7e.pdf");
+            PDFInfo pdf = PDFInfo.create("testfile 다운 안됩니다.","e1d7e542-2764-4ce4-82f2-470d41b15122.pdf");
 
             // 입출금 상품 생성
             Product product = Product.create(

@@ -1,11 +1,9 @@
 package com.msa.banking.auth.infrastructure.repository;
 
-import com.msa.banking.auth.domain.model.Customer;
 import com.msa.banking.auth.domain.model.Employee;
 import com.msa.banking.auth.domain.repository.EmployeeRepositoryCustom;
 import com.msa.banking.auth.presentation.request.SearchRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -45,7 +43,7 @@ public class EmployeeRepositoryImpl implements EmployeeRepositoryCustom {
                         streetContains(condition.getStreet()),
                         zipcodeContains(condition.getZipcode()));
 
-        if (pageable.getSort().isSorted()) {
+        if (!pageable.getSort().isSorted()) {
             query.orderBy(employee.createdAt.asc());
         } else {
             Sort sort = pageable.getSort();

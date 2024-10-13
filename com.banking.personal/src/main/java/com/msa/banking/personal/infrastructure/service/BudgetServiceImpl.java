@@ -8,9 +8,8 @@ import com.msa.banking.personal.application.dto.budget.BudgetResponseDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.application.service.BudgetService;
 import com.msa.banking.personal.domain.model.Budget;
-import com.msa.banking.personal.domain.model.PersonalHistory;
-import com.msa.banking.personal.domain.repository.BudgetRepository;
-import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
+import com.msa.banking.personal.infrastructure.repository.BudgetRepository;
+import com.msa.banking.personal.infrastructure.repository.PersonalHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -24,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -32,7 +31,7 @@ import java.util.UUID;
 public class BudgetServiceImpl implements BudgetService {
 
     private final BudgetRepository budgetRepository;
-    private final PersonalHistoryJpaRepository personalHistoryRepository;
+    private final PersonalHistoryRepository personalHistoryRepository;
     private final CacheManager cacheManager;
 
     /**
@@ -40,8 +39,12 @@ public class BudgetServiceImpl implements BudgetService {
      */
     @Override
     @Cacheable(cacheNames = "budgetListCache")
-    public Page<BudgetListDto> getBudgetList(Pageable pageable) {
+    public Page<BudgetListDto> getBudgetList(Pageable pageable, UUID userId, String userRole) {
 
+        if(userRole.equals("CUSTOMER")){
+            Page<Budget> budgetPage = budgetRepository.findAllByUserId(userId, pageable);
+            return budgetPage.map(BudgetListDto::toDTO);
+        }
         Page<Budget> budgetPage = budgetRepository.findAllByIsDeleteFalse(pageable);
         return budgetPage.map(BudgetListDto::toDTO);
     }
@@ -74,10 +77,14 @@ public class BudgetServiceImpl implements BudgetService {
         LocalDateTime startDate = budgetRequestDto.getStartDate();
         LocalDateTime endDate = Budget.calculateEndDate(startDate, budgetRequestDto.getPeriod());
 
-        BigDecimal totalSpentAmount = personalHistoryRepository.findTotalAmountByDateRange(userId, startDate, endDate);
-
         Budget budget = Budget.createBudget(budgetRequestDto, userId, userName);
-        budget.addTransactionAmount(totalSpentAmount);
+
+        // Optional을 사용하여 금액이 있을 경우에만 예산에 추가
+        Optional<BigDecimal> totalSpentAmountOpt = personalHistoryRepository
+                .findTotalAmountByDateRange(userId, startDate, endDate);
+
+        totalSpentAmountOpt.ifPresent(budget::addTransactionAmount);
+
         budgetRepository.save(budget);
 
         return BudgetResponseDto.toDTO(budget);
