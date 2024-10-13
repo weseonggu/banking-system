@@ -6,11 +6,11 @@ services:
     restart: always
     ports:
       - 9411:9411
-    deploy:
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 128M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.1"
+#          memory: 128M
 
   redis-stack:
     image: redis/redis-stack
@@ -20,11 +20,11 @@ services:
     ports:
       - 6379:6379
       - 8001:8001 # 레디스 인사이트 접속 포트
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 256M
 
   postgres:
     image: postgres:latest
@@ -38,11 +38,11 @@ services:
       POSTGRES_USER: 'banking'
       POSTGRES_PASSWORD: 'banking20'
       TZ: Asia/Seoul
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 256M
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -52,11 +52,11 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 3181
       ZOOKEEPER_TICK_TIME: 2000
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 256M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 256M
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -71,11 +71,11 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:3181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    deploy:
-      resources:
-        limits:
-          cpus: "0.25"
-          memory: 512M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.25"
+#          memory: 512M
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -87,11 +87,11 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:3181
       KAFKA_CLUSTERS_0_READONLY: "false"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 128M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.1"
+#          memory: 128M
 
 
 volumes:
