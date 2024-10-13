@@ -1,11 +1,9 @@
-# Performance Server dev config
-
 server:
   port: 19098
 
 spring:
   application:
-    name: PerformanceService  # 애플리케이션 이름을 'gateway-service'로 설정
+    name: PerformanceService
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
