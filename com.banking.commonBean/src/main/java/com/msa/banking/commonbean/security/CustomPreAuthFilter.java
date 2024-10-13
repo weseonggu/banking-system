@@ -30,7 +30,9 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         log.info("path: {}", path);
 
-        if (path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn") || path.startsWith("/api/auth/reset-password")) {
+        if (path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn") ||
+                path.startsWith("/api/auth/reset-password") || path.startsWith("/api/auth/slack-code")
+                || path.startsWith("/api/notifications/slack-code") || path.startsWith("/api/auth/slack-valid")){
             filterChain.doFilter(request, response);
             return;
         }

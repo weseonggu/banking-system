@@ -45,7 +45,7 @@ public class CustomerRepositoryImpl implements CustomerRepositoryCustom {
                         streetContains(condition.getStreet()),
                         zipcodeContains(condition.getZipcode()));
 
-        if (pageable.getSort().isSorted()) {
+        if (!pageable.getSort().isSorted()) {
             query.orderBy(customer.createdAt.asc());
         } else {
             Sort sort = pageable.getSort();

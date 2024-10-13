@@ -42,18 +42,18 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
-    defer-datasource-initialization: true
-
-  sql:
-    init:
-      mode: always
+#    defer-datasource-initialization: true
+#
+#  sql:
+#    init:
+#      mode: never
 
 service:
   jwt:
