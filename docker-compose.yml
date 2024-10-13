@@ -38,6 +38,7 @@ services:
       POSTGRES_USER: 'banking'
       POSTGRES_PASSWORD: 'banking20'
       TZ: Asia/Seoul
+
 #    deploy:
 #      resources:
 #        limits:
@@ -47,6 +48,7 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     platform: linux/amd64
+    restart: always
     ports:
       - "3181:3181"
     environment:
@@ -61,6 +63,7 @@ services:
   kafka:
     image: wurstmeister/kafka:latest
     platform: linux/amd64
+    restart: always
     ports:
       - "9092:9092"
     environment:
@@ -80,6 +83,7 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     platform: linux/amd64
+    restart: always
     ports:
       - "8080:8080"
     environment:
@@ -94,6 +98,102 @@ services:
 #          memory: 128M
 
 
+  config:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./config
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-stack:
+        condition: service_healthy
+
+  eureka:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./eureka
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - config
+
+  gateway:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    ports:
+      - "19092:19092"
+    depends_on:
+      - eureka
+
+  auth:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./auth
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - postgres
+      - redis-stack
+
+  account:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./account
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - auth
+
+  notification:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./notification
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - auth
+
+  performance:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./performance
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - gateway
+
+  personal:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./personal
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - gateway
+
+  product:
+    build:
+      dockerfile: Dockerfile
+      args:
+        - FILE_DIRECTORY=./product
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    depends_on:
+      - gateway
+
 volumes:
   postgres_data:
     driver: local
+
+
