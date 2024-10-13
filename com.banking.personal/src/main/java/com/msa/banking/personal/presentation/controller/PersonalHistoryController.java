@@ -9,6 +9,8 @@ import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryR
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
 import com.msa.banking.personal.application.service.PersonalHistoryService;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/personal-histories")
 @Log4j2(topic = "PersonalHistoryController")
+@Tag(name = "개인 내역 서비스", description = "개인 내역에 관한 API 입니다.")
 public class PersonalHistoryController {
 
     private final PersonalHistoryService personalHistoryService;
@@ -31,6 +34,7 @@ public class PersonalHistoryController {
     // 개인 내역 전체 조회
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "개인 내역 목록 조회", description = "개인 내역 목록 조회 API 입니다.")
     public ResponseEntity<?> searchPersonalHistory(@RequestParam(value = "categoryName", required = false) String categoryName,
                                                    @RequestParam(value = "status", required = false) PersonalHistoryStatus status,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails,

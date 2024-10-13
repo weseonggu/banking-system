@@ -8,6 +8,8 @@ import com.msa.banking.personal.application.dto.budget.BudgetRequestDto;
 import com.msa.banking.personal.application.dto.budget.BudgetResponseDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.application.service.BudgetService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/budgets")
 @Log4j2(topic = "BudgetController")
+@Tag(name = "예산 서비스", description = "예산을 설정하고 수정할 수 있는 API 입니다.")
 public class BudgetController {
 
     private final BudgetService budgetService;
@@ -34,6 +37,7 @@ public class BudgetController {
      */
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "설정한 예산 목록 조회", description = "설정한 예산 목록 조회 API 입니다.")
     public ResponseEntity<?> getBudgetList(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
