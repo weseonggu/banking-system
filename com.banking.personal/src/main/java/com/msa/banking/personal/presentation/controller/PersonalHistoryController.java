@@ -10,6 +10,7 @@ import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryU
 import com.msa.banking.personal.application.service.PersonalHistoryService;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -34,7 +35,7 @@ public class PersonalHistoryController {
     // 개인 내역 전체 조회
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
-    @Operation(summary = "개인 내역 목록 조회", description = "개인 내역 목록 조회 API 입니다.")
+    @Operation(summary = "개인 내역 목록 조회", description = "개인 내역 목록 조회 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> searchPersonalHistory(@RequestParam(value = "categoryName", required = false) String categoryName,
                                                    @RequestParam(value = "status", required = false) PersonalHistoryStatus status,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -51,6 +52,7 @@ public class PersonalHistoryController {
     // 개인 내역 단 건 조회
     @GetMapping("/{history_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "개인 내역 단 건 조회", description = "개인 내역 단 건 조회 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> findPersonalHistoryById(@PathVariable("history_id") Long historyId,
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -67,6 +69,7 @@ public class PersonalHistoryController {
     // 개인 내역 수정(카테고리 수정)
     @PatchMapping("/{history_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    @Operation(summary = "개인 내역 수정(카테고리 변경)", description = "미분류된 카테고리를 수정하는 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> updatePersonalHistoryCategory(@PathVariable("history_id") Long historyId, @RequestBody PersonalHistoryUpdateDto personalHistoryUpdateDto,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -83,6 +86,7 @@ public class PersonalHistoryController {
     // 개인 내역 삭제(Soft Delete)
     @DeleteMapping("/{history_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    @Operation(summary = "개인 내역 삭제", description = "개인 내역 삭제 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> deletePersonalHistory(@PathVariable("history_id") Long historyId,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -101,6 +105,7 @@ public class PersonalHistoryController {
      */
     @PostMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    @Operation(summary = "개인 내역 생성", description = "개인 내역 생성 - 테스트용 (원래는 계좌에서 거래가 일어나면 자동 생성됨)", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> createPersonalHistory(@RequestBody PersonalHistoryRequestDto requestDto,
                                                    @AuthenticationPrincipal UserDetailsImpl userDetails){
 
