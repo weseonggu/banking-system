@@ -4,6 +4,7 @@ import com.msa.banking.account.domain.model.AccountTransactions;
 import com.msa.banking.common.account.dto.TransactionResponseDto;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsListResponseDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
