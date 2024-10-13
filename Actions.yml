@@ -1,0 +1,8 @@
+# Actions.yml
+name: Sparta-Banking-System CI/CD with AWS EC2, ECR
+
+# 해당 workflow의 트리거 이벤트를 정의한다. 여기서는 main branch에 push되면 트리거된다.
+on:
+  push:
+    branches:
+      - main

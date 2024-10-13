@@ -1,4 +1,4 @@
-package com.msa.banking.common.account.dto;
+package com.msa.banking.account.presentation.dto.transactions;
 
 import com.msa.banking.common.account.type.TransactionType;
 

@@ -13,6 +13,7 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 @Mapper(componentModel = SPRING)
 public interface TransactionsMapper {
 
+    @Mapping(source = "account.accountId", target = "accountId")
     TransactionResponseDto toDto(AccountTransactions transaction);
 
     List<TransactionsListResponseDto> toListDtos(List<AccountTransactions> transactions);

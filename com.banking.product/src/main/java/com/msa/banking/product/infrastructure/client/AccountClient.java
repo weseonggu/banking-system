@@ -1,7 +1,9 @@
 package com.msa.banking.product.infrastructure.client;
 
 import com.msa.banking.common.account.dto.AccountRequestDto;
-import com.msa.banking.common.account.dto.SingleTransactionRequestDto;
+
+import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
+
 import com.msa.banking.common.account.dto.TransactionResponseDto;
 import com.msa.banking.product.infrastructure.client.fallback.AccountClientFallback;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -19,5 +21,5 @@ public interface AccountClient {
     @PostMapping("/api/account-transactions/{account_id}/deposit")
     public ResponseEntity<TransactionResponseDto> updateAccount(
             @PathVariable("account_id") UUID accountId,
-            @RequestBody SingleTransactionRequestDto request);
+            @RequestBody DepositTransactionRequestDto request);
 }

@@ -27,6 +27,23 @@ spring:
     url: jdbc:postgresql://localhost:5433/account
     username: banking
     password: banking20
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  batch:
+    datasource:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5433/batch_db
+      username: banking
+      password: banking20
+      hikari:
+        maximum-pool-size: 10
+        connection-timeout: 30000
+        idle-timeout: 600000
+        max-lifetime: 1800000
 
   jpa:
     hibernate:
@@ -38,6 +55,19 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
 
+  devtools:
+    restart:
+      enabled: false # 개발 도구 재시작 방지
+  logging:
+    level:
+      root: DEBUG  # 전체 애플리케이션에서 DEBUG 레벨 로그 출력
+      org.springframework: DEBUG  # 스프링 프레임워크 관련 로그 출력
+
+redisson:
+  singleServerConfig:
+    address: redis://localhost:6379
+    password: systempass
+    connectionPoolSize: 10
 
 jasypt:
   encryptor:
