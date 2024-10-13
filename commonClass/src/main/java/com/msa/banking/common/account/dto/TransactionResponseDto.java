@@ -1,6 +1,5 @@
-package com.msa.banking.account.presentation.dto.transactions;
+package com.msa.banking.common.account.dto;
 
-import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.TransactionStatus;
 import com.msa.banking.account.domain.model.TransactionType;
 
@@ -26,5 +25,5 @@ public record TransactionResponseDto(
         LocalDateTime deletedAt,
         String deletedBy,
         Boolean isDelete
-){
+) {
 }

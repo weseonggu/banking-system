@@ -34,9 +34,11 @@ public class BudgetController {
      */
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
-    public ResponseEntity<?> getBudgetList(Pageable pageable) {
+    public ResponseEntity<?> getBudgetList(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        Page<BudgetListDto> budgetListPage = budgetService.getBudgetList(pageable);
+        UUID userId = userDetails.getUserId();
+        String userRole = userDetails.getRole();
+        Page<BudgetListDto> budgetListPage = budgetService.getBudgetList(pageable, userId, userRole);
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "getBudgetList", budgetListPage));

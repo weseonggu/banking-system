@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface BudgetService {
 
     // 예산 설정 목록 조회
-    Page<BudgetListDto> getBudgetList(Pageable pageable);
+    Page<BudgetListDto> getBudgetList(Pageable pageable, UUID userId, String userRole);
 
     // 예산 설정 단 건 조회
     BudgetResponseDto findBudgetById(UUID budgetId, String userRole, UUID userId);

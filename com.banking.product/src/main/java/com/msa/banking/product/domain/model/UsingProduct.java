@@ -5,6 +5,8 @@ import com.msa.banking.product.lib.ProductType;
 import com.msa.banking.product.lib.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DialectOverride;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -15,6 +17,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
+@Table(indexes = {
+        @Index(name = "idx_using_product_user_id", columnList = "user_id")
+})
 public class UsingProduct extends AuditEntity {
     @Id
     @UuidGenerator
@@ -40,6 +45,8 @@ public class UsingProduct extends AuditEntity {
     @Column(name = "product_id")
     private UUID productId;
 
+    @Column(name = "is_using")
+    private Boolean isUsing;
 
 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +69,7 @@ public class UsingProduct extends AuditEntity {
                 .accountId(accountId)
                 .name(name)
                 .productId(productId)
+                .isUsing(true)
                 .build();
 
     }
@@ -72,4 +80,6 @@ public class UsingProduct extends AuditEntity {
     public void addLoanInuse(LoanInUse loanInUse){
         this.loanInUse = loanInUse;
     }
+
+
 }

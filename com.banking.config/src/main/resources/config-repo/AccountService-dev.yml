@@ -5,11 +5,9 @@ server:
 
 spring:
   application:
-    name: AccountService
-
+    name: AccountService  # 애플리케이션 이름을 'gateway-service'로 설정
   kafka:
-    bootstrap-servers: localhost:9092
-
+    bootstrap-servers: http://localhost:9092
   cloud:
     bus:
       destination: banking-platform.dev.event.config-event.json
@@ -17,7 +15,6 @@ spring:
         enabled: true
       env:
         enabled: true
-
   data:
     redis:
       host: localhost
@@ -51,10 +48,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-      show_sql: true
-      format_sql: true
     properties:
       hibernate:
+        show_sql: true
+        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
 
@@ -87,9 +84,9 @@ eureka:
     hostname: localhost
     metadata-map:
       instanceId: ${spring.application.name}:${spring.cloud.client.hostname}
-    lease-renewal-interval-in-seconds: 30
-    lease-expiration-duration-in-seconds: 90
-    health-check-url-path: /actuator/health
+    lease-renewal-interval-in-seconds: 30  # 기본값은 30초, 서비스 상태 갱신 주기
+    lease-expiration-duration-in-seconds: 90  # 기본값은 90초, 서비스 갱신이 없을 때 만료 시간
+    health-check-url-path: /actuator/health # 헬스 체크를 통한 정상작동 확인
 
 management:
   endpoints:

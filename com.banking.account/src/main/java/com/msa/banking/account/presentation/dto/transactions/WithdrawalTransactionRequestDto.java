@@ -1,6 +1,7 @@
 package com.msa.banking.account.presentation.dto.transactions;
 
-import com.msa.banking.account.domain.model.TransactionType;
+
+import com.msa.banking.common.account.type.TransactionType;
 
 import java.math.BigDecimal;
 

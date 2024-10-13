@@ -8,21 +8,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface PersonalHistoryJpaRepository extends JpaRepository<PersonalHistory, Long>, PersonalHistoryRepositoryCustom {
+public interface PersonalHistoryRepository extends JpaRepository<PersonalHistory, Long>, PersonalHistoryRepositoryCustom {
 
     Page<PersonalHistory> findAllByIsDeleteFalse(Pageable pageable);
 
-    Optional<PersonalHistory> findById(Long historyId);
-
-    PersonalHistory save(PersonalHistory personalHistory);
-
-    @Query("SELECT ph FROM PersonalHistory ph WHERE ph.userId = :userId AND ph.transactionDate BETWEEN :startDate AND :endDate")
-    List<PersonalHistory> findPersonalHistoryByDateRange(
+    @Query("SELECT SUM(ph.amount) FROM PersonalHistory ph WHERE ph.userId = :userId AND ph.transactionDate BETWEEN :startDate AND :endDate")
+    Optional<BigDecimal> findTotalAmountByDateRange(
             @Param("userId") UUID userId,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
