@@ -17,9 +17,9 @@ import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import com.msa.banking.personal.domain.model.Budget;
 import com.msa.banking.personal.domain.model.Category;
 import com.msa.banking.personal.domain.model.PersonalHistory;
-import com.msa.banking.personal.domain.repository.BudgetRepository;
-import com.msa.banking.personal.domain.repository.CategoryRepository;
-import com.msa.banking.personal.infrastructure.repository.PersonalHistoryJpaRepository;
+import com.msa.banking.personal.infrastructure.repository.BudgetRepository;
+import com.msa.banking.personal.infrastructure.repository.CategoryRepository;
+import com.msa.banking.personal.infrastructure.repository.PersonalHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.Cache;
@@ -45,7 +45,7 @@ import java.util.UUID;
 @Log4j2
 public class PersonalHistoryServiceImpl implements PersonalHistoryService {
 
-    private final PersonalHistoryJpaRepository personalHistoryRepository;
+    private final PersonalHistoryRepository personalHistoryRepository;
     private final CategoryRepository categoryRepository;
     private final BudgetRepository budgetRepository;
     private final UserService userService;
@@ -58,10 +58,13 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
      */
     @Override
     @Cacheable(cacheNames = "personalHistoryListCache")
-    public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable) {
+    public Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable, UUID userId, String userRole) {
 
+        if (userRole.equals("CUSTOMER")) {
+            Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable, userId);
+            return personalHistoryPage.map(PersonalHistoryListDto::toDTO);
+        }
         Page<PersonalHistory> personalHistoryPage = personalHistoryRepository.findByCategoryAndStatus(categoryName, status, pageable);
-
         return personalHistoryPage.map(PersonalHistoryListDto::toDTO);
     }
 
@@ -84,56 +87,28 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         // 해당 기간에 속하는 모든 예산 설정을 조회
         List<Budget> budgets = budgetRepository.findAllByUserIdAndPeriod(userId, transactionDate);
 
-        // 예산 설정이 존재하면
-        if(!budgets.isEmpty()){
-            for (Budget budget : budgets) {
+        // 예산 설정이 존재하면 처리
+        if (!budgets.isEmpty()) {
+            // 각 예산에 대해 금액을 추가
+            budgets.forEach(budget -> {
                 budget.addTransactionAmount(transactionAmount);
-                budgetRepository.save(budget);
 
+                log.info("-----------------------------");
+                log.info("Budget ID: " + budget.getId());
                 log.info("getSpentAmount: " + budget.getSpentAmount());
                 log.info("getTotalBudget: " + budget.getTotalBudget());
-                log.info(budget.getSpentAmount().compareTo(budget.getTotalBudget()));
 
+                // 예산 초과 여부 확인
                 if (budget.getSpentAmount().compareTo(budget.getTotalBudget()) > 0) {
-
-                    // FeignClient를 이용하여 고객 정보를 조회
-                    ResponseEntity<?> responseEntity = userService.findCustomerById(
-                            budget.getUserId(),
-                            personalHistory.getUserId(),
-                            "CUSTOMER"
-                    );
-
-                    log.info(responseEntity.getBody());
-
-                    // TODO 카프카로 전송
-                    if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
-                        Object dataObject = responseBody.get("data");
-
-                        if (dataObject instanceof Map<?, ?> dataMap) {
-                            UUID getUserId = UUID.fromString((String) dataMap.get("id"));
-                            String getSlackId = (String) dataMap.get("slackId");
-
-                            log.info("UserId: " + getUserId);
-                            log.info("slackId: " + getSlackId);
-
-                            // Notification 객체 생성
-                            NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
-                                    .userId(getUserId)
-                                    .slackId(getSlackId)
-                                    .role(UserRole.CUSTOMER)
-                                    .type(NotiType.BUDGET_OVERRUN)
-                                    .message("설정한 예산을 초과했습니다.")
-                                    .build();
-
-                            // Kafka로 알림 전송
-                            eventProducer.sendBudgetOverRunNotification(notificationRequestDto);
-                        } else {
-                            log.error("Invalid data format in response body");
-                        }
-                    }
+                    log.info("findCustomerById before ----------------------------------- ");
+                    sendOverrunNotification(budget, personalHistory);
                 }
-            }
+            });
+
+            // 모든 예산을 배치 저장
+            budgetRepository.saveAll(budgets);
         }
+
         return PersonalHistoryResponseDto.toDTO(savePersonalHistory);
     }
 
@@ -148,7 +123,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
                 () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
 
-        if(userRole.equals("CUSTOMER")){
+        if (userRole.equals("CUSTOMER")) {
             checkUserAccess(userId, userRole, personalHistory.getUserId());
         }
 
@@ -168,7 +143,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
                 () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
 
-        if(userRole.equals("CUSTOMER")){
+        if (userRole.equals("CUSTOMER")) {
             checkUserAccess(userId, userRole, personalHistory.getUserId());
         }
 
@@ -202,7 +177,7 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
                 () -> new GlobalCustomException(ErrorCode.PERSONAL_HISTORY_NOT_FOUND)
         );
 
-        if(userRole.equals("CUSTOMER")){
+        if (userRole.equals("CUSTOMER")) {
             checkUserAccess(userId, userRole, personalHistory.getUserId());
         }
 
@@ -224,14 +199,14 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
     }
 
     /**
-     * 개인 내역 생성 (카테고리 미분류)-(카프카 알림 테스트용) TODO Account - Kafka 개발 완료 시 삭제
+     * 개인 내역 생성 (카테고리 미분류) - (카프카 알림 테스트용) TODO Account - Kafka 개발 완료 시 삭제
      */
     @Override
     @Transactional
     @CachePut(cacheNames = "personalHistoryCache", key = "#result.historyId")
     public PersonalHistoryResponseDto createPersonalHistory(PersonalHistoryRequestDto requestDto, UUID userId, String userName) {
 
-        // 계좌에서 거래가 일어났을 때 데이터를 받아서 개인 내역에 저장
+        // 계좌에서 거래가 일어났을 때 데이터를 받아 개인 내역에 저장
         PersonalHistory personalHistory = PersonalHistory.createPersonalHistory(requestDto, userId, userName);
         PersonalHistory savePersonalHistory = personalHistoryRepository.save(personalHistory);
 
@@ -241,61 +216,71 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         // 해당 기간에 속하는 모든 예산 설정을 조회
         List<Budget> budgets = budgetRepository.findAllByUserIdAndPeriod(userId, transactionDate);
 
-        // 예산 설정이 존재하면
-        if(!budgets.isEmpty()){
-            for (Budget budget : budgets) {
+
+        // TODO 예산 설정이 많아지면 부하가 걸림.
+        // 예산 설정이 존재하면 처리
+        if (!budgets.isEmpty()) {
+            // 각 예산에 대해 금액을 추가
+            budgets.forEach(budget -> {
                 budget.addTransactionAmount(transactionAmount);
-                budgetRepository.save(budget);
 
                 log.info("-----------------------------");
-                log.info(budget.getId());
-
+                log.info("Budget ID: " + budget.getId());
                 log.info("getSpentAmount: " + budget.getSpentAmount());
                 log.info("getTotalBudget: " + budget.getTotalBudget());
-                log.info(budget.getSpentAmount().compareTo(budget.getTotalBudget()));
 
+                // 예산 초과 여부 확인
                 if (budget.getSpentAmount().compareTo(budget.getTotalBudget()) > 0) {
-
                     log.info("findCustomerById before ----------------------------------- ");
-
-                    // FeignClient를 이용하여 고객 정보를 조회
-                    ResponseEntity<?> responseEntity = userService.findCustomerById(
-                            budget.getUserId(),
-                            personalHistory.getUserId(),
-                            "CUSTOMER"
-                    );
-
-                    log.info(responseEntity.getBody());
-
-                    // TODO 카프카로 전송
-                    if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
-                        Object dataObject = responseBody.get("data");
-
-                        if (dataObject instanceof Map<?, ?> dataMap) {
-                            UUID getUserId = UUID.fromString((String) dataMap.get("id"));
-                            String getSlackId = (String) dataMap.get("slackId");
-
-                            log.info("UserId: " + getUserId);
-                            log.info("slackId: " + getSlackId);
-
-                            // Notification 객체 생성
-                            NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
-                                    .userId(getUserId)
-                                    .slackId(getSlackId)
-                                    .role(UserRole.CUSTOMER)
-                                    .type(NotiType.BUDGET_OVERRUN)
-                                    .message("설정한 예산을 초과했습니다.")
-                                    .build();
-
-                            // Kafka로 알림 전송
-                            eventProducer.sendBudgetOverRunNotification(notificationRequestDto);
-                        } else {
-                            log.error("Invalid data format in response body");
-                        }
-                    }
+                    sendOverrunNotification(budget, personalHistory);
                 }
-            }
+            });
+
+            // 모든 예산을 배치 저장
+            budgetRepository.saveAll(budgets);
         }
+
         return PersonalHistoryResponseDto.toDTO(savePersonalHistory);
     }
+
+    /**
+     * 예산 초과 시 Kafka로 알림 전송
+     */
+    private void sendOverrunNotification(Budget budget, PersonalHistory personalHistory) {
+        // FeignClient를 이용해 고객 정보 조회
+        ResponseEntity<?> responseEntity = userService.findCustomerById(
+                budget.getUserId(),
+                personalHistory.getUserId(),
+                "CUSTOMER"
+        );
+
+        log.info(responseEntity.getBody());
+
+        if (responseEntity.getBody() instanceof Map<?, ?> responseBody) {
+            Object dataObject = responseBody.get("data");
+
+            if (dataObject instanceof Map<?, ?> dataMap) {
+                UUID getUserId = UUID.fromString((String) dataMap.get("id"));
+                String getSlackId = (String) dataMap.get("slackId");
+
+                log.info("UserId: " + getUserId);
+                log.info("slackId: " + getSlackId);
+
+                // Notification 객체 생성
+                NotificationRequestDto notificationRequestDto = NotificationRequestDto.builder()
+                        .userId(getUserId)
+                        .slackId(getSlackId)
+                        .role(UserRole.CUSTOMER)
+                        .type(NotiType.BUDGET_OVERRUN)
+                        .message("설정한 예산을 초과했습니다.")
+                        .build();
+
+                // Kafka로 알림 전송
+                eventProducer.sendBudgetOverRunNotification(notificationRequestDto);
+            } else {
+                log.error("Invalid data format in response body");
+            }
+        }
+    }
+
 }

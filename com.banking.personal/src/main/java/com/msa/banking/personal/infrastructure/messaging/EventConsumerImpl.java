@@ -15,7 +15,7 @@ public class EventConsumerImpl implements EventConsumer {
     private final PersonalHistoryService personalHistoryService;
 
     @Override
-    @KafkaListener(topics = "account-completed", groupId = "personalHistory-group")
+    @KafkaListener(topics = "transaction-create", groupId = "personalHistory-group")
     public void handleAccountCompletedEvent(String message) {
         AccountCompletedEventDto accountCompletedEventDto = EventSerializer.deserialize(message, AccountCompletedEventDto.class);
         personalHistoryService.createPersonalHistory(accountCompletedEventDto);

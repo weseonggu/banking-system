@@ -46,7 +46,7 @@ public class TransactionsController {
             @PathVariable("account_id") UUID accountId,
             @RequestBody SingleTransactionRequestDto request) {
 
-        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, request, userDetails.getUsername(), userDetails.getRole()));
+        return ResponseEntity.ok(transactionsService.createWithdrawal(accountId, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId()));
     }
 
 
@@ -58,7 +58,7 @@ public class TransactionsController {
             @PathVariable("account_id") UUID accountId,
             @RequestBody TransferTransactionRequestDto request) {
 
-        transactionsService.createTransfer(accountId, request, userDetails.getUsername(), userDetails.getRole());
+        transactionsService.createTransfer(accountId, request, userDetails.getUsername(), userDetails.getRole(), userDetails.getUserId());
 
         return ResponseEntity.noContent().build();
     }

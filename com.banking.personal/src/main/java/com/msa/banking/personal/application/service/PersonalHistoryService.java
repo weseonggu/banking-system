@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface PersonalHistoryService {
 
     // 개인 내역 목록 조회
-    Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable);
+    Page<PersonalHistoryListDto> searchPersonalHistory(String categoryName, PersonalHistoryStatus status, Pageable pageable, UUID userId, String userRole);
 
     // 개인 내역 생성
     PersonalHistoryResponseDto createPersonalHistory(AccountCompletedEventDto accountCompletedEventDto);
