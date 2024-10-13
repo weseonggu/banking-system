@@ -1,6 +1,7 @@
 package com.msa.banking.common.account.dto;
 
-import com.msa.banking.common.account.type.TransactionType;
+import com.msa.banking.account.domain.model.TransactionStatus;
+import com.msa.banking.account.domain.model.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,7 +12,8 @@ public record TransactionResponseDto(
         Long transactionId,
         UUID accountId,
         TransactionType type,
-        BigDecimal amount,
+        BigDecimal depositAmount,
+        BigDecimal withdrawalAmount,
         TransactionStatus status,
         String description,
         String originatingAccount,

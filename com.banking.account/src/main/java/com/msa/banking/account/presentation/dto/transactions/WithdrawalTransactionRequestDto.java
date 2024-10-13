@@ -1,13 +1,14 @@
-package com.msa.banking.common.account.dto;
+package com.msa.banking.account.presentation.dto.transactions;
+
 
 import com.msa.banking.common.account.type.TransactionType;
 
 import java.math.BigDecimal;
 
-public record DepositTransactionRequestDto(
+public record WithdrawalTransactionRequestDto(
 
         TransactionType type,
-        BigDecimal depositAmount,
+        BigDecimal withdrawalAmount,
         String description,
         String accountPin
 ) {

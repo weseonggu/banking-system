@@ -2,7 +2,6 @@ package com.msa.banking.account.domain.model;
 
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
-import com.msa.banking.account.infrastructure.encryption.HashingUtil;
 import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.common.base.AuditEntity;
 import com.msa.banking.common.account.type.AccountStatus;
