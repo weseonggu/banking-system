@@ -10,6 +10,8 @@ import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.auth.dto.SlackIdRequestDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @Slf4j(topic = "Auth")
+@Tag(name = "인증 서비스", description = "회원가입, 로그인, 로그아웃 등 인증 서비스 관련 API 입니다.")
 public class AuthController {
 
     private final AuthService authService;
@@ -35,6 +38,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("/signUp")
+    @Operation(summary = "회원가입", description = "회원가입을 진행하는 API 입니다.")
     public ResponseEntity<?> createAuth(@Valid @RequestBody AuthSignUpRequestDto request) {
         log.info("회원가입 시도 중 | request: {}", request);
 
@@ -51,6 +55,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("/signIn")
+    @Operation(summary = "로그인", description = "로그인을 진행하는 API 입니다.")
     public ResponseEntity<?> singInAuth(@Valid @RequestBody AuthSignInRequestDto request,
                                         HttpServletResponse response) {
         log.info("로그인 시도 중 | request: {}", request);
@@ -67,6 +72,7 @@ public class AuthController {
      * @param request
      */
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "로그아웃을 진행하는 API 입니다.")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         log.info("로그아웃 시도 중 ");
 
@@ -83,6 +89,7 @@ public class AuthController {
      * @return
      */
     @PostMapping("/reset-password")
+    @Operation(summary = "고객 비밀번호 초기화", description = "가입한 고객의 비밀번호를 초기화하는 API 입니다.")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody AuthResetPasswordRequestDto request) {
         log.info("비밀번호 초기화 시도 중 | request: {}", request);
 

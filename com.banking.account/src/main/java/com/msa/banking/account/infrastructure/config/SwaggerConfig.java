@@ -32,8 +32,8 @@ public class SwaggerConfig {
     // 문서 기본 정보
     private Info swaggerInfo() {
         return new Info()
-                .title("수정해주세요.")
-                .description("수정해주세요.")
+                .title("계좌에 관련된 API 문서")
+                .description("계좌 정보, 입출금, 이체에 관한 API")
                 .version("1.0.0");
     }
 }

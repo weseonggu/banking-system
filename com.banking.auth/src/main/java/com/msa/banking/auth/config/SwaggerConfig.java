@@ -32,8 +32,8 @@ public class SwaggerConfig {
     // 문서 기본 정보
     private Info swaggerInfo() {
         return new Info()
-                .title("수정해주세요.")
-                .description("수정해주세요.")
+                .title("회원 관련 API 문서")
+                .description("회원가입, 로그인, 회원 조회 등 회원 관련 API")
                 .version("1.0.0");
     }
 }
