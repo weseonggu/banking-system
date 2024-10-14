@@ -244,11 +244,11 @@ public class UsingProductService {
             throw new IllegalArgumentException("대출 실행 가능한 상태가 아닙니다.");
         }
         // 계좌 증액 요청
-        DepositTransactionRequestDto dto = new DepositTransactionRequestDto(
+        DepositTransactionRequestDto dto = new DepositTransactionRequestDto (
+                "",
                 TransactionType.DEPOSIT,
                 BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()),
-                usingProduct.getName()+"님 대출금 입금",
-                ""
+                usingProduct.getName()+"님 대출금 입금"
         );
         accountClient.updateAccount(usingProduct.getAccountId(), dto);
 

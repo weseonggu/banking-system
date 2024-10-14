@@ -43,11 +43,11 @@ public class DirectDebitService {
 
         // 이체 날짜 검증
         if(!isValidTransferDay(request.transferDate())){
-            throw new GlobalCustomException(ErrorCode.TRANSFERDATE_NOT_AVAILABLE);
+            throw new GlobalCustomException(ErrorCode.TRANSFER_DATE_NOT_AVAILABLE);
         }
 
         Account account = accountRepository.findById(accountId)
-                .filter(p -> !p.getIsDelete())
+                .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 고객의 경우 본인만이 자동 이체 등록 가능
@@ -69,12 +69,12 @@ public class DirectDebitService {
             UUID directDebitId, DirectDebitStatus status, DirectDebitRequestDto request, String username, String role) {
 
         if(!isValidTransferDay(request.transferDate())){
-            throw new GlobalCustomException(ErrorCode.TRANSFERDATE_NOT_AVAILABLE);
+            throw new GlobalCustomException(ErrorCode.TRANSFER_DATE_NOT_AVAILABLE);
         }
 
         DirectDebit directDebit = directDebitRepository.findById(directDebitId)
-                .filter(p -> !p.getIsDelete())
-                .orElseThrow(()-> new GlobalCustomException(ErrorCode.DIRECTDEBIT_NOT_FOUND));
+                .filter(a -> !a.getIsDelete())
+                .orElseThrow(()-> new GlobalCustomException(ErrorCode.DIRECT_DEBIT_NOT_FOUND));
 
         if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(directDebit.getCreatedBy())){
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
@@ -91,8 +91,8 @@ public class DirectDebitService {
     public void deleteDirectDebit(UUID directDebitId, String username, String role) {
 
         DirectDebit directDebit = directDebitRepository.findById(directDebitId)
-                .filter(p -> !p.getIsDelete())
-                .orElseThrow(()-> new GlobalCustomException(ErrorCode.DIRECTDEBIT_NOT_FOUND));
+                .filter(a -> !a.getIsDelete())
+                .orElseThrow(()-> new GlobalCustomException(ErrorCode.DIRECT_DEBIT_NOT_FOUND));
 
         if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(directDebit.getCreatedBy())){
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
@@ -117,8 +117,8 @@ public class DirectDebitService {
     public DirectDebitResponseDto getDirectDebit(UUID directDebitId, String username, String role) {
 
         DirectDebit directDebit = directDebitRepository.findById(directDebitId)
-                .filter(p -> !p.getIsDelete())
-                .orElseThrow(()-> new GlobalCustomException(ErrorCode.DIRECTDEBIT_NOT_FOUND));
+                .filter(a -> !a.getIsDelete())
+                .orElseThrow(()-> new GlobalCustomException(ErrorCode.DIRECT_DEBIT_NOT_FOUND));
 
         if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(directDebit.getCreatedBy())){
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);

@@ -99,3 +99,7 @@ dependencyManagement {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+bootJar {
+	mainClass = 'com.msa.banking.auth.AuthApplication'
+}

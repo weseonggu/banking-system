@@ -4,7 +4,7 @@ import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConvert
 import com.msa.banking.account.presentation.dto.transactions.TransferTransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.WithdrawalTransactionRequestDto;
 import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
-import com.msa.banking.common.account.dto.TransactionStatus;
+import com.msa.banking.common.account.type.TransactionStatus;
 import com.msa.banking.common.account.type.TransactionType;
 import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
@@ -50,7 +50,6 @@ public class AccountTransactions extends AuditEntity {
 
     private String description;
 
-    // TODO: 서비스에서 accountId를 통해 보내는 계좌 가져오기.
     @Convert(converter = EncryptAttributeConverter.class)  // 데이터 암호화
     private String originatingAccount;
 
@@ -58,6 +57,7 @@ public class AccountTransactions extends AuditEntity {
     @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.")
     private String beneficiaryAccount;
 
+    // TODO: 받는 사람 계좌 소유주 이름 추가?
 
     // 데이터베이스에 저장되기 전에 유효성을 검증
     @PrePersist
@@ -72,6 +72,17 @@ public class AccountTransactions extends AuditEntity {
     // 계좌 거래 내역같은거는 어떤 특정 권한을 가진 주체가 생성하는 것이 아닌 시스템 상에서 생성하는 것인데 어떻게 해야하나? -> 거래 주체가 생성하는 것으로
     // 단일 계좌 입금 거래 내역 생성
     public static AccountTransactions createSingleDepositTransaction(Account account, DepositTransactionRequestDto requestDto) {
+
+        return AccountTransactions.builder()
+                .account(account)
+                .type(requestDto.type())
+                .depositAmount(requestDto.depositAmount())
+                .description(requestDto.description())
+                .build();
+    }
+
+    // 단일 계좌 입금 거래 내역 생성
+    public static AccountTransactions createLoanDepositTransaction(Account account, DepositTransactionRequestDto requestDto) {
 
         return AccountTransactions.builder()
                 .account(account)
@@ -125,7 +136,7 @@ public class AccountTransactions extends AuditEntity {
     }
 
     // 거래 설명 수정
-    public void updateTransaction(String description) {
+    public void updateTransactionDescription(String description) {
         this.description = description;
     }
 }

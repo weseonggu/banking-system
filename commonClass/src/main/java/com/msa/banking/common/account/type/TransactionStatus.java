@@ -1,4 +1,4 @@
-package com.msa.banking.common.account.dto;
+package com.msa.banking.common.account.type;
 
 public enum TransactionStatus {
     PENDING,      // 처리 중
