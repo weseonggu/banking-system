@@ -15,11 +15,11 @@ COPY gradle ./gradle
 COPY . .
 
 # 환경 변수 정의 (Docker Compose에서 args로 설정될 수 있도록)
-ARG SPRING_PROFILES_ACTIVE
+ARG TEST_SPRING_PROFILES_ACTIVE
 ARG MODULE
 
 # 환경 변수 설정
-ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+ENV SPRING_PROFILES_ACTIVE=${TEST_SPRING_PROFILES_ACTIVE}
 
 # 빌드 수행 - 로그를 파일에 저장
 RUN ./gradlew clean :com.banking.${MODULE}:bootJar
@@ -34,6 +34,6 @@ ARG MODULE
 COPY --from=build /app/com.banking.${MODULE}/build/libs/*SNAPSHOT.jar ./app.jar
 
 # Set environment variables if needed
-ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE_PROD}
+
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

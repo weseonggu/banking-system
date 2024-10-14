@@ -7,12 +7,8 @@ services:
     ports:
       - 9411:9411
     networks:
-      - my_bridge_network
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.1"
-#          memory: 128M
+      - my-network
+
 
   redis-stack:
     image: redis/redis-stack
@@ -23,19 +19,14 @@ services:
       - 6379:6379
       - 8001:8001 # 레디스 인사이트 접속 포트
     networks:
-      - my_bridge_network
+      - my-network
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "systempass", "PING" ]
       interval: 10s
       timeout: 5s
       retries: 3
-    networks:
-      - banking-network
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.25"
-#          memory: 256M
+
+
 
   postgres:
     image: postgres:latest
@@ -56,12 +47,8 @@ services:
       start_period: 30s
       timeout: 10s
     networks:
-      - banking-network
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.25"
-#          memory: 256M
+      - my-network
+
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -73,12 +60,8 @@ services:
       ZOOKEEPER_CLIENT_PORT: 3181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - my_bridge_network
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.25"
-#          memory: 256M
+      - my-network
+
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -87,20 +70,16 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://kafka:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:3181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - my_bridge_network
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.25"
-#          memory: 512M
+      - my-network
+
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -110,37 +89,32 @@ services:
       - "8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:3181
       KAFKA_CLUSTERS_0_READONLY: "false"
     networks:
-      - my_bridge_network
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.1"
-#          memory: 128M
+      - my-network
+
 
 
   config:
     build:
-      context: .
       dockerfile: ./Dockerfile
       args:
-        SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
+        TEST_SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
         MODULE: config
     environment:
-      SPRING_PROFILES_ACTIVE: native
+      SPRING_PROFILES_ACTIVE: prod
     ports:
       - "19000:19000"
     networks:
-      - banking-network
+      - my-network
 
   eureka:
     build:
       dockerfile: ./Dockerfile
       args:
-        SPRING_PROFILES_ACTIVE: prod
+        TEST_SPRING_PROFILES_ACTIVE: dev
         MODULE: eureka.server
     environment:
       SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
@@ -149,13 +123,18 @@ services:
     depends_on:
       - config
     networks:
-      - banking-network
+      - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:19000/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   gateway:
     build:
       dockerfile: ./Dockerfile
       args:
-        SPRING_PROFILES_ACTIVE: prod
+        TEST_SPRING_PROFILES_ACTIVE: prod
         MODULE: gateway
     environment:
       SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
@@ -164,141 +143,51 @@ services:
     depends_on:
       - eureka
     networks:
-      - banking-network
+      - my-network
 
   auth:
     build:
       dockerfile: ./Dockerfile
       args:
-        SPRING_PROFILES_ACTIVE: prod
+        TEST_SPRING_PROFILES_ACTIVE: prod
         MODULE: auth
     environment:
       SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
     ports:
       - "19093:19093"
     networks:
-      - banking-network
+      - my-network
 
-  personal:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        SPRING_PROFILES_ACTIVE: prod
-        MODULE: personal
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19096:19096"
-    depends_on:
-      - gateway
-    networks:
-      - banking-network
-
-  product:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        SPRING_PROFILES_ACTIVE: prod
-        MODULE: product
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19096:19096"
-    depends_on:
-      - gateway
-    networks:
-      - banking-network
-
-#  config:
+#  personal:
 #    build:
-#      dockerfile: Dockerfile
+#      dockerfile: ./Dockerfile
 #      args:
-#        - FILE_DIRECTORY=./com.banking.config
-#    ports:
-#      - "19000:19000"
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      redis-stack:
-#        condition: service_healthy
-#    networks:
-#      - banking-network
-#
-#  eureka:
-#    build:
-#      dockerfile: Dockerfile
-#      args:
-#        - FILE_DIRECTORY=./com.banking.eureka.server
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: personal
 #    environment:
 #      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
 #    ports:
-#      - "19090:19090"
-#    depends_on:
-#      config:
-#        condition: service_completed_successfully
-#    networks:
-#      - banking-network
-#
-#  gateway:
-#    build:
-#      dockerfile: Dockerfile
-#      args:
-#        - FILE_DIRECTORY=./com.banking.gateway
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-#    ports:
-#      - "19092:19092"
-#    depends_on:
-#      eureka:
-#        condition: service_completed_successfully
-#    networks:
-#      - banking-network
-#
-#  auth:
-#    build:
-#      dockerfile: Dockerfile
-#      args:
-#        - FILE_DIRECTORY=./com.banking.auth
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-#    depends_on:
-#      gateway:
-#        condition: service_completed_successfully
-#    ports:
-#      - "19093:19093"
-#    networks:
-#      - banking-network
-#
-#  account:
-#    build:
-#      dockerfile: Dockerfile
-#      args:
-#        - FILE_DIRECTORY=./com.banking.account
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-#    depends_on:
-#      - auth
-#
-#  notification:
-#    build:
-#      dockerfile: Dockerfile
-#      args:
-#        - FILE_DIRECTORY=./com.banking.notification
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-#    depends_on:
-#      - auth
-#
-#  performance:
-#    build:
-#      dockerfile: Dockerfile
-#      args:
-#        - FILE_DIRECTORY=./com.banking.performance
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#      - "19096:19096"
 #    depends_on:
 #      - gateway
+#    networks:
+#      - banking-network
 #
+#  product:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: product
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    ports:
+#      - "19096:19096"
+#    depends_on:
+#      - gateway
+#    networks:
+#      - banking-network
+
 
 
 volumes:
@@ -307,5 +196,5 @@ volumes:
 
 
 networks:
-  banking-network:
+  my-network:
     driver: bridge
