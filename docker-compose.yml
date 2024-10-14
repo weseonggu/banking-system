@@ -24,6 +24,13 @@ services:
       - 8001:8001 # 레디스 인사이트 접속 포트
     networks:
       - my_bridge_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "systempass", "PING" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - banking-network
 #    deploy:
 #      resources:
 #        limits:
@@ -34,7 +41,7 @@ services:
     image: postgres:latest
     restart: always
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
@@ -42,9 +49,14 @@ services:
       POSTGRES_USER: 'banking'
       POSTGRES_PASSWORD: 'banking20'
       TZ: Asia/Seoul
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U banking -d auth" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     networks:
-      - my_bridge_network
-
+      - banking-network
 #    deploy:
 #      resources:
 #        limits:
@@ -117,21 +129,19 @@ services:
       args:
         SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
         MODULE: config
-        SPRING_PROFILES_ACTIVE_PROD: prod
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: native
     ports:
       - "19000:19000"
     networks:
-      - my_bridge_network
+      - banking-network
 
   eureka:
     build:
       dockerfile: ./Dockerfile
       args:
-        SPRING_PROFILES_ACTIVE: dev
+        SPRING_PROFILES_ACTIVE: prod
         MODULE: eureka.server
-        SPRING_PROFILES_ACTIVE_PROD: prod
     environment:
       SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
     ports:
@@ -139,37 +149,163 @@ services:
     depends_on:
       - config
     networks:
-      - my_bridge_network
+      - banking-network
+
+  gateway:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        SPRING_PROFILES_ACTIVE: prod
+        MODULE: gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    ports:
+      - "19092:19092"
+    depends_on:
+      - eureka
+    networks:
+      - banking-network
+
+  auth:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        SPRING_PROFILES_ACTIVE: prod
+        MODULE: auth
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    ports:
+      - "19093:19093"
+    networks:
+      - banking-network
+
+  personal:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        SPRING_PROFILES_ACTIVE: prod
+        MODULE: personal
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    ports:
+      - "19096:19096"
+    depends_on:
+      - gateway
+    networks:
+      - banking-network
+
+  product:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        SPRING_PROFILES_ACTIVE: prod
+        MODULE: product
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+    ports:
+      - "19096:19096"
+    depends_on:
+      - gateway
+    networks:
+      - banking-network
+
+#  config:
+#    build:
+#      dockerfile: Dockerfile
+#      args:
+#        - FILE_DIRECTORY=./com.banking.config
+#    ports:
+#      - "19000:19000"
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      redis-stack:
+#        condition: service_healthy
+#    networks:
+#      - banking-network
+#
+#  eureka:
+#    build:
+#      dockerfile: Dockerfile
+#      args:
+#        - FILE_DIRECTORY=./com.banking.eureka.server
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    ports:
+#      - "19090:19090"
+#    depends_on:
+#      config:
+#        condition: service_completed_successfully
+#    networks:
+#      - banking-network
 #
 #  gateway:
 #    build:
-#      dockerfile: ./Dockerfile
+#      dockerfile: Dockerfile
 #      args:
-#        SPRING_PROFILES_ACTIVE: dev
-#        MODULE: gateway
+#        - FILE_DIRECTORY=./com.banking.gateway
 #    environment:
-#      SPRING_PROFILES_ACTIVE: dev  # 운영 환경 프로파일 설정
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
 #    ports:
 #      - "19092:19092"
 #    depends_on:
-#      - eureka
+#      eureka:
+#        condition: service_completed_successfully
+#    networks:
+#      - banking-network
 #
 #  auth:
 #    build:
-#      dockerfile: ./Dockerfile
+#      dockerfile: Dockerfile
 #      args:
-#        SPRING_PROFILES_ACTIVE: dev
-#        MODULE: auth
+#        - FILE_DIRECTORY=./com.banking.auth
 #    environment:
-#      SPRING_PROFILES_ACTIVE: dev  # 운영 환경 프로파일 설정
-
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    depends_on:
+#      gateway:
+#        condition: service_completed_successfully
+#    ports:
+#      - "19093:19093"
+#    networks:
+#      - banking-network
+#
+#  account:
+#    build:
+#      dockerfile: Dockerfile
+#      args:
+#        - FILE_DIRECTORY=./com.banking.account
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    depends_on:
+#      - auth
+#
+#  notification:
+#    build:
+#      dockerfile: Dockerfile
+#      args:
+#        - FILE_DIRECTORY=./com.banking.notification
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    depends_on:
+#      - auth
+#
+#  performance:
+#    build:
+#      dockerfile: Dockerfile
+#      args:
+#        - FILE_DIRECTORY=./com.banking.performance
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    depends_on:
+#      - gateway
+#
 
 
 volumes:
   postgres_data:
     driver: local
 
-networks:
-  my_bridge_network:
-    driver: bridge
 
+networks:
+  banking-network:
+    driver: bridge
