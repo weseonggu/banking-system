@@ -6,6 +6,8 @@ services:
     restart: always
     ports:
       - 9411:9411
+    networks:
+      - my_bridge_network
 #    deploy:
 #      resources:
 #        limits:
@@ -20,6 +22,8 @@ services:
     ports:
       - 6379:6379
       - 8001:8001 # 레디스 인사이트 접속 포트
+    networks:
+      - my_bridge_network
 #    deploy:
 #      resources:
 #        limits:
@@ -38,6 +42,8 @@ services:
       POSTGRES_USER: 'banking'
       POSTGRES_PASSWORD: 'banking20'
       TZ: Asia/Seoul
+    networks:
+      - my_bridge_network
 
 #    deploy:
 #      resources:
@@ -54,6 +60,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 3181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - my_bridge_network
 #    deploy:
 #      resources:
 #        limits:
@@ -74,6 +82,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:3181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - my_bridge_network
 #    deploy:
 #      resources:
 #        limits:
@@ -91,6 +101,8 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:3181
       KAFKA_CLUSTERS_0_READONLY: "false"
+    networks:
+      - my_bridge_network
 #    deploy:
 #      resources:
 #        limits:
@@ -100,100 +112,64 @@ services:
 
   config:
     build:
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./Dockerfile
       args:
-        - FILE_DIRECTORY=./config
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis-stack:
-        condition: service_healthy
+        SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
+        MODULE: config
+        SPRING_PROFILES_ACTIVE_PROD: prod
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "19000:19000"
+    networks:
+      - my_bridge_network
 
   eureka:
     build:
-      dockerfile: Dockerfile
+      dockerfile: ./Dockerfile
       args:
-        - FILE_DIRECTORY=./eureka
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    depends_on:
-      - config
-
-  gateway:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./gateway
+        SPRING_PROFILES_ACTIVE: dev
+        MODULE: eureka.server
+        SPRING_PROFILES_ACTIVE_PROD: prod
     environment:
       SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
     ports:
-      - "19092:19092"
+      - "19090:19090"
     depends_on:
-      - eureka
+      - config
+    networks:
+      - my_bridge_network
+#
+#  gateway:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        SPRING_PROFILES_ACTIVE: dev
+#        MODULE: gateway
+#    environment:
+#      SPRING_PROFILES_ACTIVE: dev  # 운영 환경 프로파일 설정
+#    ports:
+#      - "19092:19092"
+#    depends_on:
+#      - eureka
+#
+#  auth:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        SPRING_PROFILES_ACTIVE: dev
+#        MODULE: auth
+#    environment:
+#      SPRING_PROFILES_ACTIVE: dev  # 운영 환경 프로파일 설정
 
-  auth:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./auth
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    depends_on:
-      - postgres
-      - redis-stack
 
-  account:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./account
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    depends_on:
-      - auth
-
-  notification:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./notification
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    depends_on:
-      - auth
-
-  performance:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./performance
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    depends_on:
-      - gateway
-
-  personal:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./personal
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    depends_on:
-      - gateway
-
-  product:
-    build:
-      dockerfile: Dockerfile
-      args:
-        - FILE_DIRECTORY=./product
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    depends_on:
-      - gateway
 
 volumes:
   postgres_data:
     driver: local
 
+networks:
+  my_bridge_network:
+    driver: bridge
 

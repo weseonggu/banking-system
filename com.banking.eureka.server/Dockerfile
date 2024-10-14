@@ -12,28 +12,26 @@ COPY gradlew ./
 COPY gradle ./gradle
 
 # 모듈 코드 복사
-COPY . .
+COPY com.banking.eureka.sever ./com.banking.eureka.sever
 
-# 환경 변수 정의 (Docker Compose에서 args로 설정될 수 있도록)
-ARG SPRING_PROFILES_ACTIVE
-ARG MODULE
+# 환경 변수 정의
+ARG SPRING_PROFILES_ACTIVE=dev
 
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
 
-# 빌드 수행 - 로그를 파일에 저장
-RUN ./gradlew clean :com.banking.${MODULE}:bootJar
-
+# 빌드 수행 (테스트 포함)
+RUN ./gradlew clean build :com.banking.eureka.sever:build
 
 # 실행 이미지 생성
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-ARG SPRING_PROFILES_ACTIVE_PROD
-ARG MODULE
+
 # JAR 파일 복사
-COPY --from=build /app/com.banking.${MODULE}/build/libs/*SNAPSHOT.jar ./app.jar
+COPY --from=build /app/com.banking.auth/build/libs/*SNAPSHOT.jar ./app.jar
 
 # Set environment variables if needed
-ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE_PROD}
+ENV SPRING_PROFILES_ACTIVE=dev
+
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

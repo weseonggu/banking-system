@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: native
+    active: prod
     group:
       prod: prod
   application:
@@ -18,11 +18,11 @@ spring:
           watch:
             enabled: true
   kafka:
-    bootstrap-servers: http://loacalhost:9092
+    bootstrap-servers: http://kafka:9092
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:19090/eureka/
+      defaultZone: http://eureka:19090/eureka/
 
 management:
   endpoints:
