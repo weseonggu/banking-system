@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum LoanState {
+    APPLY("신청"),
     RUNNING("실행 중"),
     CANCLE("해지"),
     OVERDUE("연체 중"),

@@ -1,8 +1,11 @@
 package com.msa.banking.notification.application.service;
 
+import com.msa.banking.common.auth.dto.SlackIdRequestDto;
 import com.msa.banking.common.event.EventSerializer;
 import com.msa.banking.common.event.Topic;
 import com.msa.banking.common.notification.NotificationRequestDto;
+import com.msa.banking.common.response.ErrorCode;
+import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.notification.domain.model.Notification;
 import com.msa.banking.notification.infrastructure.repository.NotificationRepository;
 import com.slack.api.Slack;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Random;
 
 
 @Service
@@ -90,5 +94,36 @@ public class NotificationService {
         requestDto.setMessage(requestDto.getSlackId() + " 슬랙 ID 로 회원가입 알림 전송 실패");
 
         kafkaTemplate.send(Topic.SIGN_UP_FAILED.getTopic(), EventSerializer.serialize(requestDto));
+    }
+
+    /**
+     * 슬랙 인증번호 발송
+     * @throws IOException
+     * @throws SlackApiException
+     */
+    public String sendMessage(SlackIdRequestDto requestDto) throws IOException, SlackApiException, URISyntaxException {
+        log.info("슬랙 인증번호 전송 시도 중");
+
+        // 6자리 랜덤 인증번호 생성
+        Random random = new Random();
+        int randomCode = 100000 + random.nextInt(900000); // 100000 ~ 999999 사이의 숫자
+
+        Slack slack = Slack.getInstance();
+
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .token(slackToken)
+                .channel(requestDto.getSlackId())
+                .text(String.valueOf(randomCode))
+                .build();
+
+        ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
+        if (response.isOk()) {
+            log.info("Message sent successfully to user: " + requestDto.getSlackId());
+        } else {
+            log.error("Error sending message: " + response.getError());
+            throw new GlobalCustomException(ErrorCode.SLACK_ERROR);
+        }
+        log.info("슬랙 인증번호 전송 시도 완료");
+        return String.valueOf(randomCode);
     }
 }

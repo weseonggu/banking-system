@@ -136,6 +136,21 @@ public class UserService {
             }
         }
 
+        // 유저 ID 유니크 제약 조건 검증
+        if (existsCustomerByUsernameAndIdNot(request.getUsername(), customerId)) {
+            throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
+        }
+
+        // Email 유니크 제약 조건 검증
+        if (existsCustomerByEmailAndIdNot(request.getEmail(), customerId)) {
+            throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+        }
+
+        // PhoneNumber 유니크 제약 조건 검증
+        if (existsCustomerByPhoneNumberAndIdNot(request.getPhoneNumber(), customerId)) {
+            throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
+        }
+
         // 고객 존재 유뮤 확인
         Customer customer = customerRepository.findById(customerId).orElseThrow(() ->
                 new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
@@ -168,6 +183,21 @@ public class UserService {
             if (!employeeId.equals(userId)) {
                 throw new GlobalCustomException(ErrorCode.USER_FORBIDDEN);
             }
+        }
+
+        // 유저 ID 유니크 제약 조건 검증
+        if (existsEmployeeByUsernameAndIdNot(request.getUsername(), employeeId)) {
+            throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
+        }
+
+        // Email 유니크 제약 조건 검증
+        if (existsEmployeeByEmailAndIdNot(request.getEmail(), employeeId)) {
+            throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+        }
+
+        // PhoneNumber 유니크 제약 조건 검증
+        if (existsEmployeeByPhoneNumberAndIdNot(request.getPhoneNumber(), employeeId)) {
+            throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
         }
 
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() ->
@@ -243,7 +273,7 @@ public class UserService {
         Customer findCustomer = customerRepository.findByUsername(username).orElseThrow(() -> new GlobalCustomException(ErrorCode.USER_NOT_FOUND));
 
         findCustomer.loginAttempsCount();
-        if (findCustomer.getLoginAttempts() >= 6) {
+        if (findCustomer.getLoginAttempts() >= 3) {
             findCustomer.accountLock();
         }
     }
@@ -257,5 +287,59 @@ public class UserService {
     public boolean findByUserIdAndName(UUID userId, String name) {
 
         return customerRepository.existsByIdAndName(userId, name);
+    }
+
+    /**
+     * 직원 본인 계정 제외 username 유니크 제약 조건 검증
+     * @param username
+     * @return
+     */
+    public boolean existsEmployeeByUsernameAndIdNot(String username, UUID employeeId) {
+        return employeeRepository.existsByUsernameAndIdNot(username, employeeId);
+    }
+
+    /**
+     * 고객 본인 계정 제외 username 유니크 제약 조건 검증
+     * @param username
+     * @return
+     */
+    public boolean existsCustomerByUsernameAndIdNot(String username, UUID customerId) {
+        return customerRepository.existsByUsernameAndIdNot(username, customerId);
+    }
+
+    /**
+     * 직원 본인 계정 제외 email 유니크 제약 조건 검증
+     * @param email
+     * @return
+     */
+    public boolean existsEmployeeByEmailAndIdNot(String email, UUID employeeId) {
+        return employeeRepository.existsByEmailAndIdNot(email, employeeId);
+    }
+
+    /**
+     * 고객 본인 계정 제외 email 유니크 제약 조건 검증
+     * @param email
+     * @return
+     */
+    public boolean existsCustomerByEmailAndIdNot(String email, UUID customerId) {
+        return customerRepository.existsByEmailAndIdNot(email, customerId);
+    }
+
+    /**
+     * 직원 본인 계정 제외 phoneNumber 유니크 제약 조건 검증
+     * @param phoneNumber
+     * @return
+     */
+    public boolean existsEmployeeByPhoneNumberAndIdNot(String phoneNumber, UUID employeeId) {
+        return employeeRepository.existsByPhoneNumberAndIdNot(phoneNumber, employeeId);
+    }
+
+    /**
+     * 고객 본인 계정 제외 phoneNumber 유니크 제약 조건 검증
+     * @param phoneNumber
+     * @return
+     */
+    public boolean existsCustomerByPhoneNumberAndIdNot(String phoneNumber, UUID customerId) {
+        return customerRepository.existsByPhoneNumberAndIdNot(phoneNumber, customerId);
     }
 }

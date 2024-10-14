@@ -195,9 +195,9 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "권한이 없음"),
             @ApiResponse(responseCode = "500", description = "조회 실패")
     })
-    @GetMapping(value = "/cutomer/check")
+    @GetMapping(value = "/customer/check")
     @PreAuthorize("isAuthenticated()")
-    public Boolean findByUserIdAndName(@RequestParam UUID userId, @RequestParam String name){
+    public Boolean findByUserIdAndName(@RequestParam("userId") UUID userId, @RequestParam("name") String name){
         // 유저아이디와 name이 일치하는 데이터가 있는지 확인하는 로직을 구성해주세요.
         log.info("userId, name 일치 조회 시도 중 | userId: {}, name: {}", userId, name);
 

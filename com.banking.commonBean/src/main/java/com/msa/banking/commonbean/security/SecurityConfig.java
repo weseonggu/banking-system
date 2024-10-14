@@ -59,6 +59,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers("/v3/api-docs", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/notifications/slack-code/**").permitAll()
                 .requestMatchers("/product/**").permitAll()// 임시
                 .anyRequest().authenticated()
         );

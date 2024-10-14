@@ -30,10 +30,12 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 2001, "user not found"),
     // 400 Bad Request
     EMPLOYEE_PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password."),
-    CUSTOMER_PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password. 6회 이상 틀릴 경우 비밀번호 초기화를 해야합니다."),
+    CUSTOMER_PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password. 3회 이상 틀릴 경우 비밀번호 초기화를 해야합니다."),
+    SLACK_VERIFICATION_CODE_ERROR(HttpStatus.BAD_REQUEST, 2003, "슬랙 인증 번호가 일치하지 않습니다."),
+    SLACK_VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, 2004, "슬랙 ID 와 승인 번호가 일치하지 않거나, 승인 번호가 만료되었습니다. 재발급 받으세요."),
     // 403 Forbidden
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
-    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 6회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
+    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 3회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
     // 400 Bad Request
     ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
     // 409 Conflict
@@ -61,7 +63,7 @@ public enum ErrorCode {
     TRANSFERDATE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, 3009, "해당 이체 날짜는 설정이 불가합니다."),
 
     /* 알림 4000번대 */
-    SLACK_ERROR(HttpStatus.BAD_REQUEST, 4000, "슬랙 ID 가 잘못 되었거나, 현재 메세지를 보낼 수 없는 상태입니다."),
+    SLACK_ERROR(HttpStatus.BAD_REQUEST, 4000, "슬랙 ID가 잘못되었거나, 현재 메시지를 보낼 수 없는 상태입니다."),
     /* 개인내역 5000번대 */
     // 400 Bad Request
     BUDGET_BAD_REQUEST(HttpStatus.BAD_REQUEST,5000,"잘못된 요청입니다."),

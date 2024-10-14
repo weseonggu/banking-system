@@ -37,6 +37,7 @@ services:
     environment:
       POSTGRES_USER: 'banking'
       POSTGRES_PASSWORD: 'banking20'
+      TZ: Asia/Seoul
     deploy:
       resources:
         limits:

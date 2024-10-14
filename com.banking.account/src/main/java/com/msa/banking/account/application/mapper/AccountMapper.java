@@ -2,7 +2,7 @@ package com.msa.banking.account.application.mapper;
 
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.presentation.dto.account.AccountListResponseDto;
-import com.msa.banking.account.presentation.dto.account.AccountResponseDto;
+import com.msa.banking.common.account.dto.AccountResponseDto;
 import org.mapstruct.Mapper;
 
 import java.util.List;

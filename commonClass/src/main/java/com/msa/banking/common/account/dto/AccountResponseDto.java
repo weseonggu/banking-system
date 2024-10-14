@@ -1,4 +1,4 @@
-package com.msa.banking.account.presentation.dto.account;
+package com.msa.banking.common.account.dto;
 
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.account.type.AccountType;

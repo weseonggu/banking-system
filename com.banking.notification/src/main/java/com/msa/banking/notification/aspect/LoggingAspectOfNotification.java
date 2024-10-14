@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @Slf4j(topic = "Notification")
 public class LoggingAspectOfNotification {
 
-    // NotificationConsumer, NotificationService 포인트 컷
-    @Pointcut("execution(* com.msa.banking.notification.infrastructure.messaging.NotificationConsumer..*(..)) || execution(* com.msa.banking.notification.application.service.NotificationService..*(..))")
+    // NotificationConsumer, NotificationService, NotificationController 포인트 컷
+    @Pointcut("execution(* com.msa.banking.notification.infrastructure.messaging.NotificationConsumer..*(..)) || execution(* com.msa.banking.notification.application.service.NotificationService..*(..)) || execution(* com.msa.banking.notification.presentation.controller.NotificationController..*(..))")
     public void notificationPackagePointcut() {
     }
 

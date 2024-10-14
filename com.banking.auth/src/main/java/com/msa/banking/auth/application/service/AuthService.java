@@ -1,16 +1,18 @@
 package com.msa.banking.auth.application.service;
 
+import com.msa.banking.auth.application.client.NotificationClient;
 import com.msa.banking.auth.application.jwt.JwtUtil;
-import com.msa.banking.auth.domain.model.BlackListToken;
-import com.msa.banking.auth.domain.model.Customer;
-import com.msa.banking.auth.domain.model.Employee;
+import com.msa.banking.auth.domain.model.*;
 import com.msa.banking.auth.infrastructure.repository.BlackListTokenRepository;
 import com.msa.banking.auth.infrastructure.repository.CustomerRepository;
 import com.msa.banking.auth.infrastructure.repository.EmployeeRepository;
+import com.msa.banking.auth.infrastructure.repository.SlackCodeRepository;
 import com.msa.banking.auth.presentation.request.AuthResetPasswordRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignInRequestDto;
 import com.msa.banking.auth.presentation.request.AuthSignUpRequestDto;
+import com.msa.banking.auth.presentation.request.SlackNumberRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
+import com.msa.banking.common.auth.dto.SlackIdRequestDto;
 import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.event.EventSerializer;
 import com.msa.banking.common.event.Topic;
@@ -18,6 +20,7 @@ import com.msa.banking.common.notification.NotiType;
 import com.msa.banking.common.notification.NotificationRequestDto;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
+import feign.FeignException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,6 +54,8 @@ public class AuthService {
     private final BlackListTokenRepository blackListTokenRepository;
     private final RedisTemplate<String, Object> redisTemplate;
     private final UserService userService;
+    private final NotificationClient notificationClient;
+    private final SlackCodeRepository slackCodeRepository;
 
     @Value("${service.jwt.secret-key}")
     private String secretKey;
@@ -330,5 +336,101 @@ public class AuthService {
         // 비밀번호 변경 및 계정 잠금 비활성화
         findCustomer.updatePassword(request.getPassword());
 
+    }
+
+    /**
+     * 슬랙 인증 번호 발송
+     * @param request
+     * @return
+     */
+    @Transactional
+    public String slackCheck(SlackIdRequestDto request) {
+        // 레디스 다운 시 처리 될 플래그
+        boolean isRedisAvailable = true;
+
+        // 6자리 인증번호 생성
+        String slackNumber = null;
+        try {
+            slackNumber = notificationClient.slackCheck(request);
+        } catch (FeignException.BadRequest e) {
+            log.error("슬랙 인증 번호 발송 에러 :{}", e.getMessage());
+            throw new GlobalCustomException(ErrorCode.SLACK_ERROR);
+        }
+
+        // Redis 키 확인 및 삭제 후 새로 생성
+        try {
+            if (redisTemplate.hasKey(request.getSlackId())) {
+                log.info("기존 Redis, DB 키 삭제: {}", request.getSlackId());
+                slackCodeRepository.deleteBySlackId(request.getSlackId());
+                redisTemplate.delete(request.getSlackId());
+            }
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis Connection 에러: {}", e.getMessage());
+            log.info("기존 데이터 DB 존재 여부 확인 후 삭제: {}", request.getSlackId());
+            isRedisAvailable = false;
+            slackCodeRepository.deleteBySlackId(request.getSlackId());
+        }
+
+
+        // Redis에 5분(300초) 만료 시간으로 인증번호 저장
+        if (isRedisAvailable) {
+            redisTemplate.opsForValue().set(request.getSlackId(), slackNumber, 30, TimeUnit.SECONDS);
+        }
+
+        // 슬랙코드 객체 생성
+        SlackCode slackCode = SlackCode.createSlackCode(request.getSlackId(), slackNumber, LocalDateTime.now().plusSeconds(30));
+    
+        // DB 저장
+        slackCodeRepository.save(slackCode);
+
+        return "5분 후 인증번호는 만료됩니다.";
+    }
+
+    /**
+     * 슬랙 인증 번호 검증
+     * @param request
+     * @return
+     */
+    @Transactional
+    public String slackCheckValid(SlackNumberRequestDto request) {
+
+        String slackId = request.getSlackId();
+        String slackNumber = request.getSlackNumber();
+
+        try {
+            // 키가 존재 할 경우
+            if (redisTemplate.hasKey(slackId)) {
+                // Redis에서 slackId 키에 대한 값을 가져옴
+                String storedSlackNumber = (String) redisTemplate.opsForValue().get(slackId);
+
+                // 인증 번호 값이 같을 때 데이터 삭제 후 리턴
+                if (slackNumber.equals(storedSlackNumber)) {
+                    redisTemplate.delete(slackId);
+                    slackCodeRepository.deleteBySlackId(request.getSlackId());
+                    return "슬랙 인증 번호 검증 성공. 회원가입을 진행 해주세요.";
+
+                } else { // 인증 번호 값이 다를 때
+                    log.error("슬랙 인증번호 불일치 | slackNumber: {}, storedSlackNumber: {}", slackNumber, storedSlackNumber);
+                    throw new GlobalCustomException(ErrorCode.SLACK_VERIFICATION_CODE_ERROR);
+                }
+
+            } else { // 키가 존재하지 않을 경우
+                log.error("키가 존재하지 않거나 만료됨 | slackId: {}",slackId);
+                throw new GlobalCustomException(ErrorCode.SLACK_VERIFICATION_CODE_NOT_FOUND);
+            }
+        } catch (RedisConnectionFailureException e) { // 레디스 다운 시
+            // DB 에서 slackId 로 조회
+            SlackCode slackCode = slackCodeRepository.findBySlackId(request.getSlackId()).orElseThrow(() ->
+                    new GlobalCustomException(ErrorCode.SLACK_VERIFICATION_CODE_ERROR));
+
+            // 승인 번호 일치 시 db 삭제 후 반환
+            if (slackCode.getSlackCode().equals(request.getSlackNumber())) {
+                slackCodeRepository.deleteBySlackId(request.getSlackId());
+                return "슬랙 인증 번호 검증 성공. 회원가입을 진행 해주세요.";
+            }else { // 승인번호 불일치
+                log.error("슬랙 인증번호 불일치 | slackNumber: {}, db.slackCode: {}", slackNumber, slackCode.getSlackCode());
+                throw new GlobalCustomException(ErrorCode.SLACK_VERIFICATION_CODE_ERROR);
+            }
+        }
     }
 }

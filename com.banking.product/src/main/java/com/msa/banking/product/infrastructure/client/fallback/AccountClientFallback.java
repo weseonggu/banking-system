@@ -1,6 +1,9 @@
 package com.msa.banking.product.infrastructure.client.fallback;
 
 import com.msa.banking.common.account.dto.AccountRequestDto;
+import com.msa.banking.common.account.dto.AccountResponseDto;
+import com.msa.banking.common.account.dto.SingleTransactionRequestDto;
+import com.msa.banking.common.account.dto.TransactionResponseDto;
 import com.msa.banking.product.infrastructure.client.AccountClient;
 import com.msa.banking.product.presentation.exception.custom.TryAgainException;
 import lombok.extern.log4j.Log4j;
@@ -8,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 
@@ -19,4 +23,11 @@ public class AccountClientFallback implements AccountClient {
         log.error("AccountClient 문제 발생");
         throw new TryAgainException("잠시 후 다시 시도 해주세요");
     }
+
+    @Override
+    public ResponseEntity<TransactionResponseDto> updateAccount(UUID accountId, SingleTransactionRequestDto request) {
+        log.error("AccountClient 문제 발생");
+        throw new TryAgainException("잠시 후 다시 시도 해주세요");
+    }
+
 }

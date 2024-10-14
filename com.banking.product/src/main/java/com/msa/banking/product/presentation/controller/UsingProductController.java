@@ -4,6 +4,7 @@ import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import com.msa.banking.product.application.dto.UsingProductDetailDto;
 import com.msa.banking.product.application.dto.UsingProductPage;
 import com.msa.banking.product.application.dto.UsingProductResponseDto;
 import com.msa.banking.product.application.service.UsingProductService;
@@ -38,6 +39,7 @@ public class UsingProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "상품 가입 성공"),
             @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "404", description = "인증 과정에서 데이터가 틀린 경우"),
             @ApiResponse(responseCode = "500", description = "가입 중 실패")
     })
     @PostMapping(value = "/join/checking")
@@ -59,11 +61,12 @@ public class UsingProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "상품 가입 성공"),
             @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "404", description = "인증 과정에서 데이터가 틀린 경우"),
             @ApiResponse(responseCode = "500", description = "가입 중 실패")
     })
     @PostMapping(value = "/join/loan")
     @LogDataChange
-    @PreAuthorize("hasAnyAuthority('MANAGER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
     public ResponseEntity<?> signUpForLoanProduct(@Valid @RequestBody RequestJoinLoan requsetJoinLoan,
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -77,11 +80,11 @@ public class UsingProductController {
         return ResponseEntity.ok(response);
     }
 
-    // TODO: 페이징 사용자 id로 가입 중인 상품 조회
     @Operation(summary = "사용자 가입 상품 조회 api")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "가입 상품 목록"),
             @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "404", description = "조회 조건 틀림"),
             @ApiResponse(responseCode = "500", description = "조회 실패")
     })
     @GetMapping(value = "/using/financial")
@@ -98,12 +101,78 @@ public class UsingProductController {
         return ResponseEntity.ok(response);
     }
 
-    // TODO: 사용중인 상품 상세 조회
+
+    @Operation(summary = "대출 신청 승인 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "대출 승인"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "404", description = "대출 신청 불가"),
+            @ApiResponse(responseCode = "500", description = "승인 실패")
+    })
+    @PatchMapping(value = "/using/loan/approval")
+    @PreAuthorize("hasAnyAuthority('MANAGER', 'MASTER')")
+    public ResponseEntity<SuccessResponse> approvalLoan(@RequestParam("using_product_id") UUID id,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        usingProductService.changeLoanSate(id, userDetails);
+
+        SuccessResponse response = new SuccessResponse<>(
+                HttpStatus.OK.value(),
+                "대출을 승인 했습니다.",
+                ""
+        );
+        return ResponseEntity.ok(response);
+    }
+
 
     // TODO: 대출 실행
+    @Operation(summary = "대출 실행 요청 api")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "대출 실행"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "실행 실패")
+    })
+    @PatchMapping(value = "/using/loan/runnning")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    public ResponseEntity<SuccessResponse> runningLoan(@RequestParam("using_product_id") UUID id,
+                                                        @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        usingProductService.changeLoanSateToRun(id, userDetails);
+
+        SuccessResponse response = new SuccessResponse<>(
+                HttpStatus.OK.value(),
+                "대출을 실행 했습니다.",
+                ""
+        );
+        return ResponseEntity.ok(response);
+    }
 
     // TODO: 대출 해지
-    
+
+
+    // 사용중인 상품 상세 조회
+    @Operation(summary = "사용중인 상품 상세 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "대출 실행"),
+            @ApiResponse(responseCode = "401", description = "권한이 없음"),
+            @ApiResponse(responseCode = "500", description = "실행 실패")
+    })
+    @GetMapping(value = "/using/product/detail")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'MANAGER', 'MASTER')")
+    public ResponseEntity<SuccessResponse> findUsingProductDetail(@RequestParam("using_product_id") UUID id,
+                                                       @AuthenticationPrincipal UserDetailsImpl userDetails){
+
+        UsingProductDetailDto dto = usingProductService.findUsingProductDetail(id, userDetails);
+
+        SuccessResponse response = new SuccessResponse<>(
+                HttpStatus.OK.value(),
+                "사용중인 상품 상세 내용입니다.",
+                dto
+        );
+        return ResponseEntity.ok(response);
+    }
+
+ //////////////////////////////////////////////    다른 마이크로 서비스 요청     /////////////////////////////////////////////////////////
     // AccountId로 UsingProduct 조회
     @Operation(summary = "accountId로 UsingProduct 조회 api")
     @ApiResponses(value = {
