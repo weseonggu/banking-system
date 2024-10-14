@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: AccountService  # 애플리케이션 이름을 'gateway-service'로 설정
+    name: AccountService
   kafka:
     bootstrap-servers: http://localhost:9092
   cloud:
@@ -87,3 +87,12 @@ service:
 
 test:
   config-name: Account13-Server
+
+springdoc:
+  api-docs:
+    version: openapi_3_1
+    enabled: true
+    path: /v3/api-docs  # 각 서비스의 Swagger API 기본 경로
+  enable-spring-security: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json

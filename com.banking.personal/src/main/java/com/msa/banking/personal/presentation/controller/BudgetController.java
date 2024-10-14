@@ -8,6 +8,10 @@ import com.msa.banking.personal.application.dto.budget.BudgetRequestDto;
 import com.msa.banking.personal.application.dto.budget.BudgetResponseDto;
 import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.application.service.BudgetService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -23,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/budgets")
 @Log4j2(topic = "BudgetController")
+@Tag(name = "예산 서비스", description = "예산을 설정하고 수정할 수 있는 API 입니다.")
 public class BudgetController {
 
     private final BudgetService budgetService;
@@ -34,6 +39,7 @@ public class BudgetController {
      */
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "설정한 예산 목록 조회", description = "설정한 예산 목록 조회 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> getBudgetList(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
@@ -52,6 +58,7 @@ public class BudgetController {
      */
     @GetMapping("/{budget_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "설정한 예산 단 건 조회", description = "설정한 예산 단 건 조회 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> findBudgetById(@PathVariable("budget_id") UUID budgetId,
                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -73,6 +80,7 @@ public class BudgetController {
      */
     @PostMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    @Operation(summary = "예산 설정 생성", description = "예산을 설정하는 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> createBudget(@RequestBody BudgetRequestDto budgetRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
@@ -96,6 +104,7 @@ public class BudgetController {
      */
     @PatchMapping("/{budget_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    @Operation(summary = "설정한 예산, 기간 수정", description = "설정한 예산, 기간을 수정하는 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> updateBudget(@PathVariable("budget_id") UUID budgetId, @RequestBody BudgetUpdateDto budgetUpdateDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
@@ -116,6 +125,7 @@ public class BudgetController {
      */
     @DeleteMapping("/{budget_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    @Operation(summary = "예산 설정 삭제", description = "설정한 예산 삭제하는 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<?> deleteBudget(@PathVariable("budget_id") UUID budgetId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
