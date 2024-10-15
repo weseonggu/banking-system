@@ -6,8 +6,8 @@ services:
     restart: always
     ports:
       - 9411:9411
-    networks:
-      - my-network
+#    networks:
+#      - my-network
 
 
   redis-stack:
@@ -115,7 +115,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config
 
   eureka:
     build:
@@ -210,7 +210,7 @@ services:
         MODULE: account
     environment:
       SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-      ENCRYPTOR_PASSWORD: sparta_banking$_20
+      ENCRYPTOR_PASSWORD: ${ENCRYPTOR_PASSWORD}
     ports:
       - "19095:19095"
     depends_on:
