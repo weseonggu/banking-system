@@ -71,6 +71,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
           echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" >> .env
+          echo "ENCRYPTOR_PASSWORD=${{ secrets.ENCRYPTOR_PASSWORD }}" >> .env
           # 필요한 다른 환경 변수도 추가
 
       # docker compose 를 이용해서 여러 이미지를 모두 빌드하고, 별도의 script를 사용해서 이미지를 push 합니다.
