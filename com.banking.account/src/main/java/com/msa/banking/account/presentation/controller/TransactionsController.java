@@ -8,6 +8,8 @@ import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/account-transactions")
+@Tag(name = "거래 서비스", description = "입출금, 이체, 대출에 대한 API 입니다.")
 public class TransactionsController {
 
     private final AccountTransactionsService transactionsService;
@@ -31,6 +34,7 @@ public class TransactionsController {
     // 입금 거래 생성
     @PostMapping("/deposit")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "입금 거래 생성", description = "입금 거래 생성 API 입니다.")
     public ResponseEntity<?> createDeposit(
             @RequestBody DepositTransactionRequestDto request) {
 
@@ -46,6 +50,7 @@ public class TransactionsController {
     // 대출액 입금 생성
     @PostMapping("/{account_id}/loan-deposit")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
+    @Operation(summary = "대출액 입금 생성", description = "대출액 입금 생성 API 입니다.")
     public ResponseEntity<?> createLoanDeposit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
@@ -63,6 +68,7 @@ public class TransactionsController {
     // 출금 거래 생성
     @PostMapping("/{account_id}/withdrawal")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "출금 거래 생성", description = "출금 거래 생성 API 입니다.")
     public ResponseEntity<?> createWithdrawal(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
@@ -80,6 +86,7 @@ public class TransactionsController {
     // 이체 거래 생성
     @PostMapping("/{account_id}/transfer")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "이체 거래 생성", description = "이체 거래 생성 API 입니다.")
     public ResponseEntity<?> createTransfer(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
@@ -97,6 +104,7 @@ public class TransactionsController {
     // 거래 설명 수정
     @PatchMapping("/{transaction_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "거래 설명 수정", description = "거래 설명 수정 API 입니다.")
     public ResponseEntity<?> updateTransaction(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("transaction_id") Long transactionId,
@@ -114,6 +122,7 @@ public class TransactionsController {
     // 거래 전체 조회
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    @Operation(summary = "거래 전체 조회", description = "거래 전체 조회 API 입니다.")
     public ResponseEntity<?> getTransactions(
             @RequestParam(defaultValue = "10") int page,
             @RequestParam(defaultValue = "1") int size,
@@ -133,6 +142,7 @@ public class TransactionsController {
     // 거래 상세 조회
     @GetMapping("/{transaction_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "거래 상세 조회", description = "거래 상세 조회 API 입니다.")
     public ResponseEntity<?> getTransaction(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("transaction_id") Long transactionId) {
