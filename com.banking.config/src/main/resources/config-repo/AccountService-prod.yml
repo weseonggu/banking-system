@@ -17,14 +17,14 @@ spring:
         enabled: true
   data:
     redis:
-      host: redis-stack-compose
+      host: redis-stack
       port: 6379
       username: default
       password: systempass
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5433/account
+    url: jdbc:postgresql://postgres:5432/account
     username: banking
     password: banking20
 

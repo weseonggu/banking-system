@@ -56,7 +56,11 @@ public class NotificationService {
         Notification save = notificationRepository.save(notification);
 
         // 슬랙 메세지 전송
-        sendMessage(request);
+        try {
+            sendMessage(request);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 
     /**
@@ -66,6 +70,7 @@ public class NotificationService {
      */
     public void sendMessage(NotificationRequestDto requestDto) throws IOException, SlackApiException, URISyntaxException {
         log.info("슬랙 메세지 전송 시도 중");
+        System.out.println("슬랙키 = " + slackToken);
         Slack slack = Slack.getInstance();
 
         ChatPostMessageRequest request = ChatPostMessageRequest.builder()

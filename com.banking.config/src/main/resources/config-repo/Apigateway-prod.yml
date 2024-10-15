@@ -81,6 +81,16 @@ management:
     sampling:
       probability: 1.0
 
-
-test:
-  config-name: gateway13-Server
+springdoc:
+  swagger-ui:
+    path: /swagger  # Swagger UI 접근 경로
+    urls:
+      - name: AuthService
+        url: http://localhost:19093/v3/api-docs
+      - name: ProductService
+        url: http://localhost:19094/v3/api-docs
+      - name: AccountService
+        url: http://localhost:19095/v3/api-docs
+      - name: PersonalHistoryService
+        url: http://localhost:19096/v3/api-docs
+    use-root-path: true
