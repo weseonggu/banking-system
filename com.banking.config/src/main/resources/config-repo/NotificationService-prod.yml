@@ -27,7 +27,7 @@ spring:
         enabled: true
   data:
     redis:
-      host: redis/redis-stack
+      host: redis-stack
       port: 6379
       username: default
       password: systempass
@@ -35,7 +35,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5433/notification
+    url: jdbc:postgresql://postgres:5432/notification
     username: banking
     password: banking20
 
