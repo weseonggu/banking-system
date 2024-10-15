@@ -95,6 +95,6 @@ tasks.named('test') {
 }
 
 bootJar {
-    mainClass = 'com.msa.banking.performance.PerformanceApplication'
+    enabled = true
 }
 

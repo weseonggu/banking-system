@@ -132,5 +132,5 @@ sourceSets {
 }
 
 bootJar {
-    mainClass = 'com.msa.banking.account.AccountApplication'
+    enabled=true
 }
