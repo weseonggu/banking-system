@@ -15,19 +15,31 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/release' } // Spring 릴리스 리포지토리 추가
+    maven { url 'https://repo.spring.io/milestone' } // 필요한 경우 Milestone 리포지토리도 추가
+    maven { url 'https://repo.spring.io/snapshot' } // Snapshot 리포지토리 (필요한 경우)
 }
 
 ext {
     set('springCloudVersion', "2023.0.3")
+    set('querydslVersion', "5.0.0") // QueryDSL 버전 추가
 }
 
 dependencies {
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
     // 유효성 검증
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 시큐리티
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // config client
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
     //eureka client
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
     // 모니터링
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
@@ -35,18 +47,53 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     // DB
-	runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Jasypt Spring Boot Starter
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
+
+    // HikariCP
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+
+    // Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // Redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.0'
+
+    // Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.batch:spring-batch-core'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+
+    // QueryDSL
+    implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:${querydslVersion}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // mapStruct
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    // 해싱
+    implementation 'commons-codec:commons-codec:1.15'
+
     // 서킷 브레이커
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+
     // zipkin
     implementation 'io.micrometer:micrometer-tracing-bridge-brave'
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'io.github.openfeign:feign-micrometer'
+
     // 스웨거
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
     // cloub bus
     implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
 
@@ -65,4 +112,25 @@ dependencyManagement {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xlint:deprecation']
+}
+
+def querydslSrcDir = 'src/main/generated'
+clean {
+    delete file(querydslSrcDir)
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += querydslSrcDir
+        }
+    }
+}
+
+bootJar {
+    enabled=true
 }

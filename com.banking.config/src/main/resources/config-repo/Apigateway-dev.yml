@@ -5,26 +5,34 @@ spring:
   main:
     web-application-type: reactive  # Spring 애플리케이션이 리액티브 웹 애플리케이션으로 설정됨
   application:
-    name: gateway-service  # 애플리케이션 이름을 'gateway-service'로 설정
+    name: gateway-service
   cloud:
     gateway:
       routes:
         - id: AuthService
           uri: lb://AuthService
           predicates:
-            - Path=/auth/**
+            - Path=/api/auth/**, /api/users/**
         - id: AccountService
           uri: lb://AccountService
           predicates:
-            - Path=/account/**
+            - Path=/api/account-transactions/**, /api/direct-debits/**, /api/accounts/**
         - id: PersonalHistoryService
           uri: lb://PersonalHistoryService
           predicates:
-            - Path=/personal/**
+            - Path=/api/personal-histories/**, /api/budgets/**
         - id: ProductService
           uri: lb://ProductService
           predicates:
             - Path=/product/**
+        - id: NotificationService
+          uri: lb://NotificationService
+          predicates:
+            - Path=/api/notifications/**
+        - id: PerformanceService
+          uri: lb://PerformanceService
+          predicates:
+            - Path=/api/performance/**
       discovery:
         locator:
           enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
@@ -39,7 +47,7 @@ spring:
 
 service:
   jwt:
-    secret-key: "h4s6r85thjs65nmryjm1sjry1fjh1sd56y41156q1e6y1sr1yjui3tudf1k1ydfkl561d1js6r35tyj1rsd561"
+    secret-key: "401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429080fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1"
 
 
 eureka:
@@ -76,3 +84,17 @@ management:
 
 test:
   config-name: gateway13-Server
+
+springdoc:
+  swagger-ui:
+    path: /swagger  # Swagger UI 접근 경로
+    urls:
+      - name: AuthService
+        url: http://localhost:19093/v3/api-docs
+      - name: ProductService
+        url: http://localhost:19094/v3/api-docs
+      - name: AccountService
+        url: http://localhost:19095/v3/api-docs
+      - name: PersonalHistoryService
+        url: http://localhost:19096/v3/api-docs
+    use-root-path: true

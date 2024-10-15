@@ -44,12 +44,22 @@ public abstract class AuditEntity {
 
     /**
      * 데이터 삭제 요청시 정보 공개 여부 true 변경
-     * @param email
+     * @param username
      */
-    public void delete(String email) {
+    public void delete(String username) {
         deletedAt = LocalDateTime.now();
-        deletedBy = email;
+        deletedBy = username;
         isDelete = true;
+    }
+
+    // 생성 시 userName 추가
+    public void setCreateByUserName(String userName){
+        this.createdBy = userName;
+    }
+
+    // 수정 시 userName 추가
+    public void setUpdateByUserName(String userName){
+        this.updatedBy = userName;
     }
 
 }
