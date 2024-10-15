@@ -18,7 +18,7 @@ spring:
 
   data:
     redis:
-      host: redis/redis-stack
+      host: redis-stack
       port: 6379
       username: default
       password: systempass

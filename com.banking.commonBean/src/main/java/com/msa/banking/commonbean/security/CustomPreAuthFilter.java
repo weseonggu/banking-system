@@ -36,7 +36,6 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
                 || path.startsWith("/v3/api-docs") || path.startsWith("/webjars") || path.startsWith("/swagger")){
 
             filterChain.doFilter(request, response);
-            return;
         }
 
         log.info("CustomPreAuthFilter 필터링 시도 중");
