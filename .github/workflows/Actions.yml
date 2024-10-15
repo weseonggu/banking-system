@@ -41,6 +41,10 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew clean :${{ matrix.service }}:build -x test
+        
+      - name: Check JAR files
+        run: ls -l com.banking.eureka.server/build/libs/
+
 
   Docker:
     name: Build docker image and Push to registry
