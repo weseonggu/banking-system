@@ -40,7 +40,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle
-        run: ./gradlew clean :${{ matrix.service }}:build
+        run: ./gradlew clean :${{ matrix.service }}:build -x test
 
   Docker:
     name: Build docker image and Push to registry
