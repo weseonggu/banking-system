@@ -47,6 +47,9 @@ dependencies {
 	implementation 'io.github.openfeign:feign-micrometer'
 	// cloub bus
 	implementation("org.springframework.cloud:spring-cloud-starter-bus-kafka")
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
 }
 
 dependencyManagement {
@@ -54,7 +57,9 @@ dependencyManagement {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
 }
-
+bootJar {
+	enabled = true
+}
 tasks.named('test') {
 	useJUnitPlatform()
 }

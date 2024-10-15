@@ -4,11 +4,11 @@ import com.msa.banking.common.account.type.TransactionType;
 
 import java.math.BigDecimal;
 
-public record SingleTransactionRequestDto(
+public record DepositTransactionRequestDto(
 
+        String accountNumber,
         TransactionType type,
-        BigDecimal amount,
-        String description,
-        String accountPin
+        BigDecimal depositAmount,
+        String description
 ) {
 }

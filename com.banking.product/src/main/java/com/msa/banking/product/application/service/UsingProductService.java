@@ -1,7 +1,7 @@
 package com.msa.banking.product.application.service;
 
 import com.msa.banking.common.account.dto.AccountRequestDto;
-import com.msa.banking.common.account.dto.SingleTransactionRequestDto;
+import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.account.type.AccountType;
 import com.msa.banking.common.account.type.TransactionType;
@@ -16,12 +16,10 @@ import com.msa.banking.product.domain.model.LoanInUse;
 import com.msa.banking.product.domain.model.Product;
 import com.msa.banking.product.domain.model.UsingProduct;
 import com.msa.banking.product.infrastructure.client.AccountClient;
-import com.msa.banking.product.infrastructure.client.AuthClient2;
 import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.infrastructure.repository.UsingProductRepository;
 import com.msa.banking.product.lib.LoanState;
 import com.msa.banking.product.lib.ProductType;
-import com.msa.banking.product.presentation.controller.join.JoinLoanLogic;
 import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
 import com.msa.banking.product.presentation.request.RequestJoinLoan;
 import com.msa.banking.product.presentation.request.RequestUsingProductConditionDto;
@@ -138,7 +136,7 @@ public class UsingProductService {
         // 계좌 생성 요청 -> 응답으로 계좌 id(UUID)를 반환 예외처리
         AccountRequestDto requestDto = new AccountRequestDto(requsetJoinLoan.getName(),
                 AccountStatus.ACTIVE,
-                AccountType.CHECKING,
+                AccountType.LOAN,
                 requsetJoinLoan.getAccountPin());
 
         ResponseEntity<UUID> response = accountClient.addAccount(requestDto);
@@ -246,11 +244,11 @@ public class UsingProductService {
             throw new IllegalArgumentException("대출 실행 가능한 상태가 아닙니다.");
         }
         // 계좌 증액 요청
-        SingleTransactionRequestDto dto = new SingleTransactionRequestDto(
+        DepositTransactionRequestDto dto = new DepositTransactionRequestDto (
+                "",
                 TransactionType.DEPOSIT,
                 BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()),
-                usingProduct.getName()+"님 대출금 입금",
-                ""
+                usingProduct.getName()+"님 대출금 입금"
         );
         accountClient.updateAccount(usingProduct.getAccountId(), dto);
 

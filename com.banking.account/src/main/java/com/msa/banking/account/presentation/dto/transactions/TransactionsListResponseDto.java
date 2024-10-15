@@ -1,6 +1,6 @@
 package com.msa.banking.account.presentation.dto.transactions;
 
-import com.msa.banking.common.account.dto.TransactionStatus;
+import com.msa.banking.common.account.type.TransactionStatus;
 import com.msa.banking.common.account.type.TransactionType;
 
 import java.time.LocalDateTime;

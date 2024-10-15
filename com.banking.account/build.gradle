@@ -15,6 +15,9 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/release' } // Spring 릴리스 리포지토리 추가
+    maven { url 'https://repo.spring.io/milestone' } // 필요한 경우 Milestone 리포지토리도 추가
+    maven { url 'https://repo.spring.io/snapshot' } // Snapshot 리포지토리 (필요한 경우)
 }
 
 ext {
@@ -46,7 +49,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // DB
-	runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.postgresql:postgresql'
 
     // JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -54,8 +57,18 @@ dependencies {
     // Jasypt Spring Boot Starter
     implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.4'
 
+    // HikariCP
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+
     // Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // Redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.27.0'
+
+    // Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.batch:spring-batch-core'
+    testImplementation 'org.springframework.batch:spring-batch-test'
 
     // QueryDSL
     implementation "com.querydsl:querydsl-jpa:${querydslVersion}:jakarta"
@@ -108,4 +121,16 @@ tasks.withType(JavaCompile) {
 def querydslSrcDir = 'src/main/generated'
 clean {
     delete file(querydslSrcDir)
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += querydslSrcDir
+        }
+    }
+}
+
+bootJar {
+    mainClass = 'com.msa.banking.account.AccountApplication'
 }

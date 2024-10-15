@@ -81,7 +81,13 @@ dependencyManagement {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
-
+bootJar {
+    enabled = true
+}
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+bootJar {
+    mainClass = 'com.msa.banking.personal.PersonalHistoryApplication'
 }
