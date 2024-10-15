@@ -1,15 +1,12 @@
 package com.msa.banking.account.presentation.controller;
 
 import com.msa.banking.account.application.service.AccountService;
-import com.msa.banking.common.account.type.AccountStatus;
-import com.msa.banking.account.presentation.dto.account.AccountListResponseDto;
-import com.msa.banking.common.account.dto.AccountRequestDto;
-import com.msa.banking.common.account.dto.AccountResponseDto;
 import com.msa.banking.account.presentation.dto.account.AccountSearchRequestDto;
+import com.msa.banking.common.account.dto.AccountRequestDto;
+import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -39,7 +35,7 @@ public class AccountController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody final AccountRequestDto request) {
 
-        return ResponseEntity.ok(accountService.createAccount(request, userDetails.getUsername()));
+        return ResponseEntity.ok(accountService.createAccount(request));
     }
 
     // 계좌 상태 변경
@@ -54,7 +50,7 @@ public class AccountController {
                 new SuccessResponse<>(
                         SuccessCode.UPDATE_SUCCESS.getStatus(),
                         "계좌 상태 변경 완료",
-                        accountService.updateAccountStatus(accountId, status, userDetails.getUsername(), userDetails.getRole())
+                        accountService.updateAccountStatus(accountId, status)
                 )
         );
     }
@@ -67,7 +63,7 @@ public class AccountController {
             @PathVariable("account_id") UUID accountId,
             @RequestParam String pin) {
 
-        accountService.updateAccountPin(accountId, pin, userDetails.getUsername(), userDetails.getRole());
+        accountService.updateAccountPin(accountId, pin, userDetails.getUserId(), userDetails.getRole());
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(
@@ -85,7 +81,25 @@ public class AccountController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId) {
 
-        accountService.deleteAccount(accountId, userDetails.getUsername(), userDetails.getRole());
+        accountService.deleteAccount(accountId, userDetails.getUserId(), userDetails.getUsername(), userDetails.getRole());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        SuccessCode.DELETE_SUCCESS.getStatus(),
+                        "계좌 해지 완료",
+                        ResponseEntity.noContent().build()
+                )
+        );
+    }
+
+    // 계좌 해지
+    @DeleteMapping("/{account_id}/loan")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    public ResponseEntity<?> deleteLoanAccount(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId) {
+
+        accountService.deleteLoanAccount(accountId, userDetails.getUserId(), userDetails.getUsername(), userDetails.getRole());
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(
@@ -126,7 +140,7 @@ public class AccountController {
                 new SuccessResponse<>(
                         SuccessCode.SELECT_SUCCESS.getStatus(),
                         "계좌 상세 조회 완료",
-                        accountService.getAccount(accountId, userDetails.getUsername(), userDetails.getRole())
+                        accountService.getAccount(accountId, userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }

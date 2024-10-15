@@ -97,67 +97,67 @@ services:
 
 
 
-  config:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
-        MODULE: config
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-    ports:
-      - "19000:19000"
-    networks:
-      - my-network
-
-  eureka:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: dev
-        MODULE: eureka.server
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19090:19090"
-    depends_on:
-      - config
-    networks:
-      - my-network
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:19000/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
-  gateway:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: gateway
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19092:19092"
-    depends_on:
-      - eureka
-    networks:
-      - my-network
-
-  auth:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: auth
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19093:19093"
-    networks:
-      - my-network
-
+#  config:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
+#        MODULE: config
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod
+#    ports:
+#      - "19000:19000"
+#    networks:
+#      - my-network
+#
+#  eureka:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: dev
+#        MODULE: eureka.server
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    ports:
+#      - "19090:19090"
+#    depends_on:
+#      - config
+#    networks:
+#      - my-network
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:19000/actuator/health" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#
+#  gateway:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: gateway
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    ports:
+#      - "19092:19092"
+#    depends_on:
+#      - eureka
+#    networks:
+#      - my-network
+#
+#  auth:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: auth
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#    ports:
+#      - "19093:19093"
+#    networks:
+#      - my-network
+#
 #  personal:
 #    build:
 #      dockerfile: ./Dockerfile
@@ -171,26 +171,69 @@ services:
 #    depends_on:
 #      - gateway
 #    networks:
-#      - banking-network
+#      - my-network
 #
-  product:
+#  product:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: product
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+#      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+#      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+#      AWS_REGION: ${AWS_REGION}
+#    ports:
+#      - "19094:19094"
+#    depends_on:
+#      - gateway
+#    networks:
+#      - my-network
+  account:
     build:
       dockerfile: ./Dockerfile
       args:
         TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: product
+        MODULE: account
     environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION}
+      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/account
     ports:
-      - "19096:19096"
-    depends_on:
-      - gateway
+      - "19095:19095"
+#    depends_on:
+#      - gateway
+    networks:
+      - my-network
+  notification:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        TEST_SPRING_PROFILES_ACTIVE: prod
+        MODULE: notification
+    environment:
+      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
+    ports:
+      - "19097:19097"
+    #    depends_on:
+    #      - gateway
     networks:
       - my-network
 
+  performance:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        TEST_SPRING_PROFILES_ACTIVE: prod
+        MODULE: performance
+    environment:
+      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
+    ports:
+      - "19098:19098"
+    #    depends_on:
+    #      - gateway
+    networks:
+      - my-network
 
 
 volumes:
