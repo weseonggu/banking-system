@@ -55,7 +55,7 @@ public class TransactionsController {
                 new SuccessResponse<>(
                         SuccessCode.INSERT_SUCCESS.getStatus(),
                         "대출액 입금 완료",
-                        transactionsService.createLoanDeposit(accountId, request, userDetails.getUsername(), userDetails.getRole())
+                        transactionsService.createLoanDeposit(accountId, request, userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }
@@ -106,7 +106,7 @@ public class TransactionsController {
                 new SuccessResponse<>(
                         SuccessCode.UPDATE_SUCCESS.getStatus(),
                         "거래 설명 변경 완료",
-                        transactionsService.updateTransaction(transactionId, description,userDetails.getUsername(), userDetails.getRole())
+                        transactionsService.updateTransaction(transactionId, description,userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }
@@ -141,7 +141,7 @@ public class TransactionsController {
                 new SuccessResponse<>(
                         SuccessCode.SELECT_SUCCESS.getStatus(),
                         "계좌 상세 조회 완료",
-                        transactionsService.getTransaction(transactionId, userDetails.getUsername(), userDetails.getRole())
+                        transactionsService.getTransaction(transactionId, userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }

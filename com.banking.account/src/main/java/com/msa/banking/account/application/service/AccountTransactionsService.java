@@ -34,6 +34,7 @@ public class AccountTransactionsService {
     private final TransactionsRepository transactionsRepository;
     private final AccountRepository accountRepository;
     private final TransactionsMapper transactionsMapper;
+    private final ProductService productService;
 
 
     /**
@@ -76,7 +77,11 @@ public class AccountTransactionsService {
      */
     @LogDataChange
     @RedissonLock(value = "#accountId.toString()") // accountId로 락 적용
-    public SingleTransactionResponseDto createLoanDeposit(UUID accountId, DepositTransactionRequestDto request, String username, String role) {
+    public SingleTransactionResponseDto createLoanDeposit(UUID accountId, DepositTransactionRequestDto request, UUID userId, String role) {
+
+        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
+            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
+        }
 
         // 거래 상태 확인
         if(!request.type().equals(TransactionType.DEPOSIT)) {
@@ -93,10 +98,6 @@ public class AccountTransactionsService {
                 .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(account.getCreatedBy())) {
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        }
-
         // 입금 처리
         AccountTransactions depositTransaction = transactionalService.createDepositTransaction(account, request);
         transactionalService.updateDepositAccountBalance(account, request);
@@ -111,6 +112,10 @@ public class AccountTransactionsService {
     @LogDataChange
     @RedissonLock(value = "#accountId.toString()")
     public SingleTransactionResponseDto createWithdrawal(UUID accountId, WithdrawalTransactionRequestDto request, UUID userId, String role) {
+
+        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
+            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
+        }
 
         // 거래 상태 확인
         if(!request.type().equals(TransactionType.WITHDRAWAL) && !request.type().equals(TransactionType.PAYMENT)) {
@@ -149,6 +154,10 @@ public class AccountTransactionsService {
     @LogDataChange
     @RedissonLock(value = {"#accountId.toString()", "#request.beneficiaryAccount()"})  // 송금인과 수취인 계좌에 대해 각각 락 적용
     public TransferTransactionResponseDto createTransfer(UUID accountId, TransferTransactionRequestDto request, UUID userId, String role) {
+
+        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
+            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
+        }
 
         // 거래 상태 확인
         if(!request.type().equals(TransactionType.TRANSFER)) {
@@ -192,18 +201,19 @@ public class AccountTransactionsService {
     // 거래 설명 수정
     @LogDataChange
     @Transactional
-    public SingleTransactionResponseDto updateTransaction(Long transactionId, String description, String username, String role){
+    public SingleTransactionResponseDto updateTransaction(Long transactionId, String description, UUID userId, String role){
 
         AccountTransactions transaction = transactionsRepository.findById(transactionId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(()-> new GlobalCustomException(ErrorCode.TRANSACTION_NOT_FOUND));
 
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(transaction.getCreatedBy())){
+        if(role.equals(UserRole.CUSTOMER.name()) &&!productService.findByAccountId(transaction.getAccount().getAccountId(), userId, role).getStatusCode().is2xxSuccessful()){
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        } else {
-            transaction.updateTransactionDescription(description);
-            return transactionsMapper.toDto(transaction);
         }
+
+        transaction.updateTransactionDescription(description);
+        return transactionsMapper.toDto(transaction);
+
     }
 
     // TODO: 자신의 계좌 거래 조회가 가능해야 함.
@@ -218,19 +228,20 @@ public class AccountTransactionsService {
     // 거래 상세 조회
     @LogDataChange
     @Transactional(readOnly = true)
-    public SingleTransactionResponseDto getTransaction(Long transactionId, String username, String role) {
+    public SingleTransactionResponseDto getTransaction(Long transactionId, UUID userId, String role) {
 
         AccountTransactions transaction = transactionsRepository.findById(transactionId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(()-> new GlobalCustomException(ErrorCode.TRANSACTION_NOT_FOUND));
 
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(transaction.getCreatedBy())){
+        if(role.equals(UserRole.CUSTOMER.name()) &&!productService.findByAccountId(transaction.getAccount().getAccountId(), userId, role).getStatusCode().is2xxSuccessful()){
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        } else {
-            return transactionsMapper.toDto(transaction);
         }
+
+        return transactionsMapper.toDto(transaction);
     }
 
+    // TODO: 계좌 비밀번호 시도를 제한해야.
     // 계좌 비밀번호 확인
     @LogDataChange
     public void checkAccountPin(UUID accountId, String accountPin) {

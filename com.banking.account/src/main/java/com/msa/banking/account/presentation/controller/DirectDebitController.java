@@ -2,14 +2,11 @@ package com.msa.banking.account.presentation.controller;
 
 import com.msa.banking.account.application.service.DirectDebitService;
 import com.msa.banking.account.domain.model.DirectDebitStatus;
-import com.msa.banking.account.presentation.dto.directDebit.DirectDebitListResponseDto;
 import com.msa.banking.account.presentation.dto.directDebit.DirectDebitRequestDto;
-import com.msa.banking.account.presentation.dto.directDebit.DirectDebitResponseDto;
 import com.msa.banking.account.presentation.dto.directDebit.DirectDebitSearchRequestDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +39,7 @@ public class DirectDebitController {
                 new SuccessResponse<>(
                         SuccessCode.INSERT_SUCCESS.getStatus(),
                         "자동 이체 등록 완료",
-                        directDebitService.createDirectDebit(accountId, request,userDetails.getUsername(), userDetails.getRole())
+                        directDebitService.createDirectDebit(accountId, request, userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }
@@ -59,8 +56,8 @@ public class DirectDebitController {
         return ResponseEntity.ok(
                 new SuccessResponse<>(
                         SuccessCode.UPDATE_SUCCESS.getStatus(),
-                        "계좌 상태 변경 완료",
-                        directDebitService.updateDirectDebit(directDebitId, status, request, userDetails.getUsername(), userDetails.getRole())
+                        "자동 이체 변경 완료",
+                        directDebitService.updateDirectDebit(directDebitId, request, userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }
@@ -72,7 +69,7 @@ public class DirectDebitController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("directDebit_id") UUID directDebitId) {
 
-        directDebitService.deleteDirectDebit(directDebitId, userDetails.getUsername(), userDetails.getRole());
+        directDebitService.deleteDirectDebit(directDebitId, userDetails.getUserId(), userDetails.getRole());
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(
@@ -97,7 +94,7 @@ public class DirectDebitController {
         return ResponseEntity.ok(
                 new SuccessResponse<>(
                         SuccessCode.SELECT_SUCCESS.getStatus(),
-                        "계좌 전체 조회 완료",
+                        "자동 이체 전체 조회 완료",
                         directDebitService.getDirectDebits(search, pageable)
                 )
         );
@@ -113,8 +110,8 @@ public class DirectDebitController {
         return ResponseEntity.ok(
                 new SuccessResponse<>(
                         SuccessCode.SELECT_SUCCESS.getStatus(),
-                        "계좌 상세 조회 완료",
-                        directDebitService.getDirectDebit(directDebitId, userDetails.getUsername(), userDetails.getRole())
+                        "자동 이체 상세 조회 완료",
+                        directDebitService.getDirectDebit(directDebitId, userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }
