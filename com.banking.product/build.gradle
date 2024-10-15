@@ -82,3 +82,8 @@ bootJar {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+
+bootJar {
+    mainClass = 'com.msa.banking.product.ProductApplication'
+}

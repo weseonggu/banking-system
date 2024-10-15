@@ -42,6 +42,3 @@ bootJar {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-bootJar{
-	enabled=true
-}

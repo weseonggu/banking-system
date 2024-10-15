@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 
 public record DepositTransactionRequestDto(
 
+        String accountNumber,
         TransactionType type,
         BigDecimal depositAmount,
-        String description,
-        String accountPin
+        String description
 ) {
 }
