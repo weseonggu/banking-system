@@ -7,9 +7,11 @@ import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 @Slf4j
+@Tag(name = "회원 서비스", description = "회원에 관련된 API 입니다.")
 public class UserController {
     // TODO 회원 삭제 보류
     private final UserService userService;
@@ -37,6 +40,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/employee/info")
+    @Hidden
     public AuthResponseDto findEmployeeUsername(@RequestParam("userId") String userId) {
         log.info("내부 API 직원 조회 시도 중 | userId: {}", userId);
 
@@ -54,6 +58,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/customer/info")
+    @Hidden
     public AuthResponseDto findCustomerUsername(@RequestParam("userId") String userId) {
         log.info("내부 API 고객 조회 시도 중 | userId: {}", userId);
 
@@ -70,6 +75,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/customer/{customer_id}")
+    @Operation(summary = "고객 단 건 조회", description = "고객 단 건 조회 API 입니다.")
     public ResponseEntity<?> findCustomerById(@PathVariable("customer_id") UUID customerId,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("고객 조회 시도 중 | customer_id: {}", customerId);
@@ -89,6 +95,7 @@ public class UserController {
      */
     @GetMapping("/employee/{employee_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    @Operation(summary = "직원 단 건 조회", description = "직원 단 건 조회 API 입니다.")
     public ResponseEntity<?> findEmployeeById(@PathVariable("employee_id") UUID employeeId,
                                               @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info("직원 조회 시도 중 | employee_id: {}", employeeId);
@@ -110,6 +117,7 @@ public class UserController {
      * @return
      */
     @PatchMapping("/customer/{customer_id}")
+    @Operation(summary = "고객 정보 수정", description = "고객 정보 수정 API 입니다. 고객은 본인의 정보만 변경할 수 있습니다.")
     public ResponseEntity<?> updateCustomer(@PathVariable("customer_id") UUID customerId,
                                             @RequestBody AuthRequestDto request,
                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -134,6 +142,7 @@ public class UserController {
      */
     @PatchMapping("/employee/{employee_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    @Operation(summary = "직원 정보 수정", description = "직원 정보 수정 API 입니다. 매니저는 본인의 정보만 변경할 수 있습니다.")
     public ResponseEntity<?> updateEmployee(@PathVariable("employee_id") UUID employeeId,
                                             @RequestBody AuthRequestDto request,
                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -155,6 +164,7 @@ public class UserController {
      */
     @GetMapping("/customer")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    @Operation(summary = "고객 전체 조회", description = "고객 전체 조회 API 입니다.")
     public ResponseEntity<?> findAllCustomer(SearchRequestDto condition,
                                              Pageable pageable) {
         log.info("고객 정보 페이지 조회 시도 중 | condition: {}, pageable: {}", condition, pageable);
@@ -173,6 +183,7 @@ public class UserController {
      */
     @GetMapping("/employee")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    @Operation(summary = "직원 전체 조회", description = "직원 전체 조회 API 입니다.")
     public ResponseEntity<?> findAllEmployee(SearchRequestDto condition,
                                              Pageable pageable) {
         log.info("직원 정보 페이지 조회 시도 중 | condition: {}, pageable: {}", condition, pageable);

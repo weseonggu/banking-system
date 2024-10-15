@@ -5,7 +5,7 @@ spring:
   main:
     web-application-type: reactive  # Spring 애플리케이션이 리액티브 웹 애플리케이션으로 설정됨
   application:
-    name: gateway-service  # 애플리케이션 이름을 'gateway-service'로 설정
+    name: gateway-service
   cloud:
     gateway:
       routes:
@@ -84,3 +84,17 @@ management:
 
 test:
   config-name: gateway13-Server
+
+springdoc:
+  swagger-ui:
+    path: /swagger  # Swagger UI 접근 경로
+    urls:
+      - name: AuthService
+        url: http://localhost:19093/v3/api-docs
+      - name: ProductService
+        url: http://localhost:19094/v3/api-docs
+      - name: AccountService
+        url: http://localhost:19095/v3/api-docs
+      - name: PersonalHistoryService
+        url: http://localhost:19096/v3/api-docs
+    use-root-path: true
