@@ -68,6 +68,7 @@ ARG MODULE
 ENV SPRING_PROFILES_ACTIVE=${TEST_SPRING_PROFILES_ACTIVE}
 
 # Gradle 빌드 실행 - 테스트 제외
+RUN chmod +x ./gradlew  # 권한 부여
 RUN ./gradlew clean :com.banking.${MODULE}:bootJar -x test
 
 # 실행 이미지를 생성합니다.
