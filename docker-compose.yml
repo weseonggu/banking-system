@@ -173,20 +173,23 @@ services:
 #    networks:
 #      - banking-network
 #
-#  product:
-#    build:
-#      dockerfile: ./Dockerfile
-#      args:
-#        TEST_SPRING_PROFILES_ACTIVE: prod
-#        MODULE: product
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-#    ports:
-#      - "19096:19096"
-#    depends_on:
-#      - gateway
-#    networks:
-#      - banking-network
+  product:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        TEST_SPRING_PROFILES_ACTIVE: prod
+        MODULE: product
+    environment:
+      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+    ports:
+      - "19096:19096"
+    depends_on:
+      - gateway
+    networks:
+      - my-network
 
 
 
