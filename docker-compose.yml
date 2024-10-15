@@ -95,6 +95,9 @@ services:
     networks:
       - my-network
 
+
+
+
   config:
     build:
       dockerfile: ./Dockerfile
@@ -107,26 +110,26 @@ services:
       - "19000:19000"
     networks:
       - my-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://config:19000/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config
 
   eureka:
     build:
       dockerfile: ./Dockerfile
       args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
+        TEST_SPRING_PROFILES_ACTIVE: dev
         MODULE: eureka.server
     environment:
       SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
     ports:
       - "19090:19090"
-    depends_on:
-      - config
     networks:
       - my-network
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:19000/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/server
 
   gateway:
     build:
@@ -139,9 +142,11 @@ services:
     ports:
       - "19092:19092"
     depends_on:
-      - eureka
+      config:
+        condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway
 
   auth:
     build:
@@ -155,6 +160,10 @@ services:
       - "19093:19093"
     networks:
       - my-network
+    depends_on:
+      config:
+        condition: service_healthy
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth
 
   personal:
     build:
@@ -167,9 +176,11 @@ services:
     ports:
       - "19096:19096"
     depends_on:
-      - gateway
+      config:
+        condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal
 
   product:
     build:
@@ -185,9 +196,11 @@ services:
     ports:
       - "19094:19094"
     depends_on:
-      - gateway
+      config:
+        condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product
 
   account:
     build:
@@ -197,13 +210,15 @@ services:
         MODULE: account
     environment:
       SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-      ENCRYPTOR_PASSWORD: ${ENCRYPTOR_PASSWORD}
+      ENCRYPTOR_PASSWORD: sparta_banking$_20
     ports:
       - "19095:19095"
-#    depends_on:
-#      - gateway
+    depends_on:
+      config:
+        condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account
 
   notification:
     build:
@@ -216,10 +231,12 @@ services:
       SLACK_API_TOKEN: ${SLACK_API_TOKEN}
     ports:
       - "19097:19097"
-    #    depends_on:
-    #      - gateway
+    depends_on:
+      config:
+        condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification
 
   performance:
     build:
@@ -232,10 +249,12 @@ services:
       SLACK_API_TOKEN: ${SLACK_API_TOKEN}
     ports:
       - "19098:19098"
-    #    depends_on:
-    #      - gateway
+    depends_on:
+      config:
+        condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance
 
 
 volumes:
