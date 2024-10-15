@@ -42,9 +42,6 @@ dependencyManagement {
 	}
 }
 
-bootJar {
-	enabled = true
-}
 tasks.named('test') {
 	useJUnitPlatform()
 }

@@ -50,17 +50,33 @@ public enum ErrorCode {
     // 계좌 not found
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, 3002,"해당 계좌를 찾을 수 없습니다."),
     // 자동 이체 not found
-    DIRECTDEBIT_NOT_FOUND(HttpStatus.NOT_FOUND, 3003, "해당 자동 이체 내역을 찾을 수 없습니다."),
+    DIRECT_DEBIT_NOT_FOUND(HttpStatus.NOT_FOUND, 3003, "해당 자동 이체 내역을 찾을 수 없습니다."),
     // 계좌 거래 내역 not found
     TRANSACTION_NOT_FOUND(HttpStatus.NOT_FOUND, 3004, "해당 계좌 거래 내역을 찾을 수 없습니다."),
     // 비밀 번호 not match
-    ACCOUNTPIN_NOT_MATCH(HttpStatus.UNAUTHORIZED, 3004, "비밀 번호가 일치하지 않습니다."),
+    ACCOUNT_PIN_NOT_MATCH(HttpStatus.UNAUTHORIZED, 3004, "비밀 번호가 일치하지 않습니다."),
     // 중대 시스템 오류 거래 금액 not match
     BALANCE_NOT_MATCH(HttpStatus.CONFLICT, 3007, "거래 금액이 최종 잔액과 일치하지 않습니다."),
     // 인출 불가
     WITHDRAWAL_NOT_POSSIBLE(HttpStatus.BAD_REQUEST, 3008, "인출 잔액이 모자랍니다."),
     // 이체 날짜 오류
-    TRANSFERDATE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, 3009, "해당 이체 날짜는 설정이 불가합니다."),
+    TRANSFER_DATE_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, 3009, "해당 이체 날짜는 설정이 불가합니다."),
+    // 비밀 번호 length invalid
+    INVALID_ACCOUNT_PIN_LENGTH(HttpStatus.BAD_REQUEST, 3010, "비밀 번호 6자리를 정확히 입력해주세요."),
+    // 계좌 형식 invalid
+    INVALID_ACCOUNT_FORMAT(HttpStatus.BAD_REQUEST, 3011, "계좌 번호 형식이 올바르지 않습니다. 계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다."),
+    // 계좌 거래 트랜잭션 실패
+    ACCOUNT_TRANSACTION_FAILED(HttpStatus.BAD_REQUEST , 3012, "거래 내역 처리 중에 오류가 발생했습니다."),
+    // 계좌 잔액 트랜잭션 실패
+    BALANCE_TRANSACTION_FAILED(HttpStatus.BAD_REQUEST, 3013, "계좌 변경 처리 중 오류가 발생했습니다."),
+    // 카프카 전송 실패
+    KAFKA_TRANSMIT_FAILED(HttpStatus.BAD_REQUEST, 3014,"카프카 전송 중 오류가 발생하였습니다."),
+    // 카프카 전송 실패
+    AMOUNT_BAD_REQUEST(HttpStatus.BAD_REQUEST, 3015,"금액은 0보다 크게 입력해야 합니다."),
+    // 거래 타입 invalid
+    INVALID_TRANSACTION_TYPE(HttpStatus.BAD_REQUEST, 3016,"거래 유형이 올바르지 못합니다."),
+
+
 
     /* 알림 4000번대 */
     SLACK_ERROR(HttpStatus.BAD_REQUEST, 4000, "슬랙 ID가 잘못되었거나, 현재 메시지를 보낼 수 없는 상태입니다."),
@@ -73,6 +89,11 @@ public enum ErrorCode {
     BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, 5002, "설정한 예산 기록을 찾을 수 없습니다.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
+
+
+
+
+
 
     private final HttpStatus httpStatus;
     private final int code;
