@@ -26,7 +26,7 @@ ARG MODULE
 ENV SPRING_PROFILES_ACTIVE=${TEST_SPRING_PROFILES_ACTIVE}
 
 # 빌드 수행 - 로그를 파일에 저장
-RUN ./gradlew clean :com.banking.${MODULE}:bootJar
+RUN ./gradlew clean :com.banking.${MODULE}:bootJar -x test
 
 
 # 실행 이미지 생성
