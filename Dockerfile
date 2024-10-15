@@ -9,7 +9,11 @@ COPY settings.gradle ./
 COPY build.gradle ./
 # Gradle Wrapper 파일을 복사하고 종속성 다운로드
 COPY gradlew ./
+RUN chmod +x ./gradlew  # 실행 권한 부여
 COPY gradle ./gradle
+
+# COPY gradlew ./
+# COPY gradle ./gradle
 
 # 모듈 코드 복사
 COPY . .
