@@ -99,7 +99,7 @@ public class UsingProductService {
         // DB에저장
         usingProductRepository.save(usingProduct);
         // 성공 응답
-        return usingProduct.getId();
+        return response.getBody();
     }
 
     /**
@@ -152,7 +152,7 @@ public class UsingProductService {
         // DB에저장
         usingProductRepository.save(usingProduct);
         // 성공 응답
-        return usingProduct.getId();
+        return response.getBody();
     }
 
     /**

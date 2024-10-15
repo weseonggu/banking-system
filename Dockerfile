@@ -33,7 +33,7 @@ ARG MODULE
 # JAR 파일 복사
 COPY --from=build /app/com.banking.${MODULE}/build/libs/*SNAPSHOT.jar ./app.jar
 
-# Set environment variables if needed
+# SeEt environment variables if needed
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
