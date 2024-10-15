@@ -7,6 +7,8 @@ import com.msa.banking.account.presentation.dto.directDebit.DirectDebitSearchReq
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/direct-debits")
+@Tag(name = "자동 이체 서비스", description = "자동 이체에 관련된 API 입니다.")
 public class DirectDebitController {
 
     private final DirectDebitService directDebitService;
@@ -30,6 +33,7 @@ public class DirectDebitController {
     // 자동 이체 등록
     @PostMapping("/{account_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "자동 이체 등록", description = "자동 이체 등록 API 입니다.")
     public ResponseEntity<?> createDirectDebit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
@@ -47,6 +51,7 @@ public class DirectDebitController {
     // 자동 이체 수정
     @PatchMapping("/{directDebit_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "자동 이체 수정", description = "자동 이체 수정 API 입니다.")
     public ResponseEntity<?> updateDirectDebit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("directDebit_id") UUID directDebitId,
@@ -65,6 +70,7 @@ public class DirectDebitController {
     // 자동 이체 해지
     @DeleteMapping("/{directDebit_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "자동 이체 해지", description = "자동 이체 해지 API 입니다.")
     public ResponseEntity<?> deleteDirectDebit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("directDebit_id") UUID directDebitId) {
@@ -84,6 +90,7 @@ public class DirectDebitController {
     // TODO: QueryDSL 구현체 작성.
     @GetMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    @Operation(summary = "자동 이체 전체 조회", description = "자동 이체 전체 조회 API 입니다.")
     public ResponseEntity<?> getDirectDebits(
             @RequestParam(defaultValue = "10") int page,
             @RequestParam(defaultValue = "1") int size,
@@ -103,6 +110,7 @@ public class DirectDebitController {
     // 자동 이체 상세 조회
     @GetMapping("/{directDebit_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "자동 이체 상세 조회", description = "자동 이체 상세 조회 API 입니다.")
     public ResponseEntity<?> getDirectDebit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("directDebit_id") UUID directDebitId) {
