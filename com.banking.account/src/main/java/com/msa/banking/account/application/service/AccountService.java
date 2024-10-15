@@ -13,6 +13,7 @@ import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,24 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
-
-    public AccountService(AccountRepository accountRepository, AccountMapper accountMapper) {
-        this.accountRepository = accountRepository;
-        this.accountMapper = accountMapper;
-    }
-
+    private final ProductService productService;
 
     /**
      * 계좌 등록
-     *  TODO: 고객이 아닌 MANAGER가 계좌를 생성시에는 CREATEDBY를 고객의 USERNAME으로 설정해야함.
      */
     @LogDataChange
     @Transactional
-    public UUID createAccount(AccountRequestDto request, String username) {
+    public UUID createAccount(AccountRequestDto request) {
 
         // TODO: 실소유자명이 사용자의 실명과 일치하는지 체크
         // 계좌 번호를 특정 형식에 맞게 랜덤으로 생성
@@ -60,17 +56,16 @@ public class AccountService {
 
     /**
      * 계좌 상태 변경
-     *  TODO: 장기 휴면 시 계좌 상태를 어떻게 변경할 지 관건. 스케줄러 이용? 매니저가 변경?
+     * 마스터, 매니저만 변경 가능하다.
      */
     @LogDataChange
     @Transactional
-    public AccountResponseDto updateAccountStatus(UUID accountId, AccountStatus status, String username, String role) {
+    public AccountResponseDto updateAccountStatus(UUID accountId, AccountStatus status) {
 
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        // 고객의 경우 본인만이 계좌 상태 수정 가능
         account.updateAccountStatus(status);
 
         // mapstruct 라이브러리를 사용하여 entity -> dto 변환
@@ -84,40 +79,39 @@ public class AccountService {
      */
     @LogDataChange
     @Transactional
-    public void updateAccountPin(UUID accountId, String pin, String username, String role) {
+    public void updateAccountPin(UUID accountId, String pin,  UUID userId, String role) {
+
+        // 고객의 경우 본인 만이 계좌 비밀번호 변경 가능
+        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
+            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
+        }
 
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        // 고객의 경우 본인 만이 계좌 비밀번호 변경 가능
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(account.getCreatedBy())){
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        } else {
-            account.updateAccountPin(pin);
-        }
+        account.updateAccountPin(pin);
     }
 
 
     /**
      * 계좌 해지
-     *
+     * 고객은 본인만 계좌 해지 가능.
      */
     @LogDataChange
     @Transactional
-    public void deleteAccount(UUID accountId, String username, String role) {
+    public void deleteAccount(UUID accountId, UUID userId, String username, String role) {
+
+        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()) {
+            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
+        }
 
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        // 고객의 경우 본인만이 계좌 상태 해지 가능
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(account.getCreatedBy())){
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        } else {
-            account.updateAccountStatus(AccountStatus.CLOSED);
-            account.delete(username);
-        }
+        account.updateAccountStatus(AccountStatus.CLOSED);
+        account.delete(username);
     }
 
     /**
@@ -125,25 +119,27 @@ public class AccountService {
      */
     @LogDataChange
     @Transactional
-    public void deleteLoanAccount(UUID accountId, String username, String role) {
+    public void deleteLoanAccount(UUID accountId, UUID userId, String username, String role) {
+
+        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()) {
+            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
+        }
 
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        // 고객의 경우 본인만이 계좌 상태 해지 가능
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(account.getCreatedBy())){
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        } else {
-            account.updateAccountStatus(AccountStatus.CLOSED);
-            account.delete(username);
-        }
+
+        account.updateAccountStatus(AccountStatus.CLOSED);
+        account.delete(username);
+
     }
 
 
     /**
      * 계좌 전체 조회
      * 전체 조회 때도 @Transactional(readOnly = true)를 붙이는가?
+     * TODO: 고객 본인의 계좌 전체 조회 가능
      */
     @LogDataChange
     @Transactional(readOnly = true)
@@ -156,17 +152,17 @@ public class AccountService {
     // 계좌 상세 조회
     @LogDataChange
     @Transactional(readOnly = true)
-    public AccountResponseDto getAccount(UUID accountId, String username, String role) {
+    public AccountResponseDto getAccount(UUID accountId, UUID userId, String role) {
+
+        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()) {
+            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
+        }
 
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        // 고객의 경우 본인만이 계좌 조회 가능
-        if(role.equals(UserRole.CUSTOMER.name()) && !username.equals(account.getCreatedBy())){
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        } else {
+
             return accountMapper.toDto(account);
-        }
     }
 }
