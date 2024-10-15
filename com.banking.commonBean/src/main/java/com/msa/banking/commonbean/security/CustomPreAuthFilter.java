@@ -32,11 +32,10 @@ public class CustomPreAuthFilter extends OncePerRequestFilter {
 
         if (path.startsWith("/api/auth/signUp") || path.startsWith("/api/auth/signIn") ||
                 path.startsWith("/api/auth/reset-password") || path.startsWith("/api/auth/slack-code")
-                || path.startsWith("/api/notifications/slack-code") || path.startsWith("/api/auth/slack-valid"))
-                || path.startsWith("/v3/api-docs") || path.startsWith("/webjars") || path.startsWith("/swagger"){
+                || path.startsWith("/api/notifications/slack-code") || path.startsWith("/api/auth/slack-valid")
+                || path.startsWith("/v3/api-docs") || path.startsWith("/webjars") || path.startsWith("/swagger")) {
 
             filterChain.doFilter(request, response);
-            return;
         }
 
         log.info("CustomPreAuthFilter 필터링 시도 중");
