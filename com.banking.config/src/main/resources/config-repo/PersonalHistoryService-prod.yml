@@ -25,7 +25,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5433/personal
+    url: jdbc:postgresql://postgres:5432/personal
     username: banking
     password: banking20
 

@@ -99,7 +99,6 @@ dependencyManagement {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-bootJar {
-	mainClass = 'com.msa.banking.auth.AuthApplication'
+bootJar{
+	enabled=true
 }
