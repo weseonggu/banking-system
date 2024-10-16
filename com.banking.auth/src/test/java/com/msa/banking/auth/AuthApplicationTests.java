@@ -7,7 +7,4 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("dev")
 public class AuthApplicationTests {
 
-//    @Test
-//    void contextLoads() {
-//    }
 }

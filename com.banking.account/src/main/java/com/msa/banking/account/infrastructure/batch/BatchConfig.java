@@ -32,7 +32,7 @@ public class BatchConfig {
     // JobRepository: 배치 작업의 메타데이터를 관리하는 핵심 컴포넌트
     // 필드를 직접 주입할 경우, 생성 순서나 의존성 주입의 명확성이 떨어질 수 있다.
     // 빈 주입 방식을 사용하면 Spring이 자동으로 주입 순서를 관리하고, 코드의 가독성과 유지보수성이 향상된다
-    @Bean
+    @Bean(name = "customJobRepository")
     public JobRepository jobRepository(PlatformTransactionManager transactionManager) throws Exception {
         JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
         factory.setDataSource(batchDataSource);
@@ -43,7 +43,7 @@ public class BatchConfig {
     }
 
     // JobLauncher: 실제로 배치 작업을 시작하는 역할
-    @Bean
+    @Bean(name = "customJobLauncher")
     public JobLauncher jobLauncher(JobRepository jobRepository) throws Exception {
         TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher(); // JobLauncher의 구현체
         jobLauncher.setJobRepository(jobRepository);
