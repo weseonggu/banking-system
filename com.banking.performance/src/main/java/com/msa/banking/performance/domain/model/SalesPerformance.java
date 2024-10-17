@@ -1,10 +1,7 @@
 package com.msa.banking.performance.domain.model;
 
 import com.msa.banking.common.base.AuditEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +9,6 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
-import java.time.Year;
-import java.time.YearMonth;
 import java.util.UUID;
 
 @Entity
@@ -40,27 +35,32 @@ public class SalesPerformance extends AuditEntity {
 
     // 연도별 평가
     @Column(name = "evaluation_year")
-    private Year evaluationYear;
+    private String evaluationYear;
 
     // 월별 평가
     @Column(name = "evaluation_month")
-    private YearMonth evaluationMonth;
+    private String evaluationMonth;
 
-    // 월별 생성자
-    public SalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, YearMonth evaluationMonth) {
+    public SalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, String evaluationMonth) {
         this.totalTransactionAmount = totalTransactionAmount;
         this.loanCount = loanCount;
-        this.evaluationMonth = evaluationMonth;
+
+        if (evaluationMonth.contains("-")) {
+            this.evaluationMonth = evaluationMonth;
+        } else {
+            this.evaluationYear = evaluationMonth;
+        }
+
     }
 
     /**
-     * 월별 생성 메서드
+     * 생성 메서드
      * @param totalTransactionAmount
      * @param loanCount
      * @param evaluationMonth
      * @return
      */
-    public static SalesPerformance createSalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, YearMonth evaluationMonth) {
+    public static SalesPerformance createSalesPerformance(BigDecimal totalTransactionAmount, Long loanCount, String evaluationMonth) {
         return new SalesPerformance(totalTransactionAmount, loanCount, evaluationMonth);
     }
 }

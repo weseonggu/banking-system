@@ -56,11 +56,7 @@ public class NotificationService {
         Notification save = notificationRepository.save(notification);
 
         // 슬랙 메세지 전송
-        try {
-            sendMessage(request);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
+        sendMessage(request);
     }
 
     /**

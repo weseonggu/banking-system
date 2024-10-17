@@ -9,7 +9,6 @@ services:
     networks:
       - my-network
 
-
   redis-stack:
     image: redis/redis-stack
     container_name: redis-stack-compose
@@ -26,13 +25,11 @@ services:
       timeout: 5s
       retries: 3
 
-
-
   postgres:
     image: postgres:latest
     restart: always
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
@@ -88,7 +85,6 @@ services:
       KAFKA_CLUSTERS_0_READONLY: "false"
     networks:
       - my-network
-
 
   config:
     build:
@@ -247,6 +243,7 @@ services:
     networks:
       - my-network
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance
+
 
 volumes:
   postgres_data:

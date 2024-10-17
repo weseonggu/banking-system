@@ -31,6 +31,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2'
+    // 스웨거
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
 }
 

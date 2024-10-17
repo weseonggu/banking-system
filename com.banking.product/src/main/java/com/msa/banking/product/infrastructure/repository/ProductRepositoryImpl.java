@@ -35,11 +35,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         Sort sort = pageable.getSort();
 
+
         BooleanBuilder builder = new BooleanBuilder();
 
         builder.and(isDeletedEq(condition.getIs_deleted()))
                 .and(typeEq(condition.getType()))
-                .and(betweenDates(condition.getValidFrom(), condition.getValidTo()));
+                .and(validDuringCurrentTime());
 
         JPAQuery<ResponseProductPage> query = queryFactory
                 .select(new QResponseProductPage(
@@ -49,6 +50,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 ))
                 .from(product)
                 .where(builder);
+
 
         if (sort.isSorted()) {
             sort.forEach(order -> {
@@ -83,6 +85,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return (startDate != null && endDate != null)
                 ? product.createdAt.between(startDate, endDate)
                 : null;
+    }
+    private BooleanExpression validDuringCurrentTime() {
+        LocalDateTime now = LocalDateTime.now(); // 현재 시간
+        return product.validFrom.loe(now).and(product.validTo.goe(now)); // validFrom <= now <= validTo 조건
     }
 
 }
