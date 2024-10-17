@@ -113,7 +113,7 @@ services:
     build:
       dockerfile: ./Dockerfile
       args:
-        TEST_SPRING_PROFILES_ACTIVE: dev
+        TEST_SPRING_PROFILES_ACTIVE: prod
         MODULE: eureka.server
     environment:
       SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
