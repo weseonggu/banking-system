@@ -17,7 +17,7 @@ public class EventSerializer {
         objectMapper.registerModule(new JavaTimeModule()); // Java 8 날짜/시간 처리를 위한 모듈 등록
     }
 
-    // 직렬화 (객체 -> JSON 바이트 배열)
+    // 직렬화 (byte -> JSON 바이트 배열)
     public static <T> byte[] serialize(T object) {
         try {
             return objectMapper.writeValueAsBytes(object); // JSON 문자열을 바이트 배열로 직렬화
