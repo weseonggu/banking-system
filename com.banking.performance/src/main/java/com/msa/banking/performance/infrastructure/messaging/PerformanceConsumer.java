@@ -20,6 +20,13 @@ public class PerformanceConsumer {
 
     private final SalesPerformanceService salesPerformanceService;
 
+    /**
+     * 매출성과 | 월 별 대출 가입건수 및 거래 금액 합산
+     * @param message
+     * @throws SlackApiException
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     @KafkaListener(topics = "performance-master-slack-list-loan-total-amount", groupId = "AccountService-group")
     public void performance(String message) throws SlackApiException, IOException, URISyntaxException {
         // 메세지 역직렬화
@@ -30,6 +37,6 @@ public class PerformanceConsumer {
         // DB 저장 및 슬랙 전송
         salesPerformanceService.performance(deserialize);
 
-        log.info("회원가입 Kafka 메세지 슬랙 전송 완료");
+        log.info("월별 매출 성과 기록 및 슬랙 전송 완료");
     }
 }

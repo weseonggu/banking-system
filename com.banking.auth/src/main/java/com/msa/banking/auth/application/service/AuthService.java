@@ -198,7 +198,7 @@ public class AuthService {
             // 응답 헤더에 토큰 추가
             response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
-            return "login successful";
+            return "userId = " + findEmployee.getId() + " login successful";
 
         } else { // 회원 로그인
 
@@ -208,7 +208,7 @@ public class AuthService {
 
             // 비밀번호 6회 이상 오류로 계정 잠김 에러
             if (findCustomer.isAccountLock()) {
-                throw new GlobalCustomException(ErrorCode.ACCOUNT_LOCKED);
+                throw new GlobalCustomException(ErrorCode.LOGIN_LOCKED);
             }
 
             // 비밀번호 일치 확인 | 틀렸을 경우 로그인 시도 횟수 증가 | 6회 이상 틀렸을 경우 계정 잠금
@@ -229,7 +229,7 @@ public class AuthService {
             // 응답 헤더에 토큰 추가
             response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
-            return "login successful";
+            return "userId = " + findCustomer.getId() + " login successful";
         }
     }
 

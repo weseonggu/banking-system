@@ -37,7 +37,7 @@ public enum ErrorCode {
     // 403 Forbidden
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
     MANAGER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "매니저는 본인 정보만 접근 가능합니다."),
-    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 3회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
+    LOGIN_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 3회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
     // 400 Bad Request
     ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
     // 409 Conflict
