@@ -47,19 +47,22 @@ public class Account extends AuditEntity {
     private AccountType type;
 
     @Convert(converter = EncryptAttributeConverter.class)    // 중요 데이터 암호화
-    @Column(nullable = false)
-    @Pattern(regexp = "^\\d{6}$", message = "비밀번호는 6자리이어야 합니다.")
+    @Column(nullable = false)// RequestDto로 옮기기
     private String accountPin;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer pinFailureCount = 0;
 
 
     public static Account createAccount(String accountNumber, AccountRequestDto requestDto) {
 
         return Account.builder()
                 .accountNumber(accountNumber)
-                .accountHolder(requestDto.accountHolder())
-                .status(requestDto.status() != null ? requestDto.status() : AccountStatus.ACTIVE)  // null 체크
-                .type(requestDto.type())
-                .accountPin(requestDto.accountPin())
+                .accountHolder(requestDto.getAccountHolder())
+                .status(requestDto.getStatus() != null ? requestDto.getStatus() : AccountStatus.ACTIVE)  // null 체크
+                .type(requestDto.getType())
+                .accountPin(requestDto.getAccountPin())
                 .build();
     }
 
