@@ -54,7 +54,6 @@ public class UsingProductService {
     private final AuthClient authClient;
 
     @Transactional
-    @CircuitBreaker(name = "JoinCheckingService", fallbackMethod = "joinfallbackMethod")
     public NewSubscriber joinChecking(RequsetJoinChecking requestDto, UserDetailsImpl userDetails) {
         try {
             // 중복 가입 및 기본 상품 유효성 체크
@@ -75,7 +74,6 @@ public class UsingProductService {
     }
 
     @Transactional
-    @CircuitBreaker(name = "myService", fallbackMethod = "joinFallbackMethod")
     public NewSubscriber joinLoan(RequestJoinLoan requestDto, UserDetailsImpl userDetails) {
         try {
             // 중복 가입 및 기본 상품 유효성 체크
@@ -102,7 +100,6 @@ public class UsingProductService {
     }
 
     // 중복 가입 및 상품 유효성 검사
-    @CircuitBreaker(name = "myService", fallbackMethod = "usercheckFallbackMethod")
     private Product validateAndRetrieveProduct(UUID userId, UUID productId, ProductType productType, UserDetailsImpl userDetails, String name) {
         try {
 
@@ -164,6 +161,7 @@ public class UsingProductService {
     }
 
     // 계좌 생성 요청  서킷 브레이커적용하기
+    @CircuitBreaker(name = "createAccountService", fallbackMethod = "joinFallbackMethod")
     private ResponseEntity<UUID> addAccount(String name, String accountPin) throws FeignException{
 
         AccountRequestDto requestDto = new AccountRequestDto(name, AccountStatus.ACTIVE, AccountType.CHECKING, accountPin);
@@ -178,6 +176,7 @@ public class UsingProductService {
      * @param name 사용자 실명
      * @return Boolean type
      */
+    @CircuitBreaker(name = "uerCheckService", fallbackMethod = "userCheckFallbackMethod")
     private Boolean checkUserInfo(UUID userId, String name){
         return authClient.findByUserIdAndName(userId, name);
     }
@@ -189,7 +188,7 @@ public class UsingProductService {
         throw new TryAgainException("서비스에 문제가 생겼습니다. 나중에 다시 시도해주세요");
     }
 
-    public NewSubscriber usercheckFallbackMethod(Exception e){
+    public NewSubscriber userCheckFallbackMethod(Exception e){
 
         // TODO: 개발 자에게 알림이 가도록 모니터링되도록
 
@@ -259,6 +258,7 @@ public class UsingProductService {
                 // 대출 거부로 변경
                 usingProduct.getLoanInUse().refusalLoan(userDetails.getUsername());
                 usingProductRepository.save(usingProduct);
+                usingProduct.changeIsUsing(false);
                 return false;
             }
         }else{
