@@ -92,14 +92,9 @@ public enum ErrorCode {
     // 400 Bad Request
     BUDGET_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 5003, "예산 설정은 20개를 넘을 수 없습니다. 삭제하고 다시 진행해주세요."),
     // 404 Not Found
-    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5004, "카테고리를 설정해주세요.");
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5004, "설정한 카테고리가 존재하지 않습니다.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
-
-
-
-
-
 
     private final HttpStatus httpStatus;
     private final int code;

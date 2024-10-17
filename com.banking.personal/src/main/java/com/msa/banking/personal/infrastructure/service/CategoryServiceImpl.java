@@ -1,5 +1,7 @@
 package com.msa.banking.personal.infrastructure.service;
 
+import com.msa.banking.common.response.ErrorCode;
+import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.personal.application.dto.category.CategoryListDto;
 import com.msa.banking.personal.application.service.CategoryService;
 import com.msa.banking.personal.domain.model.Category;
@@ -24,7 +26,12 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryListDto> getCategoryList(UUID userId) {
 
         List<Category> categoryList = categoryRepository.findAllByUserId(userId);
-        return categoryList.stream().map(CategoryListDto::toDTO).toList();
+
+        if(!categoryList.isEmpty()){
+            return categoryList.stream().map(CategoryListDto::toDTO).toList();
+        } else{
+            throw new GlobalCustomException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
     }
 
     /**
