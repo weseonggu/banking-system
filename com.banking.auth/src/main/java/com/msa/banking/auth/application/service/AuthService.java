@@ -74,6 +74,15 @@ public class AuthService {
 
             Employee employee = AuthSignUpRequestDto.toEmployee(request);
 
+            // 슬랙 검증 통과 여부 확인
+            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
+                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
+
+            // 검증 완료 시 삭제
+            if (findSlackCode != null) {
+                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
+            }
+
             // 유저 ID 유니크 제약 조건 검증
             if (existsEmployeeByUsername(request.getUsername())) {
                 throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
@@ -115,6 +124,15 @@ public class AuthService {
             request.setPassword(passwordEncoder.encode(request.getPassword()));
 
             Customer customer = AuthSignUpRequestDto.toCustomer(request);
+
+            // 슬랙 검증 통과 여부 확인
+            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
+                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
+            
+            // 검증 완료 시 삭제
+            if (findSlackCode != null) {
+                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
+            }
 
             // 유저 ID 유니크 제약 조건 검증
             if (existsCustomerByUsername(request.getUsername())) {
@@ -374,11 +392,11 @@ public class AuthService {
 
         // Redis에 5분(300초) 만료 시간으로 인증번호 저장
         if (isRedisAvailable) {
-            redisTemplate.opsForValue().set(request.getSlackId(), slackNumber, 30, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(request.getSlackId(), slackNumber, 300, TimeUnit.SECONDS);
         }
 
         // 슬랙코드 객체 생성
-        SlackCode slackCode = SlackCode.createSlackCode(request.getSlackId(), slackNumber, LocalDateTime.now().plusSeconds(30));
+        SlackCode slackCode = SlackCode.createSlackCode(request.getSlackId(), slackNumber, LocalDateTime.now().plusMinutes(5));
     
         // DB 저장
         slackCodeRepository.save(slackCode);
@@ -403,10 +421,21 @@ public class AuthService {
                 // Redis에서 slackId 키에 대한 값을 가져옴
                 String storedSlackNumber = (String) redisTemplate.opsForValue().get(slackId);
 
-                // 인증 번호 값이 같을 때 데이터 삭제 후 리턴
+                // 인증 번호 값이 같을 때 데이터 검증 true 변경 후 리턴
                 if (slackNumber.equals(storedSlackNumber)) {
                     redisTemplate.delete(slackId);
-                    slackCodeRepository.deleteBySlackId(request.getSlackId());
+
+                    // 검증이 되지 않았는지 확인
+                    SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), false).orElseThrow(() ->
+                            new GlobalCustomException(ErrorCode.SLACK_ERROR));
+
+                    // 검증이 된 것이 있다면 삭제
+                    boolean slackValid = slackCodeRepository.existsBySlackIdAndIsValid(request.getSlackId(), true);
+                    if (slackValid) {
+                        slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
+                    }
+
+                    findSlackCode.changeIsValid();
                     return "슬랙 인증 번호 검증 성공. 회원가입을 진행 해주세요.";
 
                 } else { // 인증 번호 값이 다를 때

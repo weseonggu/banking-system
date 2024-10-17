@@ -22,17 +22,11 @@ public interface TransactionsRepository extends JpaRepository<AccountTransaction
     @Query("SELECT SUM(t.withdrawalAmount) FROM AccountTransactions t WHERE t.account.accountId = :accountId")
     BigDecimal getTotalWithdrawalBalance(@Param("accountId") UUID accountId);
 
-    @Query("select SUM(t.depositAmount) from AccountTransactions t where t.account.accountId in :accountIds and t.type = :type and t.createdAt between :startDateTime and :endDateTime and t.isDelete = false")
-    BigDecimal findTotalDepositAmount(@Param("accountIds") List<UUID> accountIds,
-                               @Param("type") TransactionType type,
-                               @Param("startDateTime") LocalDateTime startDateTime,
-                               @Param("endDateTime") LocalDateTime endDateTime);
-
-    @Query("select SUM(t.withdrawalAmount) from AccountTransactions t where t.account.accountId in :accountIds and t.type = :type and t.createdAt between :startDateTime and :endDateTime and t.isDelete = false")
-    BigDecimal findTotalWithdrawalAmount(@Param("accountIds") List<UUID> accountIds,
-                               @Param("type") TransactionType type,
-                               @Param("startDateTime") LocalDateTime startDateTime,
-                               @Param("endDateTime") LocalDateTime endDateTime);
-
-
+    @Query("select coalesce(sum(at.depositAmount), 0) from AccountTransactions at " +
+            "where at.account.accountId in :accountIds and at.type = :type " +
+            "and at.createdAt between :startDateTime and :endDateTime and at.isDelete = false")
+    BigDecimal findTotalDepositAmountAndAccountIdsAndType(@Param("accountIds") List<UUID> accountIds,
+                                                          @Param("type")TransactionType type,
+                                                          @Param("startDateTime")LocalDateTime startDateTime,
+                                                          @Param("endDateTime")LocalDateTime endDateTime);
 }
