@@ -103,7 +103,7 @@ public class UsingProductController {
     }
 
 
-    @Operation(summary = "대출 신청 승인 api")
+    @Operation(summary = "대출 신청 결과 등록 api")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "대출 승인"),
             @ApiResponse(responseCode = "401", description = "권한이 없음"),
@@ -113,13 +113,14 @@ public class UsingProductController {
     @PatchMapping(value = "/using/loan/approval")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'MASTER')")
     public ResponseEntity<SuccessResponse> approvalLoan(@RequestParam("using_product_id") UUID id,
+                                                        @RequestParam("choice") boolean choice,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
 
-        usingProductService.changeLoanSate(id, userDetails);
+        boolean result = usingProductService.changeLoanSate(id, userDetails, choice);
 
         SuccessResponse response = new SuccessResponse<>(
                 HttpStatus.OK.value(),
-                "대출을 승인 했습니다.",
+                String.format("대출을 %s했습니다.", result? "승인" : "거부"),
                 ""
         );
         return ResponseEntity.ok(response);

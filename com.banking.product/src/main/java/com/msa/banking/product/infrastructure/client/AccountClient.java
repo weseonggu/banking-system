@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.UUID;
 
-@FeignClient(name = "AccountService", fallback =  AccountClientFallback.class)
+@FeignClient(name = "AccountService")
 public interface AccountClient {
 
     @PostMapping("/api/accounts")
     ResponseEntity<UUID> addAccount(@RequestBody AccountRequestDto accountRequestDto);
 
-    @PostMapping("/api/account-transactions/{account_id}/deposit")
+    @PostMapping("/api/account-transactions/{account_id}/loan-deposit")
     public ResponseEntity<SingleTransactionResponseDto> updateAccount(
             @PathVariable("account_id") UUID accountId,
             @RequestBody DepositTransactionRequestDto request);

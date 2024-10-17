@@ -50,8 +50,8 @@ public class ProductGlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(RuntimeException exc, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                "NOT_FOUND",
+                HttpStatus.BAD_REQUEST.value(),
+                "BAD_REQUEST",
                 exc.getMessage(),
                 request.getRequestURI()
         );
