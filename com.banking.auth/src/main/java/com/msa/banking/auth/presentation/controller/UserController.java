@@ -9,12 +9,15 @@ import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -190,13 +193,63 @@ public class UserController {
      */
     @GetMapping("/customer")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    @Operation(summary = "고객 전체 조회", description = "고객 전체 조회 API 입니다.")
+    @Operation(
+            summary = "고객 전체 조회",
+            description = "고객 전체 조회 API 입니다.",
+            parameters = {
+                    @Parameter(
+                            name = "userId",
+                            description = "고객의 고유 식별자 (UUID)",
+                            schema = @Schema(type = "string", format = "uuid")
+                    ),
+                    @Parameter(
+                            name = "username",
+                            description = "고객의 로그인 ID",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "name",
+                            description = "고객 이름",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "email",
+                            description = "고객 이메일",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "phoneNumber",
+                            description = "고객 휴대폰 번호",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "slackId",
+                            description = "고객 슬랙 ID",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "city",
+                            description = "도시명",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "street",
+                            description = "도로명",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "zipcode",
+                            description = "우편번호",
+                            schema = @Schema(type = "string")
+                    )
+            }
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "customer paging selected"),
             @ApiResponse(responseCode = "403", description = "접근이 거부되었습니다."),
     })
-    public ResponseEntity<?> findAllCustomer(SearchRequestDto condition,
-                                             Pageable pageable) {
+    public ResponseEntity<?> findAllCustomer(@Parameter(hidden = true) SearchRequestDto condition,
+                                             @ParameterObject Pageable pageable) {
         log.info("고객 정보 페이지 조회 시도 중 | condition: {}, pageable: {}", condition, pageable);
 
         Page<AuthResponseDto> response = userService.findAllCustomer(pageable, condition);
@@ -213,13 +266,63 @@ public class UserController {
      */
     @GetMapping("/employee")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
-    @Operation(summary = "직원 전체 조회", description = "직원 전체 조회 API 입니다.")
+    @Operation(
+            summary = "직원 전체 조회",
+            description = "직원 전체 조회 API 입니다.",
+            parameters = {
+                    @Parameter(
+                            name = "userId",
+                            description = "직원의 고유 식별자 (UUID)",
+                            schema = @Schema(type = "string", format = "uuid")
+                    ),
+                    @Parameter(
+                            name = "username",
+                            description = "직원의 로그인 ID",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "name",
+                            description = "직원 이름",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "email",
+                            description = "직원 이메일",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "phoneNumber",
+                            description = "직원 휴대폰 번호",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "slackId",
+                            description = "직원 슬랙 ID",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "city",
+                            description = "도시명",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "street",
+                            description = "도로명",
+                            schema = @Schema(type = "string")
+                    ),
+                    @Parameter(
+                            name = "zipcode",
+                            description = "우편번호",
+                            schema = @Schema(type = "string")
+                    )
+            }
+    )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "customer paging selected"),
             @ApiResponse(responseCode = "403", description = "접근이 거부되었습니다."),
     })
-    public ResponseEntity<?> findAllEmployee(SearchRequestDto condition,
-                                             Pageable pageable) {
+    public ResponseEntity<?> findAllEmployee(@Parameter(hidden = true) SearchRequestDto condition,
+                                             @ParameterObject Pageable pageable) {
         log.info("직원 정보 페이지 조회 시도 중 | condition: {}, pageable: {}", condition, pageable);
 
         Page<AuthResponseDto> response = userService.findAllEmployee(pageable, condition);

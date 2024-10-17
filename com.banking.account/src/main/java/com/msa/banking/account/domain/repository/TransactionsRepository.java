@@ -1,7 +1,6 @@
 package com.msa.banking.account.domain.repository;
 
 import com.msa.banking.account.domain.model.AccountTransactions;
-import com.msa.banking.common.account.type.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,10 +22,8 @@ public interface TransactionsRepository extends JpaRepository<AccountTransaction
     BigDecimal getTotalWithdrawalBalance(@Param("accountId") UUID accountId);
 
     @Query("select coalesce(sum(at.depositAmount), 0) from AccountTransactions at " +
-            "where at.account.accountId in :accountIds and at.type = :type " +
-            "and at.createdAt between :startDateTime and :endDateTime and at.isDelete = false")
-    BigDecimal findTotalDepositAmountAndAccountIdsAndType(@Param("accountIds") List<UUID> accountIds,
-                                                          @Param("type")TransactionType type,
+            "where at.account.accountId in :accountIds and at.createdAt between :startDateTime and :endDateTime and at.isDelete = false")
+    BigDecimal findTotalDepositAmountAndAccountIds(@Param("accountIds") List<UUID> accountIds,
                                                           @Param("startDateTime")LocalDateTime startDateTime,
                                                           @Param("endDateTime")LocalDateTime endDateTime);
 }
