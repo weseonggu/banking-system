@@ -30,6 +30,10 @@ public class PerformanceScheduler {
     private final AccountRepository accountRepository;
     private final TransactionsRepository transactionsRepository;
 
+    /**
+     * 대출 계좌로 입금, 이체 들어온 내역 performance 전송
+     * @param message
+     */
     @KafkaListener(topics = "performance-master-slack-list", groupId = "ProductService-group")
     public void listen(String message) {
 
@@ -67,9 +71,8 @@ public class PerformanceScheduler {
         LocalDateTime endDateTime = currentMonth.atEndOfMonth().atTime(23, 59, 59);
 
         // 대출 토탈 거래 금액
-        // TODO: 수정 필요
-//        BigDecimal totalAmount = transactionsRepository.findTotalAmount(accountIds, TransactionType.LOAN_REPAYMENT, startDateTime, endDateTime);
-//
+        BigDecimal totalAmount = transactionsRepository.findTotalDepositAmountAndAccountIdsAndType(accountIds, TransactionType.DEPOSIT, startDateTime, endDateTime);
+        System.out.println("대출 입금 토탈 거래 금액 = " + totalAmount);
 //        SlackIdAndLoanAndAmountDto request = new SlackIdAndLoanAndAmountDto(slackIds, loanCount, totalAmount);
 //
 //        kafkaTemplate.send(Topic.PERFORMANCE_MASTER_SLACK_LIST_LOAN_COUNT_TOTAL_AMOUNT.getTopic(), EventSerializer.serialize(request));
