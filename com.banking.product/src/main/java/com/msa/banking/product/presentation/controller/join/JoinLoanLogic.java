@@ -22,6 +22,7 @@ import org.springframework.security.concurrent.DelegatingSecurityContextExecutor
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -52,7 +53,7 @@ public class JoinLoanLogic {
 
         // 상품 유효성 검사
         CompletableFuture<Product> productFuture = CompletableFuture.supplyAsync(() ->
-                productRepository.findByIdWhereIsDeleted(requestJoinLoan.getProductId(), false, requestJoinLoan.getType())
+                productRepository.findByIdWhereIsDeleted(requestJoinLoan.getProductId(), false, requestJoinLoan.getType(), LocalDateTime.now())
                         .orElseThrow(() -> new IllegalArgumentException("없거나 가입이 불가능한 상품입니다."))
         ).thenApply(product -> {
             if (!product.getType().equals(requestJoinLoan.getType())) {

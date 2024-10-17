@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,7 +57,7 @@ public class UsingProductService {
      * @return
      */
     @Transactional
-    public UUID joinChecking(RequsetJoinChecking requsetJoinChecking, UserDetailsImpl userDetails) {
+    public NewSubscriber joinChecking(RequsetJoinChecking requsetJoinChecking, UserDetailsImpl userDetails) {
 
         // 해지가 아닌 상태에서 중복 가입 불가능
         if(usingProductRepository.existsByUserIdAndProductIdAndIsUsing(requsetJoinChecking.getUserId(), requsetJoinChecking.getProductId(), true)){
@@ -64,7 +65,7 @@ public class UsingProductService {
         }
 
         // 상품이 있는지 확인
-        Product product = productRepository.findByIdWhereIsDeleted(requsetJoinChecking.getProductId(), false, requsetJoinChecking.getType())
+        Product product = productRepository.findByIdWhereIsDeleted(requsetJoinChecking.getProductId(), false, requsetJoinChecking.getType(), LocalDateTime.now())
                 .orElseThrow(() -> new IllegalArgumentException("없거나 더이상 가입이 불가능한 상품입니다."));
         // 가입할려는 강비의 타입이 같은지 확인
         if(!product.getType().equals(requsetJoinChecking.getType())){
@@ -91,7 +92,7 @@ public class UsingProductService {
 
 
         // 엔티티 생성 UsingProduct, CeckingInUse 생성
-        CheckingInUse checkingInUse = CheckingInUse.create(requsetJoinChecking.getInterestRate(), requsetJoinChecking.getFeeWaiver());
+        CheckingInUse checkingInUse = CheckingInUse.create(product.getCheckingDetail().getInterestRate(), requsetJoinChecking.getFeeWaiver());
         UsingProduct usingProduct = UsingProduct.create(requsetJoinChecking.getUserId(), ProductType.CHECKING,
                 response.getBody(), requsetJoinChecking.getName(), requsetJoinChecking.getProductId());
         usingProduct.addChckingInuse(checkingInUse);
@@ -99,7 +100,12 @@ public class UsingProductService {
         // DB에저장
         usingProductRepository.save(usingProduct);
         // 성공 응답
-        return response.getBody();
+        NewSubscriber newJoiner = new NewSubscriber(
+                requsetJoinChecking.getName(),
+                response.getBody(),
+                requsetJoinChecking.getUserId(),
+                usingProduct.getId());
+        return newJoiner;
     }
 
     /**
@@ -109,14 +115,14 @@ public class UsingProductService {
      * @return
      */
     @Transactional
-    public UUID joinLoan(RequestJoinLoan requsetJoinLoan, UserDetailsImpl userDetails) {
+    public NewSubscriber joinLoan(RequestJoinLoan requsetJoinLoan, UserDetailsImpl userDetails) {
         // 해지가 아닌 상태에서 중복 가입 불가능
         if(usingProductRepository.existsByUserIdAndProductIdAndIsUsing(requsetJoinLoan.getUserId(), requsetJoinLoan.getProductId(), true)){
             throw new IllegalArgumentException("상품 중복 가입입니다.");
         }
 
         // 상품이 있는지 확인
-        Product product = productRepository.findByIdWhereIsDeleted(requsetJoinLoan.getProductId(), false, requsetJoinLoan.getType())
+        Product product = productRepository.findByIdWhereIsDeleted(requsetJoinLoan.getProductId(), false, requsetJoinLoan.getType(), LocalDateTime.now())
                 .orElseThrow(() -> new IllegalArgumentException("없거나 거이상 가입이 불가능한 상품입니다."));
         if(!product.getType().equals(requsetJoinLoan.getType())){
             throw new IllegalArgumentException("입출금 상품 가입입니다. 다른 상품은 안됩니다.");
@@ -152,7 +158,12 @@ public class UsingProductService {
         // DB에저장
         usingProductRepository.save(usingProduct);
         // 성공 응답
-        return response.getBody();
+        NewSubscriber newJoiner = new NewSubscriber(
+                requsetJoinLoan.getName(),
+                response.getBody(),
+                requsetJoinLoan.getUserId(),
+                usingProduct.getId());
+        return newJoiner;
     }
 
     /**

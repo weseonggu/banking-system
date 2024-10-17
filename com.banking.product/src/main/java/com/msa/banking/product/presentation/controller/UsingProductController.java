@@ -4,6 +4,7 @@ import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import com.msa.banking.product.application.dto.NewSubscriber;
 import com.msa.banking.product.application.dto.UsingProductDetailDto;
 import com.msa.banking.product.application.dto.UsingProductPage;
 import com.msa.banking.product.application.dto.UsingProductResponseDto;
@@ -48,11 +49,11 @@ public class UsingProductController {
     public ResponseEntity<?> signUpForCheckingProduct(@Valid @RequestBody RequsetJoinChecking requsetJoinChecking,
                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        UUID id = usingProductService.joinChecking(requsetJoinChecking, userDetails);
+        NewSubscriber dto = usingProductService.joinChecking(requsetJoinChecking, userDetails);
         SuccessResponse response = new SuccessResponse<>(
                 HttpStatus.OK.value(),
                 "입 출금 상품을 가입했습니다.",
-                id
+                dto
         );
         return ResponseEntity.ok(response);
     }
@@ -70,12 +71,12 @@ public class UsingProductController {
     public ResponseEntity<?> signUpForLoanProduct(@Valid @RequestBody RequestJoinLoan requsetJoinLoan,
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        UUID id = usingProductService.joinLoan(requsetJoinLoan, userDetails);
+        NewSubscriber dto  = usingProductService.joinLoan(requsetJoinLoan, userDetails);
 
         SuccessResponse response = new SuccessResponse<>(
                 HttpStatus.OK.value(),
                 "대출 상품을 가입했습니다.",
-                id
+                dto
         );
         return ResponseEntity.ok(response);
     }

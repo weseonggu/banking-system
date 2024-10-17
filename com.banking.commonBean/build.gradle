@@ -34,6 +34,8 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // 유효성 검증
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // jwt
     compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'

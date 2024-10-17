@@ -1,5 +1,6 @@
 package com.msa.banking.product.presentation.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.msa.banking.product.lib.ProductType;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class RequestJoinLoan {
     private UUID userId;
 
     @NotNull(message = "필수 입력 사항입니다.")
+    @JsonProperty("product_type")
     private ProductType type;
 
     @NotNull(message = "필수 입력 사항입니다.")
@@ -36,6 +38,7 @@ public class RequestJoinLoan {
     private UUID productId;
 
     @NotNull(message = "필수 입력 사항입니다.")
+    @JsonProperty("loanTerm")
     private long month;
 
     @NotNull(message = "필수 입력 사항입니다.")
