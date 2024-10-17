@@ -2,6 +2,7 @@ package com.msa.banking.product.infrastructure.repository;
 
 import com.msa.banking.product.domain.model.UsingProduct;
 import com.msa.banking.product.domain.repository.UsingProductRepositoryCustom;
+import com.msa.banking.product.lib.LoanState;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,6 +31,8 @@ public interface UsingProductRepository extends JpaRepository<UsingProduct, UUID
     boolean existsByUserIdAndProductIdAndIsUsing(@Param("userId") UUID userId,
                                                  @Param("productId") UUID productId,
                                                  @Param("isUsing") boolean b);
+
+
 
     @Query("SELECT u FROM UsingProduct u WHERE u.id = :id AND u.isDelete = false")
     @EntityGraph(attributePaths = {
