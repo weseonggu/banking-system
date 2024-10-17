@@ -88,7 +88,11 @@ public enum ErrorCode {
     // 404 Not Found
     PERSONAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5001, "개인 내역을 찾을 수 없습니다."),
     // 404 Not Found
-    BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, 5002, "설정한 예산 기록을 찾을 수 없습니다.");
+    BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, 5002, "설정한 예산 기록을 찾을 수 없습니다."),
+    // 400 Bad Request
+    BUDGET_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 5003, "예산 설정은 20개를 넘을 수 없습니다. 삭제하고 다시 진행해주세요."),
+    // 404 Not Found
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5004, "카테고리를 설정해주세요.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
 
