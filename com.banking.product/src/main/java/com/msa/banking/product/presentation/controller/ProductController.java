@@ -86,7 +86,7 @@ public class ProductController {
     })
     @GetMapping(value = "/detail")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> findProuctDetail(@RequestParam("porduct_id") UUID productId) {
+    public ResponseEntity<?> findProuctDetail(@RequestParam("product_id") UUID productId) {
         // 어플리케이션 계층 서비스 호츌
         ProductResponseDto dto = applicationService.findProductDetail(productId);
         SuccessResponse response =  new SuccessResponse(
