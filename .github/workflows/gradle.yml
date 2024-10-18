@@ -77,7 +77,7 @@ jobs:
 
       - name: Build and Push docker images to AWS ECR
         run: |
-          services=("config" "eureka.server" "gateway" "auth" "personal" "product" "account" "notification" "performance")
+          services=("config" "server" "gateway" "auth" "personal" "product" "account" "notification" "performance")
           commit_hash=$(git rev-parse --short HEAD)
           
           echo "ECR_REGISTRY is set to: $ECR_REGISTRY"
