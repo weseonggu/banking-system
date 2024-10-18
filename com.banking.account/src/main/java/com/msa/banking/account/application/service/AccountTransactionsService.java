@@ -7,7 +7,8 @@ import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
 import com.msa.banking.account.infrastructure.redisson.RedissonLock;
 import com.msa.banking.account.presentation.dto.transactions.*;
-import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.DepositTransactionRequestDto;
+import com.msa.banking.common.account.dto.LoanDepositTransactionRequestDto;
 import com.msa.banking.common.account.dto.SingleTransactionResponseDto;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.account.type.TransactionType;
@@ -35,8 +36,7 @@ public class AccountTransactionsService {
     private final AccountRepository accountRepository;
     private final TransactionsMapper transactionsMapper;
     private final ProductService productService;
-
-
+    private final AccountService accountService;
 
 
     /**
@@ -50,14 +50,8 @@ public class AccountTransactionsService {
     public SingleTransactionResponseDto createDeposit(DepositTransactionRequestDto request) {
 
         // 거래 상태 확인
-        if(!request.getType().equals(TransactionType.DEPOSIT) && !request.getType().equals(TransactionType.SAVINGS_DEPOSIT) &&
-                !request.getType().equals(TransactionType.LOAN_REPAYMENT)) {
+        if(!request.getType().equals(TransactionType.DEPOSIT) && !request.getType().equals(TransactionType.SAVINGS_DEPOSIT)) {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
-        }
-
-        // 입금액 확인
-        if(request.getDepositAmount()==null || request.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
         }
 
         // 입금하려는 계좌 찾기
@@ -65,10 +59,9 @@ public class AccountTransactionsService {
                 .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-
         // 입금 처리
         AccountTransactions depositTransaction = transactionalService.createDepositTransaction(account, request);
-        transactionalService.updateDepositAccountBalance(account, request);
+        transactionalService.updateDepositAccountBalance(account, request.getDepositAmount());
         return transactionsMapper.toDto(depositTransaction);
     }
 
@@ -79,20 +72,15 @@ public class AccountTransactionsService {
      */
     @LogDataChange
     @RedissonLock(value = "#accountId.toString()") // accountId로 락 적용
-    public SingleTransactionResponseDto createLoanDeposit(UUID accountId, DepositTransactionRequestDto request, UUID userId, String role) {
+    public SingleTransactionResponseDto createLoanDeposit(UUID accountId, LoanDepositTransactionRequestDto request, UUID userId, String role) {
 
         if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
         }
 
         // 거래 상태 확인
-        if(!request.getType().equals(TransactionType.DEPOSIT)) {
+        if(!request.getType().equals(TransactionType.LOAN_DEPOSIT)) {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
-        }
-
-        // 입금액 확인
-        if(request.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
         }
 
         // 입금하려는 대출 계좌 찾기
@@ -102,7 +90,7 @@ public class AccountTransactionsService {
 
         // 입금 처리
         AccountTransactions depositTransaction = transactionalService.createDepositTransaction(account, request);
-        transactionalService.updateDepositAccountBalance(account, request);
+        transactionalService.updateDepositAccountBalance(account, request.getDepositAmount());
         return transactionsMapper.toDto(depositTransaction);
     }
 
@@ -124,15 +112,13 @@ public class AccountTransactionsService {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
 
-        // 출금액 확인
-        if(request.getWithdrawalAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
-        }
-
         // 출금하려는 계좌 찾기
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        // 출금 한도 체크
+        accountService.checkWithdrawalLimit(account, request.getWithdrawalAmount());
 
         // 출금하기
         if (request.getWithdrawalAmount().compareTo(account.getBalance()) > 0) {
@@ -140,11 +126,11 @@ public class AccountTransactionsService {
         }
 
         // 비밀번호 확인
-        transactionalService.checkAccountPin(accountId, request.getAccountPin());
+        accountService.checkAccountPin(accountId, request.getAccountPin());
 
         // 거래 내역 생성 및 저장
         AccountTransactions withdrawalTransaction = transactionalService.createWithdrawalTransaction(account, request);
-        transactionalService.updateWithdrawalAccountBalance(account, request, accountId, userId, role, withdrawalTransaction);
+        transactionalService.updateWithdrawalAccountBalance(account, request.getWithdrawalAmount(), accountId, userId, role, withdrawalTransaction);
 
         return transactionsMapper.toDto(withdrawalTransaction);
     }
@@ -165,17 +151,14 @@ public class AccountTransactionsService {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
 
-        // 송금액 확인
-        if(request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
-        }
 
-        validateAccountNumberFormat(request.getBeneficiaryAccount());
         // 비즈니스 로직
         Account senderAccount = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
+        // 이체 한도 체크
+        accountService.checkTransferLimit(senderAccount, request.getAmount());
 
         // 계좌 락이어도 타인 송금은 가능.
         Account beneficiaryAccount = accountRepository.findByAccountNumber(request.getBeneficiaryAccount())
@@ -188,13 +171,13 @@ public class AccountTransactionsService {
         }
 
         // 송금인 비밀번호 확인
-        transactionalService.checkAccountPin(accountId, request.getAccountPin());
+        accountService.checkAccountPin(accountId, request.getAccountPin());
 
         // 거래 내역 생성 및 저장 (트랜잭션 분리)
         TransferAccountTransactions transferTransactions = transactionalService.createTransferTransactions(senderAccount, beneficiaryAccount, request);
 
          // 계좌 상태(잔액) 변경 및 Kafka 이벤트 전송
-        transactionalService.updateTransferAccountBalances(senderAccount, beneficiaryAccount, request, transferTransactions.getSender(), accountId, userId, role);
+        transactionalService.updateTransferAccountBalances(senderAccount, beneficiaryAccount, request.getAmount(), transferTransactions.getSender(), accountId, userId, role);
         SenderTransactionResponseDto senderDto = transactionsMapper.toSenderDto(transferTransactions.getSender());
         BeneficiaryTransactionResponseDto beneficiaryDto = transactionsMapper.toBeneficiaryDto(transferTransactions.getReceiver());
 
@@ -242,15 +225,5 @@ public class AccountTransactionsService {
         }
 
         return transactionsMapper.toDto(transaction);
-    }
-
-
-
-    // 계좌 번호 검증
-    @LogDataChange
-    public void validateAccountNumberFormat(String accountNumber) {
-        if (!accountNumber.matches("\\d{3}-\\d{4}-\\d{7}")) {
-            throw new GlobalCustomException(ErrorCode.INVALID_ACCOUNT_FORMAT);
-        }
     }
 }

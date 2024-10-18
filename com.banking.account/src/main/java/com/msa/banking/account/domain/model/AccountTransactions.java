@@ -3,12 +3,12 @@ package com.msa.banking.account.domain.model;
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
 import com.msa.banking.account.presentation.dto.transactions.TransferTransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.WithdrawalTransactionRequestDto;
-import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.DepositTransactionRequestDto;
+import com.msa.banking.common.account.dto.LoanDepositTransactionRequestDto;
 import com.msa.banking.common.account.type.TransactionStatus;
 import com.msa.banking.common.account.type.TransactionType;
 import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -53,11 +53,9 @@ public class AccountTransactions extends AuditEntity {
     @Convert(converter = EncryptAttributeConverter.class)  // 데이터 암호화
     private String originatingAccount;
 
-    @Convert(converter = EncryptAttributeConverter.class) // 타 은행과의 계좌거래를 전제하지 않기 때문에 형식 일정.
-    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.")
+    @Convert(converter = EncryptAttributeConverter.class) // 타 은행과의 계좌거래를 전제하지 않기 때문에 형식 일정.\
     private String beneficiaryAccount;
 
-    // TODO: 받는 사람 계좌 소유주 이름 추가?
 
     // 데이터베이스에 저장되기 전에 유효성을 검증
     @PrePersist
@@ -81,8 +79,8 @@ public class AccountTransactions extends AuditEntity {
                 .build();
     }
 
-    // 단일 계좌 입금 거래 내역 생성
-    public static AccountTransactions createLoanDepositTransaction(Account account, DepositTransactionRequestDto requestDto) {
+    // 대출액 입금 거래 내역 생성
+    public static AccountTransactions createLoanDepositTransaction(Account account, LoanDepositTransactionRequestDto requestDto) {
 
         return AccountTransactions.builder()
                 .account(account)
@@ -103,8 +101,6 @@ public class AccountTransactions extends AuditEntity {
                 .build();
     }
 
-
-    // TODO: description이 null이면 수취인의 실명을 넣는다. 서비스 로직으로 처리
     // 송금인 계좌 거래 내역
     public static AccountTransactions createSenderTransaction(Account account, TransferTransactionRequestDto requestDto) {
 
@@ -117,7 +113,6 @@ public class AccountTransactions extends AuditEntity {
                 .build();
     }
 
-    // TODO: description이 null이면 송금인의 실명을 넣는다. 서비스 로직으로 처리
     // 수취인 계좌 거래 내역 생성
     public static AccountTransactions createBeneficiaryTransaction(Account account, String originatingAccount, TransferTransactionRequestDto requestDto) {
 
