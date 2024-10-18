@@ -45,7 +45,7 @@ public class DirectDebitService {
         }
 
         // 이체 날짜 검증
-        if(!isValidTransferDay(request.transferDate())){
+        if(!isValidTransferDay(request.getTransferDate())){
             throw new GlobalCustomException(ErrorCode.TRANSFER_DATE_NOT_AVAILABLE);
         }
 
@@ -76,7 +76,7 @@ public class DirectDebitService {
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
         }
 
-        if(!isValidTransferDay(request.transferDate())){
+        if(!isValidTransferDay(request.getTransferDate())){
             throw new GlobalCustomException(ErrorCode.TRANSFER_DATE_NOT_AVAILABLE);
         }
 
