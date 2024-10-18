@@ -77,6 +77,10 @@ public class BudgetServiceImpl implements BudgetService {
     @CachePut(cacheNames = "budgetCache", key = "#result.budgetId")
     public BudgetResponseDto createBudget(BudgetRequestDto budgetRequestDto, String userRole, UUID userId, String userName) {
 
+        if(budgetRequestDto.getPeriod() == null ){
+            throw new IllegalArgumentException("WEEKLY, MONTHLY 둘 중 기간을 정해주세요.");
+        }
+
         LocalDateTime startDate = budgetRequestDto.getStartDate();
         LocalDateTime endDate = Budget.calculateEndDate(startDate, budgetRequestDto.getPeriod());
 
