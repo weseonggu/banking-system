@@ -11,6 +11,9 @@ COPY build.gradle ./
 COPY gradlew ./
 COPY gradle ./gradle
 
+# Gradlew에 실행 권한 부여
+RUN chmod +x ./gradlew
+
 # 모듈 코드 복사
 COPY . .
 
@@ -24,7 +27,6 @@ ENV SPRING_PROFILES_ACTIVE=${TEST_SPRING_PROFILES_ACTIVE}
 # 빌드 수행 - 로그를 파일에 저장
 RUN ./gradlew clean :com.banking.${MODULE}:bootJar
 
-
 # 실행 이미지 생성
 FROM openjdk:17-jdk-slim
 WORKDIR /app
@@ -33,7 +35,7 @@ ARG MODULE
 # JAR 파일 복사
 COPY --from=build /app/com.banking.${MODULE}/build/libs/*SNAPSHOT.jar ./app.jar
 
-# SeEt environment variables if needed
+# Set environment variables if needed
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
