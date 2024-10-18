@@ -34,9 +34,8 @@ public class AccountService {
      */
     @LogDataChange
     @Transactional
-    public UUID createAccount(AccountRequestDto request) {
+    public UUID createAccount(AccountRequestDto request, UUID userId, String role) {
 
-        // TODO: 실소유자명이 사용자의 실명과 일치하는지 체크
         // 계좌 번호를 특정 형식에 맞게 랜덤으로 생성
         String accountNumber = AccountNumberGenerator.generateAccountNumber();
 

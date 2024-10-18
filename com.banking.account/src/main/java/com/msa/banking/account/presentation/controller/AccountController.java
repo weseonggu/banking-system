@@ -39,7 +39,7 @@ public class AccountController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody final AccountRequestDto request) {
 
-        return ResponseEntity.ok(accountService.createAccount(request));
+        return ResponseEntity.ok(accountService.createAccount(request, userDetails.getUserId(), userDetails.getRole()));
     }
 
     // 계좌 상태 변경
