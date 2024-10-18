@@ -81,8 +81,6 @@ public enum ErrorCode {
     INVALID_TRANSACTION_TYPE(HttpStatus.BAD_REQUEST, 3016,"거래 유형이 올바르지 못합니다."),
     // 계좌 비밀 번호 입력 시도 초과로 계좌 잠금
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 3017, "계좌가 잠금되었습니다. 비밀번호를 재설정하시길 바랍니다."),
-    // 계좌 비밀번호 재입력 일치
-    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 3017, "계좌가 잠금되었습니다. 비밀번호를 재설정하시길 바랍니다."),
 
 
 
