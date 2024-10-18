@@ -32,7 +32,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/performance
+    url: jdbc:postgresql://localhost:5433/performance
     username: banking
     password: banking20
 
@@ -61,10 +61,12 @@ eureka:
     health-check-url-path: /actuator/health # 헬스 체크를 통한 정상작동 확인
 
 management:
+  server:
+    port: 29098
   endpoints:
     web:
       exposure:
-        include: "*, busrefresh"
+        include: "*, busrefresh, prometheus"
   endpoint:
     health:
       show-details: always
@@ -76,9 +78,9 @@ management:
   tracing:
     sampling:
       probability: 1.0
-  prometheus:
-    metrics:
-      export:
+  metrics:
+    export:
+      prometheus:
         enabled: true
 
 common:

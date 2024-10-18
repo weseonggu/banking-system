@@ -61,6 +61,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/notifications/slack-code/**").permitAll()
                 .requestMatchers("/product/**").permitAll()// 임시
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/metrics/**").permitAll()
                 .anyRequest().authenticated()
         );
 
