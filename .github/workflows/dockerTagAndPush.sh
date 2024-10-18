@@ -4,6 +4,9 @@ services=("config" "server" "gateway" "auth" "personal" "product" "account" "not
 # 도커 이미지에 commit hash를 기반으로한 이미지 태그를 설정합니다.
 commit_hash=$(git rev-parse --short HEAD)
 
+echo "ECR_REGISTRY is set to: $ECR_REGISTRY"
+echo "ECR_NAMESPACE is set to: $ECR_NAMESPACE"
+
 for service in "${services[@]}"
 do
   imageName="$ECR_REGISTRY/$ECR_NAMESPACE/$service"
