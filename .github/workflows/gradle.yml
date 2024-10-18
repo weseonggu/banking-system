@@ -13,20 +13,18 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    # 3개의 서비스를 모두 빌드할 수 있도록 변수로 지정합니다.
-    # https://docs.github.com/ko/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
     strategy:
       matrix:
-        service: [ com.banking.eureka.server,
-                   com.banking.config,
-                   com.banking.auth,
-                   com.banking.gateway,
-                   com.banking.commonBean,
-                   com.banking.product,
-                   com.banking.account,
-                   com.banking.personal,
-                   com.banking.notification,
-                   com.banking.performance]
+        service: [com.banking.eureka.server,
+                  com.banking.config,
+                  com.banking.auth,
+                  com.banking.gateway,
+                  com.banking.commonBean,
+                  com.banking.product,
+                  com.banking.account,
+                  com.banking.personal,
+                  com.banking.notification,
+                  com.banking.performance]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,10 +41,13 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean :${{ matrix.service }}:bootJar -x test
 
-  Docker:
-    name: Build docker image and Push to registry
+  dockerize:
+    name: Build Docker Image and Push to AWS ECR
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [config, server, gateway, auth, personal, product, account, notification, performance]
 
     steps:
       - name: Checkout
@@ -62,27 +63,22 @@ jobs:
 
       # 로그인
       - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-      # .env 파일 생성
-      - name: Create .env file
         run: |
-          echo "SLACK_API_TOKEN=${{ secrets.SLACK_API_TOKEN }}" >> .env
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
-          echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" >> .env
-          echo "ENCRYPTOR_PASSWORD=${{ secrets.ENCRYPTOR_PASSWORD }}" >> .env
-        # 필요한 다른 환경 변수도 추가
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
 
-      # dockerTagAndPush.sh에 실행 권한 부여
-      - name: Grant execute permission for dockerTagAndPush.sh
-        run: chmod +x ./dockerTagAndPush.sh
-
-      # docker compose 를 이용해서 여러 이미지를 모두 빌드하고, 별도의 script를 사용해서 이미지를 push 합니다.
-      - name: Build, Tag and Push docker image to AWS ECR
+      # Docker 이미지 빌드
+      - name: Build Docker Image
         run: |
-          docker compose build
-          ./dockerTagAndPush.sh
-        env:
-          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          docker build -t ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:latest .
+
+      # Docker 이미지 태그 지정 (커밋 해시 사용)
+      - name: Tag Docker Image
+        run: |
+          commit_hash=$(git rev-parse --short HEAD)
+          docker tag ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:latest ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:$commit_hash
+
+      # Docker 이미지 푸시
+      - name: Push Docker Image to AWS ECR
+        run: |
+          docker push ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:latest
+          docker push ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:$commit_hash
