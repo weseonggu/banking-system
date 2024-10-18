@@ -16,7 +16,7 @@ public class TransactionsSearchRequestDto {
 
     private TransactionType type;
 
-    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌 번호 형식을 맞게 입력해주세요.")
+    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌 번호를 xxx-xxxx-xxxxxxx 형식에 맞게 입력해주세요.")
     private String accountNumber; // 내역을 살펴야 할 계좌 번호
 
     // 거래 발생 일자

@@ -1,8 +1,7 @@
 package com.msa.banking.product.application.service;
 
 import com.msa.banking.common.account.dto.AccountRequestDto;
-import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
-import com.msa.banking.common.account.type.AccountStatus;
+import com.msa.banking.common.account.dto.LoanDepositTransactionRequestDto;
 import com.msa.banking.common.account.type.AccountType;
 import com.msa.banking.common.account.type.TransactionType;
 import com.msa.banking.common.base.UserRole;
@@ -37,7 +36,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -291,7 +289,7 @@ public class UsingProductService {
             throw new IllegalArgumentException("대출 실행 가능한 상태가 아닙니다.");
         }
         // 계좌 증액 요청
-        DepositTransactionRequestDto dto = new DepositTransactionRequestDto (
+        LoanDepositTransactionRequestDto dto = new LoanDepositTransactionRequestDto(
                 "",
                 TransactionType.DEPOSIT,
                 BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()),

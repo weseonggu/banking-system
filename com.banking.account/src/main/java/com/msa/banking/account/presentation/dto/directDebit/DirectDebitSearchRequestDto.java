@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public class DirectDebitSearchRequestDto {
 
-    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌 번호 형식에 맞게 입력해주세요.")
+    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌 번호를 xxx-xxxx-xxxxxxx 형식에 맞게 입력해주세요.")
     private String originatingAccount;
 
-    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌 번호 형식에 맞게 입력해주세요.")
+    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌 번호를 xxx-xxxx-xxxxxxx 형식에 맞게 입력해주세요.")
     private String beneficiaryAccount;
 }

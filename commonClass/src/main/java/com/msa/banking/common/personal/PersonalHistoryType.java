@@ -6,5 +6,5 @@ public enum PersonalHistoryType {
     TRANSFER,          // 이체
     PAYMENT,           // 결제
     SAVINGS_DEPOSIT,   // 저축
-    LOAN_REPAYMENT     // 대출 상환
+    LOAN_DEPOSIT      // 대출액 입금
 }

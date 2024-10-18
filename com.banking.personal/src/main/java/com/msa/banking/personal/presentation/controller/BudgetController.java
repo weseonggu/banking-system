@@ -10,8 +10,8 @@ import com.msa.banking.personal.application.dto.budget.BudgetUpdateDto;
 import com.msa.banking.personal.application.service.BudgetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -81,7 +81,7 @@ public class BudgetController {
     @PostMapping("")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
     @Operation(summary = "예산 설정 생성", description = "예산을 설정하는 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<?> createBudget(@RequestBody BudgetRequestDto budgetRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> createBudget(@Valid @RequestBody BudgetRequestDto budgetRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
         String userName = userDetails.getUsername();
