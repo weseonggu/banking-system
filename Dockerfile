@@ -19,11 +19,11 @@ COPY . .
 
 # 환경 변수 정의 (Docker Compose에서 args로 설정될 수 있도록)
 ARG TEST_SPRING_PROFILES_ACTIVE
-ARG MODULE
 
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=${TEST_SPRING_PROFILES_ACTIVE}
 
+ARG MODULE
 # 빌드 수행 - 로그를 파일에 저장
 RUN chmod +x ./gradlew
 RUN ./gradlew clean :com.banking.${MODULE}:bootJar
