@@ -40,7 +40,8 @@ public class Account extends AuditEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountStatus status;
+    @Builder.Default
+    private AccountStatus status = AccountStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -60,7 +61,6 @@ public class Account extends AuditEntity {
         return Account.builder()
                 .accountNumber(accountNumber)
                 .accountHolder(requestDto.getAccountHolder())
-                .status(requestDto.getStatus() != null ? requestDto.getStatus() : AccountStatus.ACTIVE)  // null 체크
                 .type(requestDto.getType())
                 .accountPin(requestDto.getAccountPin())
                 .build();
