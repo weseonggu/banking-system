@@ -13,18 +13,20 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    # 3개의 서비스를 모두 빌드할 수 있도록 변수로 지정합니다.
+    # https://docs.github.com/ko/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
     strategy:
       matrix:
-        service: [com.banking.eureka.server,
-                  com.banking.config,
-                  com.banking.auth,
-                  com.banking.gateway,
-                  com.banking.commonBean,
-                  com.banking.product,
-                  com.banking.account,
-                  com.banking.personal,
-                  com.banking.notification,
-                  com.banking.performance]
+        service: [ com.banking.eureka.server,
+                   com.banking.config,
+                   com.banking.auth,
+                   com.banking.gateway,
+                   com.banking.commonBean,
+                   com.banking.product,
+                   com.banking.account,
+                   com.banking.personal,
+                   com.banking.notification,
+                   com.banking.performance]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,13 +43,10 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean :${{ matrix.service }}:bootJar -x test
 
-  dockerize:
-    name: Build Docker Image and Push to AWS ECR
+  Docker:
+    name: Build docker image and Push to registry
     needs: build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [config, server, gateway, auth, personal, product, account, notification, performance]
 
     steps:
       - name: Checkout
@@ -63,22 +62,40 @@ jobs:
 
       # 로그인
       - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      # .env 파일 생성
+      - name: Create .env file
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+          echo "SLACK_API_TOKEN=${{ secrets.SLACK_API_TOKEN }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" >> .env
+          echo "ENCRYPTOR_PASSWORD=${{ secrets.ENCRYPTOR_PASSWORD }}" >> .env
+        # 필요한 다른 환경 변수도 추가
 
-      # Docker 이미지 빌드
-      - name: Build Docker Image
+      - name: Build and Push docker images to AWS ECR
         run: |
-          docker build -t ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:latest .
-
-      # Docker 이미지 태그 지정 (커밋 해시 사용)
-      - name: Tag Docker Image
-        run: |
+          services=("config" "server" "gateway" "auth" "personal" "product" "account" "notification" "performance")
           commit_hash=$(git rev-parse --short HEAD)
-          docker tag ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:latest ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:$commit_hash
+          
+          echo "ECR_REGISTRY is set to: $ECR_REGISTRY"
+          echo "ECR_NAMESPACE is set to: $ECR_NAMESPACE"
 
-      # Docker 이미지 푸시
-      - name: Push Docker Image to AWS ECR
-        run: |
-          docker push ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:latest
-          docker push ${{ env.ECR_REGISTRY }}/sparta/${{ matrix.service }}:$commit_hash
+          for service in "${services[@]}"; do
+            imageName="${{ env.ECR_REGISTRY }}/${{ env.ECR_NAMESPACE }}/${service}"
+            # Docker Compose를 사용하여 이미지를 빌드합니다.
+            docker build -t "$imageName:latest" --build-arg MODULE="$service" .
+
+            # 태그 추가
+            docker tag "$imageName:latest" "$imageName:$commit_hash"
+
+            # AWS ECR에 푸시
+            docker push "$imageName:latest"
+            docker push "$imageName:$commit_hash"
+
+            echo "$service image is built and pushed to AWS ECR"
+          done
+
+          echo "Build and Push processing is done"
