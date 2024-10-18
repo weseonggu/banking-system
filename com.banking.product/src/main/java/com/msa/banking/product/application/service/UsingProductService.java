@@ -340,6 +340,7 @@ public class UsingProductService {
      * @param usingProductId 사용중인 상품 id
      * @param userDetails 로그인 정보
      */
+    @Transactional
     public boolean terminationProduct(UUID usingProductId, UserDetailsImpl userDetails) {
         UsingProduct usingProduct = usingProductRepository.findByIdJoinBothTable(usingProductId).orElseThrow(() -> new IllegalArgumentException("가입한 상품이 없습니다."));
 
