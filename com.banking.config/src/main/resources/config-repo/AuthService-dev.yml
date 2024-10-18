@@ -36,7 +36,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/auth
+    url: jdbc:postgresql://localhost:5433/auth
     username: banking
     password: banking20
 

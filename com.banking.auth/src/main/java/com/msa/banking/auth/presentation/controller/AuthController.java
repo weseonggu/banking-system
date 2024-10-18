@@ -10,7 +10,6 @@ import com.msa.banking.auth.presentation.response.AuthResponseDto;
 import com.msa.banking.common.auth.dto.SlackIdRequestDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -171,9 +170,4 @@ public class AuthController {
         return ResponseEntity.ok(new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "Successfully Valid", response));
     }
 
-    @GetMapping
-    @Hidden
-    public void test() {
-        scheduler.findAllMaster();
-    }
 }
