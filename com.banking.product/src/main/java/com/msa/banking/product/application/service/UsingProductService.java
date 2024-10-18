@@ -271,7 +271,7 @@ public class UsingProductService {
      * @param id 실행 할 대출 id
      */
     @Transactional
-    public void changeLoanSateToRun(UUID id, UserDetailsImpl userDetails) {
+    public void changeLoanSateToRun(UUID id, UserDetailsImpl userDetails, String accountNum) {
         // 실행할 데이터 검색
         UsingProduct usingProduct =usingProductRepository.findByIdEntityGraph(id)
                 .orElseThrow(() -> new IllegalArgumentException("데이터가 없습니다."));
@@ -288,14 +288,19 @@ public class UsingProductService {
         if(!usingProduct.getLoanInUse().getStatus().equals(LoanState.BEFOREEXECUTION)){
             throw new IllegalArgumentException("대출 실행 가능한 상태가 아닙니다.");
         }
-        // 계좌 증액 요청
-        LoanDepositTransactionRequestDto dto = new LoanDepositTransactionRequestDto(
-                "",
-                TransactionType.DEPOSIT,
-                BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()),
-                usingProduct.getName()+"님 대출금 입금"
-        );
-        accountClient.updateAccount(usingProduct.getAccountId(), dto);
+        try {
+            // 계좌 증액 요청
+            LoanDepositTransactionRequestDto dto = new LoanDepositTransactionRequestDto(
+                    accountNum,
+                    TransactionType.LOAN_DEPOSIT,
+                    BigDecimal.valueOf(usingProduct.getLoanInUse().getLoanAmount()),
+                    usingProduct.getName()+"님 대출금 입금"
+            );
+            accountClient.updateAccount(usingProduct.getAccountId(), dto);
+        }catch (FeignException.BadRequest e){
+            throw new IllegalArgumentException(e.getMessage());
+        }
+
 
         // 대출 실행 전으로 변경
         usingProduct.getLoanInUse().runLoan(userDetails.getUsername());
@@ -344,29 +349,33 @@ public class UsingProductService {
 
         // 요청자가 일반 사용자일 때 보인 상품인지 확인
         if(userDetails.getRole().equals(UserRole.CUSTOMER.getAuthority())){
-            if(userDetails.getUserId().equals(usingProduct.getUserId())){
+            if(!userDetails.getUserId().equals(usingProduct.getUserId())){
                 throw new IllegalArgumentException("타인의 상품을 해지 할 수 없습니다.");
             }
         }
         boolean result = false;
         switch (usingProduct.getType()){
             case CHECKING :
-                if(terminateChecking(usingProductId)){
+                if(terminateChecking(usingProduct.getAccountId())){
                     // 입출금 상품 상태 변경
                     usingProduct.changeIsUsing(false);
                     usingProduct.delete(userDetails.getUsername());
+                    usingProduct.getCheckingInUse().delete(userDetails.getUsername());
                     usingProductRepository.save(usingProduct);
+                    result = true;
                 }else {
                     result = false;
                 }
                 break;
             case NEGATIVE_LOANS:
-                if(terminateNativeLoan(usingProductId, usingProduct.getLoanInUse().getLoanAmount())){
+                if(terminateNativeLoan(usingProduct.getAccountId(), usingProduct.getLoanInUse().getLoanAmount())){
                     // 대출 상품 상태 변경
                     usingProduct.changeIsUsing(false);
                     usingProduct.getLoanInUse().cancleLoan();
                     usingProduct.delete(userDetails.getUsername());
+                    usingProduct.getLoanInUse().delete(userDetails.getUsername());
                     usingProductRepository.save(usingProduct);
+                    result = true;
                 }else {
                     result= false;
                 }
@@ -381,24 +390,44 @@ public class UsingProductService {
 
     /**
      * 입출금 상품 해지
-     * @param usingProductId
      */
     @CircuitBreaker(name = "terminateService", fallbackMethod = "terminateFallbackMethod")
-    private Boolean terminateChecking(UUID usingProductId) {
+    private Boolean terminateChecking(UUID accountId) {
+        try {
+            return accountClient.deleteAccount(accountId);
+        }catch (FeignException e){
+            if (e.status() == 400) {
+                return false;
+            } else if (e.status() == 404) {
+                return false;
+            } else {
+                // 그 외의 예외 처리
+                throw e;
+            }
+        }
 
-        return accountClient.deleteAccount(usingProductId);
 
     }
 
     /**
      * 대출 상품 해지
-     * @param usingProductId
      * @param ammount
      */
     @CircuitBreaker(name = "terminateService", fallbackMethod = "terminateFallbackMethod")
-    private Boolean terminateNativeLoan(UUID usingProductId, Long ammount) {
-
-        return accountClient.deleteLoanAccount(usingProductId, ammount);
+    private Boolean terminateNativeLoan(UUID accountId, Long ammount) {
+        try {
+          BigDecimal money = BigDecimal.valueOf(ammount);
+          return accountClient.deleteLoanAccount(accountId, money);
+        }catch (FeignException e){
+            if (e.status() == 400) {
+                return false;
+            } else if (e.status() == 404) {
+                return false;
+            } else {
+                // 그 외의 예외 처리
+                throw e;
+            }
+        }
 
     }
 
