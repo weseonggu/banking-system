@@ -28,13 +28,17 @@ public enum ErrorCode {
     /* 유저 2000번대 */
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 2001, "user not found"),
+    SLACK_NOT_VALID(HttpStatus.NOT_FOUND, 2001, "슬랙 ID 검증이 되지 않았습니다."),
     // 400 Bad Request
     EMPLOYEE_PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password."),
     CUSTOMER_PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password. 3회 이상 틀릴 경우 비밀번호 초기화를 해야합니다."),
-    SLACK_VERIFICATION_CODE_ERROR(HttpStatus.BAD_REQUEST, 2003, "슬랙 인증 번호가 일치하지 않습니다."),
-    SLACK_VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, 2004, "슬랙 ID 와 승인 번호가 일치하지 않거나, 승인 번호가 만료되었습니다. 재발급 받으세요."),
+    SLACK_VERIFICATION_CODE_ERROR(HttpStatus.BAD_REQUEST, 2002, "슬랙 인증 번호가 일치하지 않습니다."),
+    SLACK_VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, 2002, "슬랙 ID 와 승인 번호가 일치하지 않거나, 승인 번호가 만료되었습니다. 재발급 받으세요."),
     // 403 Forbidden
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
+
+    MANAGER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "매니저는 본인 정보만 접근 가능합니다."),
+  
     LOGIN_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 3회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
     // 400 Bad Request
     ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
@@ -90,14 +94,13 @@ public enum ErrorCode {
     // 404 Not Found
     PERSONAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5001, "개인 내역을 찾을 수 없습니다."),
     // 404 Not Found
-    BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, 5002, "설정한 예산 기록을 찾을 수 없습니다.");
+    BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, 5002, "설정한 예산 기록을 찾을 수 없습니다."),
+    // 400 Bad Request
+    BUDGET_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 5003, "예산 설정은 20개를 넘을 수 없습니다. 삭제하고 다시 진행해주세요."),
+    // 404 Not Found
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5004, "설정한 카테고리가 존재하지 않습니다.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
-
-
-
-
-
 
     private final HttpStatus httpStatus;
     private final int code;

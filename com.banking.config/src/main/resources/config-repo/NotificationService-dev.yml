@@ -35,7 +35,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/notification
+    url: jdbc:postgresql://localhost:5432/notification
     username: banking
     password: banking20
 

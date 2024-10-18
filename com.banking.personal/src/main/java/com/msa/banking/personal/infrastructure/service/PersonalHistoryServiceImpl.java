@@ -5,12 +5,14 @@ import com.msa.banking.common.notification.NotiType;
 import com.msa.banking.common.notification.NotificationRequestDto;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
+import com.msa.banking.personal.application.dto.category.MostSpentCategoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryRequestDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryUpdateDto;
 import com.msa.banking.personal.application.event.AccountCompletedEventDto;
 import com.msa.banking.personal.application.event.EventProducer;
+import com.msa.banking.personal.application.service.CategoryService;
 import com.msa.banking.personal.application.service.PersonalHistoryService;
 import com.msa.banking.personal.application.service.UserService;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
@@ -46,8 +48,8 @@ import java.util.UUID;
 public class PersonalHistoryServiceImpl implements PersonalHistoryService {
 
     private final PersonalHistoryRepository personalHistoryRepository;
-    private final CategoryRepository categoryRepository;
     private final BudgetRepository budgetRepository;
+    private final CategoryService categoryService;
     private final UserService userService;
     private final EventProducer eventProducer;
     private final CacheManager cacheManager;
@@ -148,14 +150,13 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         }
 
         // 입력받은 카테고리 이름 조회 후 존재하지 않으면 생성 후 저장 -> 카테고리 업데이트
-        Optional<Category> optionalCategory = categoryRepository.findByName(personalHistoryUpdateDto.getCategoryName());
+        Optional<Category> optionalCategory = categoryService.findByName(personalHistoryUpdateDto.getCategoryName(), userId);
 
         if (optionalCategory.isPresent()) {
             personalHistory.updateCategory(optionalCategory.get(), userName);
             personalHistoryRepository.save(personalHistory);
         } else {
-            Category category = Category.createCategory(personalHistoryUpdateDto.getCategoryName());
-            categoryRepository.save(category);
+            Category category = categoryService.createCategory(personalHistoryUpdateDto.getCategoryName(),userId);
             personalHistory.updateCategory(category, userName);
             personalHistoryRepository.save(personalHistory);
         }
@@ -216,7 +217,6 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         // 해당 기간에 속하는 모든 예산 설정을 조회
         List<Budget> budgets = budgetRepository.findAllByUserIdAndPeriod(userId, transactionDate);
 
-
         // TODO 예산 설정이 많아지면 부하가 걸림.
         // 예산 설정이 존재하면 처리
         if (!budgets.isEmpty()) {
@@ -241,6 +241,25 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         }
 
         return PersonalHistoryResponseDto.toDTO(savePersonalHistory);
+    }
+
+    /**
+     * 설정한 기간 내 가장 많은 금액을 소비한 카테고리, 총 소비 금액
+     */
+    @Override
+    public MostSpentCategoryResponseDto findMostSpentCategory(UUID userId, LocalDateTime startDate, LocalDateTime endDate) {
+
+        List<Object[]> result = personalHistoryRepository.findMostSpentCategoryByUserIdAndDateRange(userId,startDate,endDate);
+
+        if(!result.isEmpty()){
+            Object[] resultArray = result.get(0);
+            return MostSpentCategoryResponseDto.builder()
+                    .categoryName((String) resultArray[0])
+                    .totalSpent((BigDecimal) resultArray[1])
+                    .build();
+        } else {
+            throw new GlobalCustomException(ErrorCode.CATEGORY_NOT_FOUND);
+        }
     }
 
     /**

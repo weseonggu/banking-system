@@ -26,9 +26,14 @@ public class Category {
     @Column(name = "name", nullable = false)
     private String name;
 
-    public static Category createCategory(String categoryName){
+    // 본인이 생성한 카테고리를 알기위해 userId 추가
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
+    public static Category createCategory(String categoryName, UUID userId){
         return Category.builder()
                 .name(categoryName)
+                .userId(userId)
                 .build();
     }
 }

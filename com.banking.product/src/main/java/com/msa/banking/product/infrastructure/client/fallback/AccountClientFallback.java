@@ -17,7 +17,7 @@ public class AccountClientFallback implements AccountClient {
     @Override
     public ResponseEntity<UUID> addAccount(AccountRequestDto accountRequestDto) {
         log.error("AccountClient 문제 발생");
-        throw new TryAgainException("잠시 후 다시 시도 해주세요");
+        throw new TryAgainException("");
     }
 
     @Override

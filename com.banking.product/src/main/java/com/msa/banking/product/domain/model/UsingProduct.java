@@ -81,5 +81,9 @@ public class UsingProduct extends AuditEntity {
         this.loanInUse = loanInUse;
     }
 
+    public void changeIsUsing(Boolean isUsing){
+        this.isUsing = isUsing;
+    }
+
 
 }

@@ -7,7 +7,17 @@ spring:
   application:
     name: AccountService
   kafka:
-    bootstrap-servers: http://localhost:9092
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ${spring.application.name}-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
   cloud:
     bus:
       destination: banking-platform.dev.event.config-event.json
@@ -24,7 +34,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/account
+    url: jdbc:postgresql://localhost:5432/account
     username: banking
     password: banking20
     hikari:
@@ -36,7 +46,7 @@ spring:
   batch:
     datasource:
       driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://localhost:5433/batch_db
+      url: jdbc:postgresql://localhost:5432/batch_db
       username: banking
       password: banking20
       hikari:
