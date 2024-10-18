@@ -7,6 +7,7 @@ on:
 
 env:
   ECR_NAMESPACE: sparta
+  ECR_ECR_REGISTRY: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com
 
 jobs:
   build:
