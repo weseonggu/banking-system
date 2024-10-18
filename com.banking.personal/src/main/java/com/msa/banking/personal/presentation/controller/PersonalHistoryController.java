@@ -13,6 +13,7 @@ import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -72,7 +73,7 @@ public class PersonalHistoryController {
     @PatchMapping("/{history_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
     @Operation(summary = "개인 내역 수정(카테고리 변경)", description = "미분류된 카테고리를 수정하는 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<?> updatePersonalHistoryCategory(@PathVariable("history_id") Long historyId, @RequestBody PersonalHistoryUpdateDto personalHistoryUpdateDto,
+    public ResponseEntity<?> updatePersonalHistoryCategory(@PathVariable("history_id") Long historyId, @Valid @RequestBody PersonalHistoryUpdateDto personalHistoryUpdateDto,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
