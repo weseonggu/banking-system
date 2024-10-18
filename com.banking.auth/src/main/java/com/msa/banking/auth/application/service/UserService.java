@@ -2,8 +2,10 @@ package com.msa.banking.auth.application.service;
 
 import com.msa.banking.auth.domain.model.Customer;
 import com.msa.banking.auth.domain.model.Employee;
+import com.msa.banking.auth.domain.model.SlackCode;
 import com.msa.banking.auth.infrastructure.repository.CustomerRepository;
 import com.msa.banking.auth.infrastructure.repository.EmployeeRepository;
+import com.msa.banking.auth.infrastructure.repository.SlackCodeRepository;
 import com.msa.banking.auth.presentation.request.AuthRequestDto;
 import com.msa.banking.auth.presentation.request.SearchRequestDto;
 import com.msa.banking.auth.presentation.response.AuthResponseDto;
@@ -18,7 +20,6 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,7 +36,7 @@ public class UserService {
     private final CustomerRepository customerRepository;
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final SlackCodeRepository slackCodeRepository;
 
     /**
      * 내부 API 직원 테이블 전용
@@ -136,19 +137,37 @@ public class UserService {
             }
         }
 
+        if (request.getSlackId() != null) {
+            // 슬랙 검증 통과 여부 확인
+            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
+                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
+
+            // 검증 완료 시 삭제
+            if (findSlackCode != null) {
+                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
+            }
+        }
+
+
         // 유저 ID 유니크 제약 조건 검증
-        if (existsCustomerByUsernameAndIdNot(request.getUsername(), customerId)) {
-            throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
+        if (request.getUsername() != null) {
+            if (existsCustomerByUsernameAndIdNot(request.getUsername(), customerId)) {
+                throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
+            }
         }
 
         // Email 유니크 제약 조건 검증
-        if (existsCustomerByEmailAndIdNot(request.getEmail(), customerId)) {
-            throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+        if (request.getEmail() != null) {
+            if (existsCustomerByEmailAndIdNot(request.getEmail(), customerId)) {
+                throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+            }
         }
 
         // PhoneNumber 유니크 제약 조건 검증
-        if (existsCustomerByPhoneNumberAndIdNot(request.getPhoneNumber(), customerId)) {
-            throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
+        if (request.getPhoneNumber() != null) {
+            if (existsCustomerByPhoneNumberAndIdNot(request.getPhoneNumber(), customerId)) {
+                throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
+            }
         }
 
         // 고객 존재 유뮤 확인
@@ -181,23 +200,40 @@ public class UserService {
         // 매니저 권한일 때 본인 정보가 아니면 에러
         if (role.equals(UserRole.MANAGER.name())) {
             if (!employeeId.equals(userId)) {
-                throw new GlobalCustomException(ErrorCode.USER_FORBIDDEN);
+                throw new GlobalCustomException(ErrorCode.MANAGER_FORBIDDEN);
+            }
+        }
+
+        if (request.getSlackId() != null) {
+            // 슬랙 검증 통과 여부 확인
+            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
+                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
+
+            // 검증 완료 시 삭제
+            if (findSlackCode != null) {
+                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
             }
         }
 
         // 유저 ID 유니크 제약 조건 검증
-        if (existsEmployeeByUsernameAndIdNot(request.getUsername(), employeeId)) {
-            throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
+        if (request.getUsername() != null) {
+            if (existsEmployeeByUsernameAndIdNot(request.getUsername(), employeeId)) {
+                throw new GlobalCustomException(ErrorCode.USERNAME_DUPLICATE_RESOURCES);
+            }
         }
 
         // Email 유니크 제약 조건 검증
-        if (existsEmployeeByEmailAndIdNot(request.getEmail(), employeeId)) {
-            throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+        if (request.getEmail() != null) {
+            if (existsEmployeeByEmailAndIdNot(request.getEmail(), employeeId)) {
+                throw new GlobalCustomException(ErrorCode.EMAIL_DUPLICATE_RESOURCES);
+            }
         }
 
         // PhoneNumber 유니크 제약 조건 검증
-        if (existsEmployeeByPhoneNumberAndIdNot(request.getPhoneNumber(), employeeId)) {
-            throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
+        if (request.getPhoneNumber() != null) {
+            if (existsEmployeeByPhoneNumberAndIdNot(request.getPhoneNumber(), employeeId)) {
+                throw new GlobalCustomException(ErrorCode.PHONE_NUMBER_DUPLICATE_RESOURCES);
+            }
         }
 
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(() ->

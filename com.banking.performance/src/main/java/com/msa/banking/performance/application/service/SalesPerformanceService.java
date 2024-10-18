@@ -32,10 +32,12 @@ public class SalesPerformanceService {
     @Transactional
     public void performance(SlackIdAndLoanAndAmountDto deserialize) throws SlackApiException, IOException, URISyntaxException {
 
+        YearMonth month = YearMonth.now().minusMonths(1);
+
         SalesPerformance salesPerformance = SalesPerformance.createSalesPerformance(
                 deserialize.getTotalAmount(),
                 Long.parseLong(String.valueOf(deserialize.getLoanCount())),
-                YearMonth.now().minusMonths(1)
+                month.toString()
         );
 
         // DB 저장

@@ -22,4 +22,6 @@ public interface BudgetRepository extends JpaRepository<Budget, UUID>, BudgetRep
     @Query("SELECT b FROM Budget b WHERE b.userId = :userId AND b.startDate <= :transactionDate AND b.endDate >= :transactionDate AND b.isDelete = false")
     List<Budget> findAllByUserIdAndPeriod(@Param("userId") UUID userId,
                                           @Param("transactionDate") LocalDateTime transactionDate);
+
+    long countBudgetByUserId(UUID userId);
 }

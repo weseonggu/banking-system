@@ -3,6 +3,7 @@ package com.msa.banking.personal.presentation.controller;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import com.msa.banking.personal.application.dto.category.MostSpentCategoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryRequestDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
@@ -21,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -118,4 +120,24 @@ public class PersonalHistoryController {
                 new SuccessResponse<>(SuccessCode.INSERT_SUCCESS.getStatus(), "createPersonalHistory", responseDto));
     }
 
+    /**
+     * 설정한 기간 내 가장 많은 금액을 소비한 카테고리, 총 소비 금액
+     */
+    @GetMapping("/most-spent")
+    @Operation(summary = "가장 많은 금액을 소비한 카테고리, 금액 조회", description = "설정한 기간 내 가장 많은 금액을 소비한 카테고리, 총 소비 금액 조회 API 입니다.")
+    public ResponseEntity<?> findMostSpentCategory(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                   @RequestParam("startDate")LocalDateTime startDate,
+                                                   @RequestParam("endDate") LocalDateTime endDate){
+        UUID userId = userDetails.getUserId();
+
+        MostSpentCategoryResponseDto responseDto = personalHistoryService.findMostSpentCategory(userId,startDate,endDate);
+
+        String formattedResponse = String.format("가장 큰 소비 카테고리는 %s, 총 소비 금액은 %s원 입니다.",
+                responseDto.getCategoryName(),
+                responseDto.getTotalSpent().toString());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "findMostSpentCategory", formattedResponse));
+
+    }
 }

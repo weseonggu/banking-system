@@ -20,7 +20,7 @@ spring:
         - id: PersonalHistoryService
           uri: lb://PersonalHistoryService
           predicates:
-            - Path=/api/personal-histories/**, /api/budgets/**
+            - Path=/api/personal-histories/**, /api/budgets/**, /api/categories/**
         - id: ProductService
           uri: lb://ProductService
           predicates:

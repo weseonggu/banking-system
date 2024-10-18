@@ -28,11 +28,12 @@ public class PerformanceScheduler {
     private final UsingProductRepository usingProductRepository;
 
     /**
-     * 대출 가입 매월초에서 매월말 전체 조회 후 Account 서비스 전달
+     * 매출성과 | 대출 가입 전월 초에서 전월 말 전체 조회 후 Account 서비스 전달
      * @param message
      */
     @KafkaListener(topics = "performance-master-slack-list", groupId = "AuthService-group")
     public void listen(String message) {
+        log.info("매출성과 | 대출 가입 전월 초에서 전월 말 전체 조회 후 Account 서비스 전달 시도 중");
 
         // 슬랙 ID 리스트
         List<?> request = EventSerializer.deserialize(message, List.class);
@@ -42,28 +43,20 @@ public class PerformanceScheduler {
             slackIds.add(String.valueOf(o));
         }
         for (int i = 0; i < request.size(); i++) {
-            System.out.println("master slackId " + i + "= " + slackIds.get(i));
+            log.info("master slackId " + i + "= " + slackIds.get(i));
         }
 
-//        // 전월의 시작일
-//        YearMonth lastMonth = YearMonth.now().minusMonths(1);
-//        LocalDateTime startDateTime = lastMonth.atDay(1).atStartOfDay();
-//
-//        // 전월의 마지막일
-//        LocalDateTime endDateTime = lastMonth.atEndOfMonth().atTime(23, 59, 59);
+        // 전월의 시작일
+        YearMonth lastMonth = YearMonth.now().minusMonths(1);
+        LocalDateTime startDateTime = lastMonth.atDay(1).atStartOfDay();
 
-        // 현재 월의 YearMonth 객체 생성
-        YearMonth currentMonth = YearMonth.now();
-        // 현재 월의 시작일 (1일 00:00:00)
-        LocalDateTime startDateTime = currentMonth.atDay(1).atStartOfDay();
-
-        // 현재 월의 마지막일 (23:59:59)
-        LocalDateTime endDateTime = currentMonth.atEndOfMonth().atTime(23, 59, 59);
+        // 전월의 마지막일
+        LocalDateTime endDateTime = lastMonth.atEndOfMonth().atTime(23, 59, 59);
 
         // 전 월 첫째일 00:00 ~ 전 월 마지막일 23:59:59
         // 대출 조회
         List<UsingProduct> findUsingProduct = usingProductRepository.findByLoanInUseIsNotNullAndCreatedAtBetween(startDateTime, endDateTime);
-        System.out.println("대출 가입 사이즈 = " + findUsingProduct.size());
+        log.info("대출 가입 사이즈: {}", findUsingProduct.size());
 
         // 대출 계좌 ID 리스트
         List<UUID> accountIds = new ArrayList<>();
@@ -71,9 +64,11 @@ public class PerformanceScheduler {
         for (UsingProduct usingProduct : findUsingProduct) {
             accountIds.add(usingProduct.getAccountId());
         }
+        log.info("대출 계좌 ID 리스트: {}", accountIds);
 
         SlackAndLoanDto slackAndLoanDto = new SlackAndLoanDto(slackIds, accountIds, findUsingProduct.size());
 
         kafkaTemplate.send(Topic.PERFORMANCE_MASTER_SLACK_LIST_LOAN_LIST.getTopic(), EventSerializer.serialize(slackAndLoanDto));
+        log.info("매출성과 | 대출 가입 전월 초에서 전월 말 전체 조회 후 Account 서비스 전달 완료");
     }
 }
