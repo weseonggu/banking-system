@@ -164,7 +164,7 @@ public class UsingProductService {
     @CircuitBreaker(name = "createAccountService", fallbackMethod = "joinFallbackMethod")
     private ResponseEntity<UUID> addAccount(String name, String accountPin) throws FeignException{
 
-        AccountRequestDto requestDto = new AccountRequestDto(name, AccountStatus.ACTIVE, AccountType.CHECKING, accountPin);
+        AccountRequestDto requestDto = new AccountRequestDto(name, AccountType.CHECKING, accountPin, accountPin);
         return accountClient.addAccount(requestDto);
 
 
