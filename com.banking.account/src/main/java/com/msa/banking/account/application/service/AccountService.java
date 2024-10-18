@@ -93,7 +93,6 @@ public class AccountService {
         account.updateAccountPin(pin);
     }
 
-
     /**
      * 계좌 해지
      * 고객은 본인만 계좌 해지 가능.
@@ -132,9 +131,7 @@ public class AccountService {
 
         account.updateAccountStatus(AccountStatus.CLOSED);
         account.delete(username);
-
     }
-
 
     /**
      * 계좌 전체 조회
@@ -147,7 +144,6 @@ public class AccountService {
 
         return accountRepository.searchAccounts(search, pageable);
     }
-
 
     // 계좌 상세 조회
     @LogDataChange

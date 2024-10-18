@@ -36,7 +36,9 @@ public enum ErrorCode {
     SLACK_VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, 2002, "슬랙 ID 와 승인 번호가 일치하지 않거나, 승인 번호가 만료되었습니다. 재발급 받으세요."),
     // 403 Forbidden
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
+
     MANAGER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "매니저는 본인 정보만 접근 가능합니다."),
+  
     LOGIN_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 3회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
     // 400 Bad Request
     ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
@@ -77,6 +79,8 @@ public enum ErrorCode {
     AMOUNT_BAD_REQUEST(HttpStatus.BAD_REQUEST, 3015,"금액은 0보다 크게 입력해야 합니다."),
     // 거래 타입 invalid
     INVALID_TRANSACTION_TYPE(HttpStatus.BAD_REQUEST, 3016,"거래 유형이 올바르지 못합니다."),
+    // 계좌 비밀 번호 입력 시도 초과로 계좌 잠금
+    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 3017, "계좌가 잠금되었습니다. 비밀번호를 재설정하시길 바랍니다."),
 
 
 

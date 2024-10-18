@@ -75,9 +75,9 @@ public class AccountTransactions extends AuditEntity {
 
         return AccountTransactions.builder()
                 .account(account)
-                .type(requestDto.type())
-                .depositAmount(requestDto.depositAmount())
-                .description(requestDto.description())
+                .type(requestDto.getType())
+                .depositAmount(requestDto.getDepositAmount())
+                .description(requestDto.getDescription())
                 .build();
     }
 
@@ -86,9 +86,9 @@ public class AccountTransactions extends AuditEntity {
 
         return AccountTransactions.builder()
                 .account(account)
-                .type(requestDto.type())
-                .depositAmount(requestDto.depositAmount())
-                .description(requestDto.description())
+                .type(requestDto.getType())
+                .depositAmount(requestDto.getDepositAmount())
+                .description(requestDto.getDescription())
                 .build();
     }
 
@@ -97,9 +97,9 @@ public class AccountTransactions extends AuditEntity {
 
         return AccountTransactions.builder()
                 .account(account)
-                .type(requestDto.type())
-                .withdrawalAmount(requestDto.withdrawalAmount())// requestDto.amount().negate()) 음수 값을 데이터베이스에 저장하는 것은 지양되기 때문에 철회
-                .description(requestDto.description())
+                .type(requestDto.getType())
+                .withdrawalAmount(requestDto.getWithdrawalAmount())// requestDto.amount().negate()) 음수 값을 데이터베이스에 저장하는 것은 지양되기 때문에 철회
+                .description(requestDto.getDescription())
                 .build();
     }
 
@@ -110,10 +110,10 @@ public class AccountTransactions extends AuditEntity {
 
         return AccountTransactions.builder()
                 .account(account)
-                .type(requestDto.type())
-                .withdrawalAmount(requestDto.amount())
-                .description(requestDto.description())
-                .beneficiaryAccount(requestDto.beneficiaryAccount())
+                .type(requestDto.getType())
+                .withdrawalAmount(requestDto.getAmount())
+                .description(requestDto.getDescription())
+                .beneficiaryAccount(requestDto.getBeneficiaryAccount())
                 .build();
     }
 
@@ -123,9 +123,9 @@ public class AccountTransactions extends AuditEntity {
 
         return AccountTransactions.builder()
                 .account(account)
-                .type(requestDto.type())
-                .depositAmount(requestDto.amount())
-                .description(requestDto.description())
+                .type(requestDto.getType())
+                .depositAmount(requestDto.getAmount())
+                .description(requestDto.getDescription())
                 .originatingAccount(originatingAccount)
                 .build();
     }

@@ -37,6 +37,8 @@ public class AccountTransactionsService {
     private final ProductService productService;
 
 
+
+
     /**
      * 일반적인 입금을 제외한 금융 거래에서 본인의 계좌일 경우에만 거래가능하게 함.
      * TODO: 계좌 거래 발생 시 거래 알림
@@ -48,18 +50,18 @@ public class AccountTransactionsService {
     public SingleTransactionResponseDto createDeposit(DepositTransactionRequestDto request) {
 
         // 거래 상태 확인
-        if(!request.type().equals(TransactionType.DEPOSIT) && !request.type().equals(TransactionType.SAVINGS_DEPOSIT) &&
-                !request.type().equals(TransactionType.LOAN_REPAYMENT)) {
+        if(!request.getType().equals(TransactionType.DEPOSIT) && !request.getType().equals(TransactionType.SAVINGS_DEPOSIT) &&
+                !request.getType().equals(TransactionType.LOAN_REPAYMENT)) {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
 
         // 입금액 확인
-        if(request.depositAmount()==null || request.depositAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        if(request.getDepositAmount()==null || request.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
         }
 
         // 입금하려는 계좌 찾기
-        Account account = accountRepository.findByAccountNumber(request.accountNumber())
+        Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
                 .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
@@ -84,12 +86,12 @@ public class AccountTransactionsService {
         }
 
         // 거래 상태 확인
-        if(!request.type().equals(TransactionType.DEPOSIT)) {
+        if(!request.getType().equals(TransactionType.DEPOSIT)) {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
 
         // 입금액 확인
-        if(request.depositAmount()==null || request.depositAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        if(request.getDepositAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
         }
 
@@ -118,12 +120,12 @@ public class AccountTransactionsService {
         }
 
         // 거래 상태 확인
-        if(!request.type().equals(TransactionType.WITHDRAWAL) && !request.type().equals(TransactionType.PAYMENT)) {
+        if(!request.getType().equals(TransactionType.WITHDRAWAL) && !request.getType().equals(TransactionType.PAYMENT)) {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
 
         // 출금액 확인
-        if(request.withdrawalAmount() ==null || request.withdrawalAmount().compareTo(BigDecimal.ZERO) <= 0) {
+        if(request.getWithdrawalAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
         }
 
@@ -133,12 +135,12 @@ public class AccountTransactionsService {
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 출금하기
-        if (request.withdrawalAmount().compareTo(account.getBalance()) > 0) {
+        if (request.getWithdrawalAmount().compareTo(account.getBalance()) > 0) {
             throw new GlobalCustomException(ErrorCode.WITHDRAWAL_NOT_POSSIBLE);
         }
 
         // 비밀번호 확인
-        checkAccountPin(accountId, request.accountPin());
+        transactionalService.checkAccountPin(accountId, request.getAccountPin());
 
         // 거래 내역 생성 및 저장
         AccountTransactions withdrawalTransaction = transactionalService.createWithdrawalTransaction(account, request);
@@ -160,32 +162,34 @@ public class AccountTransactionsService {
         }
 
         // 거래 상태 확인
-        if(!request.type().equals(TransactionType.TRANSFER)) {
+        if(!request.getType().equals(TransactionType.TRANSFER)) {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
 
         // 송금액 확인
-        if(request.amount() ==null || request.amount().compareTo(BigDecimal.ZERO) <= 0) {
+        if(request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new GlobalCustomException(ErrorCode.AMOUNT_BAD_REQUEST);
         }
 
-        validateAccountNumberFormat(request.beneficiaryAccount());
+        validateAccountNumberFormat(request.getBeneficiaryAccount());
         // 비즈니스 로직
         Account senderAccount = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        Account beneficiaryAccount = accountRepository.findByAccountNumber(request.beneficiaryAccount())
-                .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
+
+        // 계좌 락이어도 타인 송금은 가능.
+        Account beneficiaryAccount = accountRepository.findByAccountNumber(request.getBeneficiaryAccount())
+                .filter(a -> !a.getIsDelete() && (a.getStatus().equals(AccountStatus.ACTIVE)||a.getStatus().equals(AccountStatus.LOCKED)))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
         // 계좌 잔액 체크
-        if (request.amount().compareTo(senderAccount.getBalance()) > 0) {
+        if (request.getAmount().compareTo(senderAccount.getBalance()) > 0) {
             throw new GlobalCustomException(ErrorCode.WITHDRAWAL_NOT_POSSIBLE);
         }
 
         // 송금인 비밀번호 확인
-        checkAccountPin(accountId, request.accountPin());
+        transactionalService.checkAccountPin(accountId, request.getAccountPin());
 
         // 거래 내역 생성 및 저장 (트랜잭션 분리)
         TransferAccountTransactions transferTransactions = transactionalService.createTransferTransactions(senderAccount, beneficiaryAccount, request);
@@ -241,21 +245,7 @@ public class AccountTransactionsService {
         return transactionsMapper.toDto(transaction);
     }
 
-    // TODO: 계좌 비밀번호 시도를 제한해야.
-    // 계좌 비밀번호 확인
-    @LogDataChange
-    public void checkAccountPin(UUID accountId, String accountPin) {
 
-        // 비밀번호가 6자리인지 확인
-        if (accountPin == null || accountPin.length() != 6) {
-            throw new GlobalCustomException(ErrorCode.INVALID_ACCOUNT_PIN_LENGTH);
-        }
-
-        // 비밀번호 확인
-        if (!accountRepository.getAccountPin(accountId).equals(accountPin)) {
-            throw new GlobalCustomException(ErrorCode.ACCOUNT_PIN_NOT_MATCH);
-        }
-    }
 
     // 계좌 번호 검증
     @LogDataChange
