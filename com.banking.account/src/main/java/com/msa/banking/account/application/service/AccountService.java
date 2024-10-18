@@ -74,7 +74,6 @@ public class AccountService {
 
     /**
      * 계좌 비밀번호 변경
-     * TODO: 계좌 비밀번호 변경 시 로직을 어떻게 짤 것인지 고민. 본인인지 확인하는 검증 로직
      */
     @LogDataChange
     @Transactional
@@ -156,7 +155,6 @@ public class AccountService {
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
-
 
             return accountMapper.toDto(account);
     }

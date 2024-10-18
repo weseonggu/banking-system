@@ -151,7 +151,6 @@ public class AccountTransactionsService {
 
     /**
      * 이체 기능(저축 + 대출 상환 포함 가능)
-     * TODO: 이체 시 description null이면 송금인 이름으로 대체
      */
     @LogDataChange
     @RedissonLock(value = {"#accountId.toString()", "#request.beneficiaryAccount()"})  // 송금인과 수취인 계좌에 대해 각각 락 적용
