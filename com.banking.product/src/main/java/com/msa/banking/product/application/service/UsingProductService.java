@@ -258,6 +258,7 @@ public class UsingProductService {
             }else{
                 // 대출 거부로 변경
                 usingProduct.getLoanInUse().refusalLoan(userDetails.getUsername());
+                usingProduct.getLoanInUse().reviewerUp(userDetails.getUserId());
                 usingProductRepository.save(usingProduct);
                 usingProduct.changeIsUsing(false);
                 return false;
@@ -333,8 +334,80 @@ public class UsingProductService {
         }
         return detailDto;
     }
+/////////////////////////////////////////////////////////// 상품 해지 로직 /////////////////////////////////////////////////////////
+    /**
+     * 사용 중인 상품 해지
+     * @param usingProductId 사용중인 상품 id
+     * @param userDetails 로그인 정보
+     */
+    public boolean terminationProduct(UUID usingProductId, UserDetailsImpl userDetails) {
+        UsingProduct usingProduct = usingProductRepository.findByIdJoinBothTable(usingProductId).orElseThrow(() -> new IllegalArgumentException("가입한 상품이 없습니다."));
+
+        // 요청자가 일반 사용자일 때 보인 상품인지 확인
+        if(userDetails.getRole().equals(UserRole.CUSTOMER.getAuthority())){
+            if(userDetails.getUserId().equals(usingProduct.getUserId())){
+                throw new IllegalArgumentException("타인의 상품을 해지 할 수 없습니다.");
+            }
+        }
+        boolean result = false;
+        switch (usingProduct.getType()){
+            case CHECKING :
+                if(terminateChecking(usingProductId)){
+                    // 입출금 상품 상태 변경
+                    usingProduct.changeIsUsing(false);
+                    usingProduct.delete(userDetails.getUsername());
+                    usingProductRepository.save(usingProduct);
+                }else {
+                    result = false;
+                }
+                break;
+            case NEGATIVE_LOANS:
+                if(terminateNativeLoan(usingProductId, usingProduct.getLoanInUse().getLoanAmount())){
+                    // 대출 상품 상태 변경
+                    usingProduct.changeIsUsing(false);
+                    usingProduct.getLoanInUse().cancleLoan();
+                    usingProduct.delete(userDetails.getUsername());
+                    usingProductRepository.save(usingProduct);
+                }else {
+                    result= false;
+                }
+                break;
+
+        }
+
+        return result;
+    }
 
 
+
+    /**
+     * 입출금 상품 해지
+     * @param usingProductId
+     */
+    @CircuitBreaker(name = "terminateService", fallbackMethod = "terminateFallbackMethod")
+    private Boolean terminateChecking(UUID usingProductId) {
+
+        return accountClient.deleteAccount(usingProductId);
+
+    }
+
+    /**
+     * 대출 상품 해지
+     * @param usingProductId
+     * @param ammount
+     */
+    @CircuitBreaker(name = "terminateService", fallbackMethod = "terminateFallbackMethod")
+    private Boolean terminateNativeLoan(UUID usingProductId, Long ammount) {
+
+        return accountClient.deleteLoanAccount(usingProductId, ammount);
+
+    }
+
+    public Boolean terminateFallbackMethod(Exception e){
+        return false;
+    }
+
+/////////////////////////////////////////////////////////// 상품 해지 로직 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////   다른 마이크로 서비스    ///////////////////////////////////////////////////////////
 
     public UsingProductResponseDto findByAccountId(UUID accountId, UUID userId, String userRole){

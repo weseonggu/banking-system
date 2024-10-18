@@ -74,6 +74,10 @@ public class LoanInUse extends AuditEntity {
         this.status = LoanState.RUNNING;
         super.setUpdateByUserName(name);
     }
+
+    public void cancleLoan() {
+        this.status = LoanState.CANCLE;
+    }
     public void reviewerUp(UUID id){
         this.reviewer = id;
     }
