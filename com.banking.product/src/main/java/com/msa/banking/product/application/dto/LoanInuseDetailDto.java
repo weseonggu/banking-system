@@ -25,6 +25,7 @@ public class LoanInuseDetailDto extends UsingProductDetailDto {
     private BigDecimal interestRate;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private String reviewer;
     private LoanState status;
 
 
@@ -41,6 +42,7 @@ public class LoanInuseDetailDto extends UsingProductDetailDto {
                 .interestRate(inUse.getInterestRate())
                 .startDate(inUse.getStartDate())
                 .endDate(inUse.getEndDate())
+                .reviewer(inUse.getReviewer() == null ? "Under review" : inUse.getReviewer().toString())
                 .status(inUse.getStatus())
                 .build();
     }

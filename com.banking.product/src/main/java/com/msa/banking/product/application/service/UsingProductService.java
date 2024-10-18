@@ -252,6 +252,7 @@ public class UsingProductService {
             if(choice){
                 // 대출 실행 전으로 변경
                 usingProduct.getLoanInUse().approvalLoan(userDetails.getUsername());
+                usingProduct.getLoanInUse().reviewerUp(userDetails.getUserId());
                 usingProductRepository.save(usingProduct);
                 return true;
             }else{
