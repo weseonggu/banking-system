@@ -103,6 +103,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config
 
   eureka:
     build:
@@ -116,6 +117,7 @@ services:
       - "19090:19090"
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/server
 
   gateway:
     build:
@@ -132,6 +134,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway
 
   auth:
     build:
@@ -148,6 +151,7 @@ services:
     depends_on:
       config:
         condition: service_healthy
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth
 
   personal:
     build:
@@ -164,6 +168,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal
 
   product:
     build:
@@ -183,6 +188,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product
 
   account:
     build:
@@ -200,6 +206,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account
 
   notification:
     build:
@@ -217,6 +224,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification
 
   performance:
     build:
@@ -234,6 +242,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance
 
 
 volumes:

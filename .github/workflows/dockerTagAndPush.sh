@@ -9,7 +9,7 @@ echo "ECR_NAMESPACE is set to: $ECR_NAMESPACE"
 
 for service in "${services[@]}"
 do
-  imageName="$ECR_REGISTRY/$ECR_NAMESPACE/$service"
+  imageName="211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/$ECR_NAMESPACE/$service"
   # 이미지를 구분하기 위해서 latest 이외의 태그를 추가합니다.
   docker tag "$imageName:latest" "$imageName:$commit_hash"
 

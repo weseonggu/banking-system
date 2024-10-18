@@ -7,7 +7,7 @@ on:
 
 env:
   ECR_NAMESPACE: sparta
-  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_REGISTRY: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com
 
 jobs:
   build:
