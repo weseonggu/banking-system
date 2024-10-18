@@ -81,6 +81,17 @@ public enum ErrorCode {
     INVALID_TRANSACTION_TYPE(HttpStatus.BAD_REQUEST, 3016,"거래 유형이 올바르지 못합니다."),
     // 계좌 비밀 번호 입력 시도 초과로 계좌 잠금
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 3017, "계좌가 잠금되었습니다. 비밀번호를 재설정하시길 바랍니다."),
+    // 비밀번호 재확인 불일치
+    CHECK_ACCOUNT_PIN_NOT_MATCH(HttpStatus.BAD_REQUEST, 3018, "재입력한 값이 본래 설정한 값과 일치하지 않습니다."),
+    // 하루 출금 한도 초과
+    DAILY_WITHDRAWAL_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3019, "하루 출금 한도를 초과하였습니다."),
+    // 1회 출금 한도 초과
+    PER_WITHDRAWAL_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3020, "1회 출금 한도를 초과하였습니다."),
+    // 하루 이체 한도 초과
+    DAILY_TRANSFER_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3021, "하루 이체 한도를 초과하였습니다."),
+    // 1회 이체 한도 초과
+    PER_TRANSFER_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3022, "1회 출금 한도를 초과하였습니다."),
+
 
 
 
