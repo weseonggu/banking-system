@@ -28,7 +28,6 @@ public class DirectDebit extends AuditEntity {
 
     @Convert(converter = EncryptAttributeConverter.class)
     @Column(nullable = false)
-    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.")
     private String beneficiaryAccount;
 
     @Column(precision = 15, scale = 2, nullable = false)

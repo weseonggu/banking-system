@@ -4,7 +4,8 @@ import com.msa.banking.account.application.service.AccountTransactionsService;
 import com.msa.banking.account.presentation.dto.transactions.TransactionsSearchRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.TransferTransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.WithdrawalTransactionRequestDto;
-import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.DepositTransactionRequestDto;
+import com.msa.banking.common.account.dto.LoanDepositTransactionRequestDto;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
@@ -54,7 +55,7 @@ public class TransactionsController {
     public ResponseEntity<?> createLoanDeposit(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
-            @RequestBody DepositTransactionRequestDto request) {
+            @RequestBody LoanDepositTransactionRequestDto request) {
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(
