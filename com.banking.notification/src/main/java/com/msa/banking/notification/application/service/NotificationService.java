@@ -56,12 +56,7 @@ public class NotificationService {
         Notification save = notificationRepository.save(notification);
 
         // 슬랙 메세지 전송
-//        try {
-            sendMessage(request);
-//        }catch (Exception e){
-//            log.error(e.getMessage());
-//        }
-
+        sendMessage(request);
     }
 
     /**
@@ -70,27 +65,23 @@ public class NotificationService {
      * @throws SlackApiException
      */
     public void sendMessage(NotificationRequestDto requestDto) throws IOException, SlackApiException, URISyntaxException {
-        try {
-            log.info("슬랙 메세지 전송 시도 중");
-            Slack slack = Slack.getInstance();
+        log.info("슬랙 메세지 전송 시도 중");
+        Slack slack = Slack.getInstance();
 
-            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .token(slackToken)
-                    .channel(requestDto.getSlackId())
-                    .text(requestDto.getMessage())
-                    .build();
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .token(slackToken)
+                .channel(requestDto.getSlackId())
+                .text(requestDto.getMessage())
+                .build();
 
-            ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
-            if (response.isOk()) {
-                log.info("Message sent successfully to user: " + requestDto.getSlackId());
-            } else {
-                log.error("Error sending message: " + response.getError());
-                throw new RuntimeException(response.getError());
-            }
-            log.info("슬랙 메세지 전송 완료");
-        }catch (Exception e){
-            log.error(e.getMessage());
+        ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
+        if (response.isOk()) {
+            log.info("Message sent successfully to user: " + requestDto.getSlackId());
+        } else {
+            log.error("Error sending message: " + response.getError());
+            throw new RuntimeException(response.getError());
         }
+        log.info("슬랙 메세지 전송 완료");
     }
 
     /**
@@ -111,32 +102,28 @@ public class NotificationService {
      * @throws SlackApiException
      */
     public String sendMessage(SlackIdRequestDto requestDto) throws IOException, SlackApiException, URISyntaxException {
+        log.info("슬랙 인증번호 전송 시도 중");
 
+        // 6자리 랜덤 인증번호 생성
+        Random random = new Random();
+        int randomCode = 100000 + random.nextInt(900000); // 100000 ~ 999999 사이의 숫자
 
+        Slack slack = Slack.getInstance();
 
-            log.info("슬랙 인증번호 전송 시도 중");
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .token(slackToken)
+                .channel(requestDto.getSlackId())
+                .text(String.valueOf(randomCode))
+                .build();
 
-            // 6자리 랜덤 인증번호 생성
-            Random random = new Random();
-            int randomCode = 100000 + random.nextInt(900000); // 100000 ~ 999999 사이의 숫자
-
-            Slack slack = Slack.getInstance();
-
-            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .token(slackToken)
-                    .channel(requestDto.getSlackId())
-                    .text(String.valueOf(randomCode))
-                    .build();
-
-            ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
-            if (response.isOk()) {
-                log.info("Message sent successfully to user: " + requestDto.getSlackId());
-            } else {
-                log.error("Error sending message: " + response.getError());
-                throw new GlobalCustomException(ErrorCode.SLACK_ERROR);
-            }
-            log.info("슬랙 인증번호 전송 시도 완료");
-            return String.valueOf(randomCode);
-
+        ChatPostMessageResponse response = slack.methods().chatPostMessage(request);
+        if (response.isOk()) {
+            log.info("Message sent successfully to user: " + requestDto.getSlackId());
+        } else {
+            log.error("Error sending message: " + response.getError());
+            throw new GlobalCustomException(ErrorCode.SLACK_ERROR);
+        }
+        log.info("슬랙 인증번호 전송 시도 완료");
+        return String.valueOf(randomCode);
     }
 }

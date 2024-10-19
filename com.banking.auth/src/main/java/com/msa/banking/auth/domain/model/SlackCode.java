@@ -18,6 +18,7 @@ public class SlackCode extends AuditEntity {
 
     @Id
     @GeneratedValue
+    @Column(name = "slack_code_id")
     private Long id;
 
     @Column(name = "slack_id", nullable = false)
@@ -29,8 +30,8 @@ public class SlackCode extends AuditEntity {
     @Column(name = "expires_time", nullable = false)
     private LocalDateTime expiresTime;
 
-    @Column(name = "success_time")
-    private LocalDateTime successTime;
+    @Column(name = "is_valid")
+    private boolean isValid = false;
 
     public SlackCode(String slackId, String slackCode, LocalDateTime expiresTime) {
         this.slackId = slackId;
@@ -47,5 +48,12 @@ public class SlackCode extends AuditEntity {
      */
     public static SlackCode createSlackCode(String slackId,String slackCode, LocalDateTime expiresTime) {
         return new SlackCode(slackId, slackCode, expiresTime);
+    }
+
+    /**
+     * 인증 성공 시 true 변환
+     */
+    public void changeIsValid() {
+        this.isValid = true;
     }
 }

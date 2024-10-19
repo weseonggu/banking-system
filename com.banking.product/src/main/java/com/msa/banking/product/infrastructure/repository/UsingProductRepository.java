@@ -2,6 +2,7 @@ package com.msa.banking.product.infrastructure.repository;
 
 import com.msa.banking.product.domain.model.UsingProduct;
 import com.msa.banking.product.domain.repository.UsingProductRepositoryCustom;
+import com.msa.banking.product.lib.LoanState;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,12 +25,17 @@ public interface UsingProductRepository extends JpaRepository<UsingProduct, UUID
     @Query("select u FROM UsingProduct  u WHERE u.id = :id")
     Optional<UsingProduct> findByIdEntityGraph(@Param("id")UUID id);
 
+    @EntityGraph(attributePaths = {"loanInUse", "checkingInUse"})
+    @Query("select u FROM UsingProduct  u WHERE u.id = :id AND u.isUsing = true")
+    Optional<UsingProduct> findByIdJoinBothTable(@Param("id")UUID id);
 
     @Query("SELECT CASE WHEN COUNT(p) > 0 THEN TRUE ELSE FALSE END " +
             "FROM UsingProduct p WHERE p.userId = :userId AND p.productId = :productId AND p.isUsing = :isUsing")
     boolean existsByUserIdAndProductIdAndIsUsing(@Param("userId") UUID userId,
                                                  @Param("productId") UUID productId,
                                                  @Param("isUsing") boolean b);
+
+
 
     @Query("SELECT u FROM UsingProduct u WHERE u.id = :id AND u.isDelete = false")
     @EntityGraph(attributePaths = {

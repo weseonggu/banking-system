@@ -34,32 +34,56 @@ public class Account extends AuditEntity {
     @Column(nullable = false)
     private String accountHolder;
 
+    // 기업이 아닌 일반 고객의 거래에서 10조나 되는 거래 금액이 이루어지는 경우는 드물기 때문에 15자리 숫자는 넉넉한 설정
     @Column(precision = 15, scale = 2, nullable = false)
     @Builder.Default// precision
     private BigDecimal balance = BigDecimal.valueOf(0.00);
 
+    // 1회 출금 한도액
+    @Column(precision = 15, scale = 2, nullable = false)
+    @Builder.Default// precision
+    private BigDecimal perWithdrawalLimit = BigDecimal.valueOf(1000000.00);
+
+    // 하루 출금 한도액
+    @Column(precision = 15, scale = 2, nullable = false)
+    @Builder.Default// precision
+    private BigDecimal dailyWithdrawalLimit = BigDecimal.valueOf(5000000.00);
+
+    // 1회 이체 한도액
+    @Column(precision = 15, scale = 2, nullable = false)
+    @Builder.Default// precision
+    private BigDecimal perTransferLimit = BigDecimal.valueOf(10000000.00);
+
+    // 하루 이체 한도액
+    @Column(precision = 15, scale = 2, nullable = false)
+    @Builder.Default// precision
+    private BigDecimal dailyTransferLimit = BigDecimal.valueOf(50000000.00);
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountStatus status;
+    @Builder.Default
+    private AccountStatus status = AccountStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountType type;
 
     @Convert(converter = EncryptAttributeConverter.class)    // 중요 데이터 암호화
-    @Column(nullable = false)
-    @Pattern(regexp = "^\\d{6}$", message = "비밀번호는 6자리이어야 합니다.")
+    @Column(nullable = false)// RequestDto로 옮기기
     private String accountPin;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer pinFailureCount = 0;
 
 
     public static Account createAccount(String accountNumber, AccountRequestDto requestDto) {
 
         return Account.builder()
                 .accountNumber(accountNumber)
-                .accountHolder(requestDto.accountHolder())
-                .status(requestDto.status() != null ? requestDto.status() : AccountStatus.ACTIVE)  // null 체크
-                .type(requestDto.type())
-                .accountPin(requestDto.accountPin())
+                .accountHolder(requestDto.getAccountHolder())
+                .type(requestDto.getType())
+                .accountPin(requestDto.getAccountPin())
                 .build();
     }
 
@@ -77,5 +101,15 @@ public class Account extends AuditEntity {
     // 계좌 비밀번호 변경
     public void updateAccountPin(String accountPin){
         this.accountPin = accountPin;
+    }
+
+    // 계좌 1회 출금 한도액 변경
+    public void updatePerWithdrawalLimit(BigDecimal perWithdrawalLimit){
+        this.perWithdrawalLimit = perWithdrawalLimit;
+    }
+
+    // 계좌 하루 출금 한도액 변경
+    public void updateDailyWithdrawalLimit(BigDecimal dailyWithdrawalLimit){
+        this.dailyWithdrawalLimit = dailyWithdrawalLimit;
     }
 }

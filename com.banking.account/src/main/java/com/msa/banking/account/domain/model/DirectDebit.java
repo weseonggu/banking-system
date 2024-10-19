@@ -28,7 +28,6 @@ public class DirectDebit extends AuditEntity {
 
     @Convert(converter = EncryptAttributeConverter.class)
     @Column(nullable = false)
-    @Pattern(regexp = "\\d{3}-\\d{4}-\\d{7}", message = "계좌번호는 xxx-xxxx-xxxxxxx 형식을 따라야 합니다.")
     private String beneficiaryAccount;
 
     @Column(precision = 15, scale = 2, nullable = false)
@@ -46,16 +45,16 @@ public class DirectDebit extends AuditEntity {
     public static DirectDebit createDirectDebit(Account account, DirectDebitRequestDto requestDto) {
         return DirectDebit.builder()
                 .account(account)
-                .beneficiaryAccount(requestDto.beneficiaryAccount())
-                .amount(requestDto.amount())
-                .transferDate(requestDto.transferDate())
+                .beneficiaryAccount(requestDto.getBeneficiaryAccount())
+                .amount(requestDto.getAmount())
+                .transferDate(requestDto.getTransferDate())
                 .build();
     }
 
     // 이체 금액, 이체 날짜, 상태 변경 가능
     public void updateDirectDebit(DirectDebitRequestDto requestDto) {
-        this.amount = requestDto.amount();
-        this.transferDate = requestDto.transferDate();
+        this.amount = requestDto.getAmount();
+        this.transferDate = requestDto.getTransferDate();
     }
 
     // 이체 금액, 이체 날짜, 상태 변경 가능

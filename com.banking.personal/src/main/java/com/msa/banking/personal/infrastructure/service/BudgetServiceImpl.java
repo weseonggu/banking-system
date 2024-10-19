@@ -34,6 +34,9 @@ public class BudgetServiceImpl implements BudgetService {
     private final PersonalHistoryRepository personalHistoryRepository;
     private final CacheManager cacheManager;
 
+    private static final int MAX_BUDGET_LIMIT = 20;
+
+
     /**
      * 예산 설정 목록 조회
      */
@@ -74,20 +77,30 @@ public class BudgetServiceImpl implements BudgetService {
     @CachePut(cacheNames = "budgetCache", key = "#result.budgetId")
     public BudgetResponseDto createBudget(BudgetRequestDto budgetRequestDto, String userRole, UUID userId, String userName) {
 
+        if(budgetRequestDto.getPeriod() == null ){
+            throw new IllegalArgumentException("WEEKLY, MONTHLY 둘 중 기간을 정해주세요.");
+        }
+
         LocalDateTime startDate = budgetRequestDto.getStartDate();
         LocalDateTime endDate = Budget.calculateEndDate(startDate, budgetRequestDto.getPeriod());
 
-        Budget budget = Budget.createBudget(budgetRequestDto, userId, userName);
+        Long budgetCount = budgetRepository.countBudgetByUserId(userId);
 
-        // Optional을 사용하여 금액이 있을 경우에만 예산에 추가
-        Optional<BigDecimal> totalSpentAmountOpt = personalHistoryRepository
-                .findTotalAmountByDateRange(userId, startDate, endDate);
+        if(budgetCount < MAX_BUDGET_LIMIT){
+            Budget budget = Budget.createBudget(budgetRequestDto, userId, userName);
 
-        totalSpentAmountOpt.ifPresent(budget::addTransactionAmount);
+            // Optional을 사용하여 금액이 있을 경우에만 예산에 추가
+            Optional<BigDecimal> totalSpentAmountOpt = personalHistoryRepository
+                    .findTotalAmountByDateRange(userId, startDate, endDate);
 
-        budgetRepository.save(budget);
+            totalSpentAmountOpt.ifPresent(budget::addTransactionAmount);
 
-        return BudgetResponseDto.toDTO(budget);
+            budgetRepository.save(budget);
+            return BudgetResponseDto.toDTO(budget);
+
+        } else {
+            throw new GlobalCustomException(ErrorCode.BUDGET_LIMIT_EXCEEDED);
+        }
     }
 
 

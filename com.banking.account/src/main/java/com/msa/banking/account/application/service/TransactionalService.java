@@ -6,7 +6,8 @@ import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.AccountTransactions;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
-import com.msa.banking.common.account.dto.DepositTransactionRequestDto;
+import com.msa.banking.account.presentation.dto.transactions.DepositTransactionRequestDto;
+import com.msa.banking.common.account.dto.LoanDepositTransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.TransferAccountTransactions;
 import com.msa.banking.account.presentation.dto.transactions.TransferTransactionRequestDto;
 import com.msa.banking.account.presentation.dto.transactions.WithdrawalTransactionRequestDto;
@@ -42,10 +43,12 @@ public class TransactionalService {
         try {
             // 계좌 거래 생성
             depositTransaction = AccountTransactions.createSingleDepositTransaction(account, request);
+
             // 거래 설명 없을 시
-            if(request.description()==null){
+            if(request.getDescription()==null){
                 depositTransaction.updateTransactionDescription("입금");
             }
+
             transactionsRepository.save(depositTransaction);
         } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.ACCOUNT_TRANSACTION_FAILED);
@@ -53,18 +56,45 @@ public class TransactionalService {
 
         // 거래 상태 이벤트 발행
         eventPublisher.publishEvent(new TransactionStatusEvent(depositTransaction.getTransactionId()));
+
         return depositTransaction;
+    }
+
+    // 대출 계좌 대출액 거래 내역 생성
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public AccountTransactions createDepositTransaction(Account account, LoanDepositTransactionRequestDto request) {
+
+        AccountTransactions loanDepositTransaction;
+
+        try {
+            // 계좌 거래 생성
+            loanDepositTransaction = AccountTransactions.createLoanDepositTransaction(account, request);
+
+            if(request.getDescription()==null){
+                loanDepositTransaction.updateTransactionDescription("대출액 입금");
+            }
+
+            transactionsRepository.save(loanDepositTransaction);
+        } catch (Exception e) {
+            throw new GlobalCustomException(ErrorCode.ACCOUNT_TRANSACTION_FAILED);
+        }
+
+        // 거래 상태 이벤트 발행
+        eventPublisher.publishEvent(new TransactionStatusEvent(loanDepositTransaction.getTransactionId()));
+
+        return loanDepositTransaction;
     }
 
 
     // 입금 트랜잭션 내에서 잔액 변경 처리 및 Kafka 이벤트 전송
     @Transactional
-    public void updateDepositAccountBalance(Account account,  DepositTransactionRequestDto request) {
+    public void updateDepositAccountBalance(Account account, BigDecimal depositAmount) {
 
         try {
             // 금액 추가
-            BigDecimal newBalance = account.getBalance().add(request.depositAmount());
+            BigDecimal newBalance = account.getBalance().add(depositAmount);
             account.updateAccountBalance(newBalance);
+
             accountRepository.save(account);
         } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.BALANCE_TRANSACTION_FAILED);
@@ -81,10 +111,12 @@ public class TransactionalService {
         try {
             // 계좌 거래 생성
             withdrawalTransaction = AccountTransactions.createSingleWithdrawalTransaction(account, request);
+
             // 거래 설명 없을 시
-            if(request.description()==null){
+            if(request.getDescription()==null){
                 withdrawalTransaction.updateTransactionDescription("출금");
             }
+
             transactionsRepository.save(withdrawalTransaction);
         } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.ACCOUNT_TRANSACTION_FAILED);
@@ -92,18 +124,20 @@ public class TransactionalService {
 
         // 거래 상태 이벤트 발행
         eventPublisher.publishEvent(new TransactionStatusEvent(withdrawalTransaction.getTransactionId()));
+
         return withdrawalTransaction;
     }
 
 
     // 출금 트랜잭션 내에서 잔액 변경 처리 및 Kafka 이벤트 전송
     @Transactional
-    public void updateWithdrawalAccountBalance(Account account, WithdrawalTransactionRequestDto request, UUID accountId, UUID userId, String role, AccountTransactions withdrawalTransaction) {
+    public void updateWithdrawalAccountBalance(Account account, BigDecimal withdrawalAmount, UUID accountId, UUID userId, String role, AccountTransactions withdrawalTransaction) {
 
         try {
             // 금액 차감
-            BigDecimal totalBalance = account.getBalance().subtract(request.withdrawalAmount());
+            BigDecimal totalBalance = account.getBalance().subtract(withdrawalAmount);
             account.updateAccountBalance(totalBalance);
+
             accountRepository.save(account);
         } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.BALANCE_TRANSACTION_FAILED);
@@ -124,18 +158,22 @@ public class TransactionalService {
         try {
             // 송금인 계좌 거래 생성
             senderTransaction = AccountTransactions.createSenderTransaction(senderAccount, request);
+
             // 거래 설명 없을 시
-            if(request.description()==null){
+            if(request.getDescription()==null){
                 senderTransaction.updateTransactionDescription(beneficiaryAccount.getAccountHolder());
             }
+
             transactionsRepository.save(senderTransaction);
 
             // 수취인 계좌 거래 생성
             beneficiaryTransaction = AccountTransactions.createBeneficiaryTransaction(beneficiaryAccount, senderAccount.getAccountNumber(), request);
+
             // 거래 설명 없을 시
-            if(request.description()==null){
+            if(request.getDescription()==null){
                 beneficiaryTransaction.updateTransactionDescription(senderAccount.getAccountHolder());
             }
+
             transactionsRepository.save(beneficiaryTransaction);
         } catch(Exception e) {
             throw new GlobalCustomException(ErrorCode.ACCOUNT_TRANSACTION_FAILED);
@@ -151,17 +189,19 @@ public class TransactionalService {
 
     // 이체 트랜잭션 내에서 잔액 변경 처리 및 Kafka 이벤트 전송
     @Transactional
-    public void updateTransferAccountBalances(Account senderAccount, Account beneficiaryAccount, TransferTransactionRequestDto request, AccountTransactions senderTransaction, UUID accountId, UUID userId, String role) {
+    public void updateTransferAccountBalances(Account senderAccount, Account beneficiaryAccount, BigDecimal transferAmount, AccountTransactions senderTransaction, UUID accountId, UUID userId, String role) {
 
         try {
             // 송금인 금액 차감 및 저장
-            BigDecimal totalSenderBalance = senderAccount.getBalance().subtract(request.amount());
+            BigDecimal totalSenderBalance = senderAccount.getBalance().subtract(transferAmount);
             senderAccount.updateAccountBalance(totalSenderBalance);
+
             accountRepository.save(senderAccount);
 
             // 수취인 계좌 금액 추가 및 저장
-            BigDecimal totalBeneficiaryBalance = beneficiaryAccount.getBalance().add(request.amount());
+            BigDecimal totalBeneficiaryBalance = beneficiaryAccount.getBalance().add(transferAmount);
             beneficiaryAccount.updateAccountBalance(totalBeneficiaryBalance);
+
             accountRepository.save(beneficiaryAccount);
         } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.BALANCE_TRANSACTION_FAILED);

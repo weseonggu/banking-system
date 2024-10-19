@@ -28,14 +28,18 @@ public enum ErrorCode {
     /* 유저 2000번대 */
     // 404 Not Found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 2001, "user not found"),
+    SLACK_NOT_VALID(HttpStatus.NOT_FOUND, 2001, "슬랙 ID 검증이 되지 않았습니다."),
     // 400 Bad Request
     EMPLOYEE_PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password."),
     CUSTOMER_PASSWORD_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2002, "Incorrect password. 3회 이상 틀릴 경우 비밀번호 초기화를 해야합니다."),
-    SLACK_VERIFICATION_CODE_ERROR(HttpStatus.BAD_REQUEST, 2003, "슬랙 인증 번호가 일치하지 않습니다."),
-    SLACK_VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, 2004, "슬랙 ID 와 승인 번호가 일치하지 않거나, 승인 번호가 만료되었습니다. 재발급 받으세요."),
+    SLACK_VERIFICATION_CODE_ERROR(HttpStatus.BAD_REQUEST, 2002, "슬랙 인증 번호가 일치하지 않습니다."),
+    SLACK_VERIFICATION_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, 2002, "슬랙 ID 와 승인 번호가 일치하지 않거나, 승인 번호가 만료되었습니다. 재발급 받으세요."),
     // 403 Forbidden
     USER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "본인 정보만 접근 가능합니다."),
-    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 3회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
+
+    MANAGER_FORBIDDEN(HttpStatus.FORBIDDEN, 2003, "매니저는 본인 정보만 접근 가능합니다."),
+  
+    LOGIN_LOCKED(HttpStatus.FORBIDDEN, 2003, "로그인 실패 3회 이상으로 계정이 잠겼습니다. 비밀번호를 초기화 하세요."),
     // 400 Bad Request
     ADDRESS_BAD_REQUEST(HttpStatus.BAD_REQUEST, 2004, "city, street, zipcode 모든 필드가 작성되어야 합니다."),
     // 409 Conflict
@@ -75,6 +79,19 @@ public enum ErrorCode {
     AMOUNT_BAD_REQUEST(HttpStatus.BAD_REQUEST, 3015,"금액은 0보다 크게 입력해야 합니다."),
     // 거래 타입 invalid
     INVALID_TRANSACTION_TYPE(HttpStatus.BAD_REQUEST, 3016,"거래 유형이 올바르지 못합니다."),
+    // 계좌 비밀 번호 입력 시도 초과로 계좌 잠금
+    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 3017, "계좌가 잠금되었습니다. 비밀번호를 재설정하시길 바랍니다."),
+    // 비밀번호 재확인 불일치
+    CHECK_ACCOUNT_PIN_NOT_MATCH(HttpStatus.BAD_REQUEST, 3018, "재입력한 값이 본래 설정한 값과 일치하지 않습니다."),
+    // 하루 출금 한도 초과
+    DAILY_WITHDRAWAL_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3019, "하루 출금 한도를 초과하였습니다."),
+    // 1회 출금 한도 초과
+    PER_WITHDRAWAL_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3020, "1회 출금 한도를 초과하였습니다."),
+    // 하루 이체 한도 초과
+    DAILY_TRANSFER_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3021, "하루 이체 한도를 초과하였습니다."),
+    // 1회 이체 한도 초과
+    PER_TRANSFER_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3022, "1회 출금 한도를 초과하였습니다."),
+
 
 
 
@@ -86,14 +103,13 @@ public enum ErrorCode {
     // 404 Not Found
     PERSONAL_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5001, "개인 내역을 찾을 수 없습니다."),
     // 404 Not Found
-    BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, 5002, "설정한 예산 기록을 찾을 수 없습니다.");
+    BUDGET_NOT_FOUND(HttpStatus.NOT_FOUND, 5002, "설정한 예산 기록을 찾을 수 없습니다."),
+    // 400 Bad Request
+    BUDGET_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 5003, "예산 설정은 20개를 넘을 수 없습니다. 삭제하고 다시 진행해주세요."),
+    // 404 Not Found
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, 5004, "설정한 카테고리가 존재하지 않습니다.");
     /* 상품 6000번대 */
     /* 문의사항 7000번대 */
-
-
-
-
-
 
     private final HttpStatus httpStatus;
     private final int code;

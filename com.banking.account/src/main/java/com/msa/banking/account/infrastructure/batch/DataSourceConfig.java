@@ -15,7 +15,7 @@ public class DataSourceConfig  {
     public HikariDataSource dataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName("org.postgresql.Driver");
-        config.setJdbcUrl("jdbc:postgresql://postgres:5432/account");
+        config.setJdbcUrl("jdbc:postgresql://localhost:5433/account");
         config.setUsername("banking");
         config.setPassword("banking20");
         config.setMaximumPoolSize(10);
@@ -29,7 +29,7 @@ public class DataSourceConfig  {
     public HikariDataSource batchDataSource() {
         HikariConfig config = new HikariConfig();
         config.setDriverClassName("org.postgresql.Driver");
-        config.setJdbcUrl("jdbc:postgresql://postgres:5432/batch_db");
+        config.setJdbcUrl("jdbc:postgresql://localhost:5433/batch_db");
         config.setUsername("banking");
         config.setPassword("banking20");
         config.setMaximumPoolSize(10);

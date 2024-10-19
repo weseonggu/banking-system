@@ -1,7 +1,7 @@
 package com.msa.banking.account.presentation.controller;
 
 import com.msa.banking.account.application.service.AccountService;
-import com.msa.banking.account.presentation.dto.account.AccountSearchRequestDto;
+import com.msa.banking.account.presentation.dto.account.*;
 import com.msa.banking.common.account.dto.AccountRequestDto;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.response.SuccessCode;
@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -39,8 +40,9 @@ public class AccountController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody final AccountRequestDto request) {
 
-        return ResponseEntity.ok(accountService.createAccount(request));
+        return ResponseEntity.ok(accountService.createAccount(request, userDetails.getUserId(), userDetails.getRole()));
     }
+
 
     // 계좌 상태 변경
     @PatchMapping("/{account_id}/status")
@@ -60,6 +62,7 @@ public class AccountController {
         );
     }
 
+
     // 계좌 비밀번호 변경
     @PatchMapping("/{account_id}/accountPin")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
@@ -67,9 +70,9 @@ public class AccountController {
     public ResponseEntity<?> updateAccountPin(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId,
-            @RequestParam String pin) {
+            @RequestBody UpdateAccountPinRequestDto request) {
 
-        accountService.updateAccountPin(accountId, pin, userDetails.getUserId(), userDetails.getRole());
+        accountService.updateAccountPin(accountId, request, userDetails.getUserId(), userDetails.getRole());
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(
@@ -80,43 +83,132 @@ public class AccountController {
         );
     }
 
-    // 계좌 해지
+
+    // 계좌 비밀번호 재설정
+    @PatchMapping("/{account_id}/reset/accountPin")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "계좌 잠금으로 인한 비밀번호 재설정", description = "초기화된 계좌의 비밀번호 재설정 API 입니다.")
+    public ResponseEntity<?> resetAccountPin(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestBody ResetAccountPinRequestDto request) {
+
+        accountService.resetAccountPin(accountId, request, userDetails.getUserId(), userDetails.getRole());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        SuccessCode.UPDATE_SUCCESS.getStatus(),
+                        "비밀번호 재설정 완료",
+                        ResponseEntity.noContent().build()
+                )
+        );
+    }
+
+    // 계좌 1회 출금 한도액 재설정
+    @PatchMapping("/{account_id}/PerWithdrawalLimit")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "계좌 1회 출금 한도액 변경", description = "계좌 1회 출금 한도액 변경 API 입니다.")
+    public ResponseEntity<?> updatePerWithdrawalLimit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestBody PerWithdrawalLimitRequestDto request) {
+
+        accountService.updatePerWithdrawalLimit(accountId, request, userDetails.getUserId(), userDetails.getRole());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        SuccessCode.UPDATE_SUCCESS.getStatus(),
+                        "1회 출금 한도액 변경 완료",
+                        ResponseEntity.noContent().build()
+                )
+        );
+    }
+
+    // 계좌 하루 출금 한도액 재설정
+    @PatchMapping("/{account_id}/DailyWithdrawalLimit")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "계좌 하루 출금 한도액 변경", description = "계좌 하루 출금 한도액 변경 API 입니다.")
+    public ResponseEntity<?> updateDailyWithdrawalLimit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestBody DailyWithdrawalLimitRequestDto request) {
+
+        accountService.updateDailyWithdrawalLimit(accountId, request, userDetails.getUserId(), userDetails.getRole());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        SuccessCode.UPDATE_SUCCESS.getStatus(),
+                        "하루 출금 한도액 변경 완료",
+                        ResponseEntity.noContent().build()
+                )
+        );
+    }
+
+    // 계좌 1회 출금 한도액 재설정
+    @PatchMapping("/{account_id}/PerTransferLimit")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "계좌 1회 이체 한도액 변경", description = "계좌 1회 이체 한도액 변경 API 입니다.")
+    public ResponseEntity<?> updatePerTransferLimit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestBody PerTransferLimitRequestDto request) {
+
+        accountService.updatePerTransferLimit(accountId, request, userDetails.getUserId(), userDetails.getRole());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        SuccessCode.UPDATE_SUCCESS.getStatus(),
+                        "1회 이체 한도액 변경 완료",
+                        ResponseEntity.noContent().build()
+                )
+        );
+    }
+
+    // 계좌 하루 출금 한도액 재설정
+    @PatchMapping("/{account_id}/DailyTransferLimit")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @Operation(summary = "계좌 하루 이체 한도액 변경", description = "계좌 하루 이체 한도액 변경 API 입니다.")
+    public ResponseEntity<?> updateDailyTransferLimit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("account_id") UUID accountId,
+            @RequestBody DailyTransferLimitRequestDto request) {
+
+        accountService.updateDailyTransferLimit(accountId, request, userDetails.getUserId(), userDetails.getRole());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(
+                        SuccessCode.UPDATE_SUCCESS.getStatus(),
+                        "하루 이체 한도액 변경 완료",
+                        ResponseEntity.noContent().build()
+                )
+        );
+    }
+
+
+    // 입출금 계좌 해지
     @DeleteMapping("/{account_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     @Operation(summary = "입출금 계좌 해지", description = "계좌를 해지 API 입니다.")
-    public ResponseEntity<?> deleteAccount(
+    public Boolean deleteAccount(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("account_id") UUID accountId) {
 
-        accountService.deleteAccount(accountId, userDetails.getUserId(), userDetails.getUsername(), userDetails.getRole());
-
-        return ResponseEntity.ok(
-                new SuccessResponse<>(
-                        SuccessCode.DELETE_SUCCESS.getStatus(),
-                        "계좌 해지 완료",
-                        ResponseEntity.noContent().build()
-                )
-        );
+        return accountService.deleteAccount(accountId, userDetails.getUserId(), userDetails.getUsername(), userDetails.getRole());
     }
+
 
     // 대출 계좌 해지
     @DeleteMapping("/{account_id}/loan")
-    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
     @Operation(summary = "대출 계좌 해지", description = "대출 계좌를 해지 API 입니다.")
-    public ResponseEntity<?> deleteLoanAccount(
+    public Boolean deleteLoanAccount(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable("account_id") UUID accountId) {
+            @PathVariable("account_id") UUID accountId,
+            @RequestParam BigDecimal amount) {
 
-        accountService.deleteLoanAccount(accountId, userDetails.getUserId(), userDetails.getUsername(), userDetails.getRole());
-
-        return ResponseEntity.ok(
-                new SuccessResponse<>(
-                        SuccessCode.DELETE_SUCCESS.getStatus(),
-                        "계좌 해지 완료",
-                        ResponseEntity.noContent().build()
-                )
-        );
+        return accountService.deleteLoanAccount(accountId, amount, userDetails.getUserId(), userDetails.getUsername(), userDetails.getRole());
     }
+
 
     // 계좌 전체 조회
     @GetMapping
@@ -137,6 +229,7 @@ public class AccountController {
                 )
         );
     }
+
 
     // 계좌 상세 조회
     @GetMapping("/{account_id}")

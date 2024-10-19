@@ -49,16 +49,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
-    defer-datasource-initialization: true
 
-  sql:
-    init:
-      mode: never
-#    defer-datasource-initialization: true
-#
-#  sql:
-#    init:
-#      mode: never
 
 service:
   jwt:
@@ -80,10 +71,12 @@ eureka:
     health-check-url-path: /actuator/health # 헬스 체크를 통한 정상작동 확인
 
 management:
+  server:
+    port: 29093
   endpoints:
     web:
       exposure:
-        include: "*, busrefresh"
+        include: "*, busrefresh, prometheus"
   endpoint:
     health:
       show-details: always
@@ -95,9 +88,10 @@ management:
   tracing:
     sampling:
       probability: 1.0
-  health:
-    redis:
-      enabled: false
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 common:
   bean:

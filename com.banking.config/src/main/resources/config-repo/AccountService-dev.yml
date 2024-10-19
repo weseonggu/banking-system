@@ -7,7 +7,17 @@ spring:
   application:
     name: AccountService
   kafka:
-    bootstrap-servers: http://localhost:9092
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ${spring.application.name}-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
   cloud:
     bus:
       destination: banking-platform.dev.event.config-event.json
@@ -89,10 +99,12 @@ eureka:
     health-check-url-path: /actuator/health # 헬스 체크를 통한 정상작동 확인
 
 management:
+  server:
+    port: 29095
   endpoints:
     web:
       exposure:
-        include: "*, busrefresh"
+        include: "*, busrefresh, prometheus"
   endpoint:
     health:
       show-details: always
@@ -104,6 +116,10 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 common:
   bean:

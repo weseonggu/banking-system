@@ -64,10 +64,12 @@ eureka:
     health-check-url-path: /actuator/health # 헬스 체크를 통한 정상작동 확인
 
 management:
+  server:
+    port: 29097
   endpoints:
     web:
       exposure:
-        include: "*, busrefresh"
+        include: "*, busrefresh, prometheus"
   endpoint:
     health:
       show-details: always
@@ -79,13 +81,10 @@ management:
   tracing:
     sampling:
       probability: 1.0
-  prometheus:
-    metrics:
-      export:
+  metrics:
+    export:
+      prometheus:
         enabled: true
-  health:
-    redis:
-      enabled: false
 
 common:
   bean:

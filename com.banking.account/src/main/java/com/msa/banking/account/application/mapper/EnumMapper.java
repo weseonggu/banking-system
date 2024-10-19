@@ -18,8 +18,8 @@ public class EnumMapper {
                 return PersonalHistoryType.PAYMENT;
             case SAVINGS_DEPOSIT:
                 return PersonalHistoryType.SAVINGS_DEPOSIT;
-            case LOAN_REPAYMENT:
-                return PersonalHistoryType.LOAN_REPAYMENT;
+            case LOAN_DEPOSIT:
+                return PersonalHistoryType.LOAN_DEPOSIT;
             default:
                 throw new IllegalArgumentException("Unsupported transactionType: " + transactionType);
         }

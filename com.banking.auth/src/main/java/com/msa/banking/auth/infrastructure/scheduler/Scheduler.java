@@ -26,14 +26,15 @@ public class Scheduler {
     private final BlackListTokenRepository blackListTokenRepository;
 
     /**
-     * 매월 1일 00:00 분 상품 가입건수 MASTER 슬랙 전송 스케줄러
+     * 매출성과 | 매월 1일 마스터 슬랙 ID 리스트 product 전송
      */
-//    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = "0 0 0 1 * ?")
     public void findAllMaster() {
         log.info("상품 가입건수 스케줄러 | MASTER slackId 리스트 조회 시도 중 | product 메세지 전송 시도 중");
         
         // 모든 MASTER slackId 리스트 조회
-        List<String> slackIds = employeeRepository.findByRole(UserRole.MANAGER);
+        List<String> slackIds = employeeRepository.findByRole(UserRole.MASTER);
+        log.info("마스터 슬랙 ID 리스트: {}", slackIds);
         
         // auth > product 카프카 메세지 전송
         kafkaTemplate.send(Topic.PERFORMANCE_MASTER_SLACK_LIST.getTopic(), EventSerializer.serialize(slackIds));

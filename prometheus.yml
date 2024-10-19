@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  - job_name: 'Microservices-APP'  # 모든 서비스를 하나의 job으로 통합
+    scrape_interval: 15s  # 이 타겟에만 적용되는 스크래핑 주기
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets:
+          - 'host.docker.internal:29094'  # Product-Service
+          - 'host.docker.internal:29093'  # Auth-Service
+          - 'host.docker.internal:29095'  # Account-Service
+          - 'host.docker.internal:29097'  # Notification-Service
+          - 'host.docker.internal:29098'  # Performance-Service
+          - 'host.docker.internal:29096'  # PersonalHistory-Service

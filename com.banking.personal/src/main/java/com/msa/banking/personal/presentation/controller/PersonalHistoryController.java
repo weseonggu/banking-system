@@ -3,6 +3,7 @@ package com.msa.banking.personal.presentation.controller;
 import com.msa.banking.common.response.SuccessCode;
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.security.UserDetailsImpl;
+import com.msa.banking.personal.application.dto.category.MostSpentCategoryResponseDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryListDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryRequestDto;
 import com.msa.banking.personal.application.dto.personalHistory.PersonalHistoryResponseDto;
@@ -12,6 +13,7 @@ import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -70,7 +73,7 @@ public class PersonalHistoryController {
     @PatchMapping("/{history_id}")
     @PreAuthorize("hasAnyAuthority('MASTER', 'CUSTOMER')")
     @Operation(summary = "개인 내역 수정(카테고리 변경)", description = "미분류된 카테고리를 수정하는 API 입니다.", security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<?> updatePersonalHistoryCategory(@PathVariable("history_id") Long historyId, @RequestBody PersonalHistoryUpdateDto personalHistoryUpdateDto,
+    public ResponseEntity<?> updatePersonalHistoryCategory(@PathVariable("history_id") Long historyId, @Valid @RequestBody PersonalHistoryUpdateDto personalHistoryUpdateDto,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         UUID userId = userDetails.getUserId();
@@ -118,4 +121,24 @@ public class PersonalHistoryController {
                 new SuccessResponse<>(SuccessCode.INSERT_SUCCESS.getStatus(), "createPersonalHistory", responseDto));
     }
 
+    /**
+     * 설정한 기간 내 가장 많은 금액을 소비한 카테고리, 총 소비 금액
+     */
+    @GetMapping("/most-spent")
+    @Operation(summary = "가장 많은 금액을 소비한 카테고리, 금액 조회", description = "설정한 기간 내 가장 많은 금액을 소비한 카테고리, 총 소비 금액 조회 API 입니다.")
+    public ResponseEntity<?> findMostSpentCategory(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                   @RequestParam("startDate")LocalDateTime startDate,
+                                                   @RequestParam("endDate") LocalDateTime endDate){
+        UUID userId = userDetails.getUserId();
+
+        MostSpentCategoryResponseDto responseDto = personalHistoryService.findMostSpentCategory(userId,startDate,endDate);
+
+        String formattedResponse = String.format("가장 큰 소비 카테고리는 %s, 총 소비 금액은 %s원 입니다.",
+                responseDto.getCategoryName(),
+                responseDto.getTotalSpent().toString());
+
+        return ResponseEntity.ok(
+                new SuccessResponse<>(SuccessCode.SELECT_SUCCESS.getStatus(), "findMostSpentCategory", formattedResponse));
+
+    }
 }

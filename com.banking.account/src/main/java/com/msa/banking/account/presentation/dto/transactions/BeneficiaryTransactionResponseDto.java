@@ -9,7 +9,6 @@ import java.util.UUID;
 
 public record BeneficiaryTransactionResponseDto(
 
-
         Long transactionId,
         UUID accountId,
         TransactionType type,

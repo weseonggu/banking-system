@@ -1,7 +1,6 @@
 package com.msa.banking.account.domain.repository;
 
 import com.msa.banking.account.domain.model.AccountTransactions;
-import com.msa.banking.common.account.type.TransactionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,17 +21,9 @@ public interface TransactionsRepository extends JpaRepository<AccountTransaction
     @Query("SELECT SUM(t.withdrawalAmount) FROM AccountTransactions t WHERE t.account.accountId = :accountId")
     BigDecimal getTotalWithdrawalBalance(@Param("accountId") UUID accountId);
 
-    @Query("select SUM(t.depositAmount) from AccountTransactions t where t.account.accountId in :accountIds and t.type = :type and t.createdAt between :startDateTime and :endDateTime and t.isDelete = false")
-    BigDecimal findTotalDepositAmount(@Param("accountIds") List<UUID> accountIds,
-                               @Param("type") TransactionType type,
-                               @Param("startDateTime") LocalDateTime startDateTime,
-                               @Param("endDateTime") LocalDateTime endDateTime);
-
-    @Query("select SUM(t.withdrawalAmount) from AccountTransactions t where t.account.accountId in :accountIds and t.type = :type and t.createdAt between :startDateTime and :endDateTime and t.isDelete = false")
-    BigDecimal findTotalWithdrawalAmount(@Param("accountIds") List<UUID> accountIds,
-                               @Param("type") TransactionType type,
-                               @Param("startDateTime") LocalDateTime startDateTime,
-                               @Param("endDateTime") LocalDateTime endDateTime);
-
-
+    @Query("select coalesce(sum(at.depositAmount), 0) from AccountTransactions at " +
+            "where at.account.accountId in :accountIds and at.createdAt between :startDateTime and :endDateTime and at.isDelete = false")
+    BigDecimal findTotalDepositAmountAndAccountIds(@Param("accountIds") List<UUID> accountIds,
+                                                          @Param("startDateTime")LocalDateTime startDateTime,
+                                                          @Param("endDateTime")LocalDateTime endDateTime);
 }

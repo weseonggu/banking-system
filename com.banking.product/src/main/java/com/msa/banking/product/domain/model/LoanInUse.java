@@ -37,6 +37,9 @@ public class LoanInUse extends AuditEntity {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
+    @Column(name = "reviewer", nullable = true)
+    private UUID reviewer;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private LoanState status;
@@ -54,6 +57,7 @@ public class LoanInUse extends AuditEntity {
                 .interestRate(interestRate)
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusMonths(month))
+                .reviewer(null)
                 .status(LoanState.APPLY)
                 .build();
     }
@@ -61,10 +65,21 @@ public class LoanInUse extends AuditEntity {
         this.status = LoanState.BEFOREEXECUTION;
         super.setUpdateByUserName(name);
     }
+    public void refusalLoan(String name) {
+        this.status = LoanState.REFUASAL;
+        super.setUpdateByUserName(name);
+    }
 
     public void runLoan(String name) {
         this.status = LoanState.RUNNING;
         super.setUpdateByUserName(name);
+    }
+
+    public void cancleLoan() {
+        this.status = LoanState.CANCLE;
+    }
+    public void reviewerUp(UUID id){
+        this.reviewer = id;
     }
 
 
