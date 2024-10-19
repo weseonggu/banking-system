@@ -13,9 +13,20 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    # 3개의 서비스를 모두 빌드할 수 있도록 변수로 지정합니다.
+    # https://docs.github.com/ko/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
     strategy:
       matrix:
-        service: [config, eureka.server, gateway, auth, personal, product, account, notification, performance]
+        service: [ com.banking.eureka.server,
+                   com.banking.config,
+                   com.banking.auth,
+                   com.banking.gateway,
+                   com.banking.commonBean,
+                   com.banking.product,
+                   com.banking.account,
+                   com.banking.personal,
+                   com.banking.notification,
+                   com.banking.performance]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,13 +52,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # AWS ECR에 이미지 업로드 권한을 얻기 위해 인증을 진행합니다.
+      # AWS ECR 에 이미지 업로드 권한을 얻기 위해 인증을 진행합니다.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      # 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # .env 파일 생성
+      - name: Create .env file
+        run: |
+          echo "SLACK_API_TOKEN=${{ secrets.SLACK_API_TOKEN }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" >> .env
+          echo "ENCRYPTOR_PASSWORD=${{ secrets.ENCRYPTOR_PASSWORD }}" >> .env
+        # 필요한 다른 환경 변수도 추가
 
       # ECR에서 기존 이미지 삭제
       - name: Remove old image from ECR
@@ -65,24 +92,24 @@ jobs:
           
           echo "ECR_REGISTRY is set to: $ECR_REGISTRY"
           echo "ECR_NAMESPACE is set to: $ECR_NAMESPACE"
-
+          
           for service in "${services[@]}"; do
             imageName="${{ env.ECR_REGISTRY }}/${{ env.ECR_NAMESPACE }}/${service}"
-
+          
             # 로컬 이미지 삭제
             docker rmi "$imageName:latest" || true
-
+          
             # Docker 이미지 빌드
-            docker build -t "$imageName:latest" -f ./Dockerfile --build-arg MODULE="$service" .
-
-
+            docker build -t "$imageName:latest" -f ./path/to/Dockerfile --build-arg MODULE="$service" .
+          
+          
             # 태그 추가
             docker tag "$imageName:latest" "$imageName:$commit_hash"
-
+          
             # AWS ECR에 푸시
             docker push "$imageName:latest"
             docker push "$imageName:$commit_hash"
-
+          
             echo "$service image is built and pushed to AWS ECR"
           done
 
