@@ -13,20 +13,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    # 3개의 서비스를 모두 빌드할 수 있도록 변수로 지정합니다.
-    # https://docs.github.com/ko/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
     strategy:
       matrix:
-        service: [ com.banking.eureka.server,
-                   com.banking.config,
-                   com.banking.auth,
-                   com.banking.gateway,
-                   com.banking.commonBean,
-                   com.banking.product,
-                   com.banking.account,
-                   com.banking.personal,
-                   com.banking.notification,
-                   com.banking.performance]
+        service: [config, eureka.server, gateway, auth, personal, product, account, notification, performance]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,7 +41,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # AWS ECR 에 이미지 업로드 권한을 얻기 위해 인증을 진행합니다.
+      # AWS ECR에 이미지 업로드 권한을 얻기 위해 인증을 진행합니다.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -60,21 +49,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # 로그인
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-      # .env 파일 생성
-      - name: Create .env file
+      # ECR에서 기존 이미지 삭제
+      - name: Remove old image from ECR
         run: |
-          echo "SLACK_API_TOKEN=${{ secrets.SLACK_API_TOKEN }}" >> .env
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
-          echo "ECR_REGISTRY=${{ secrets.ECR_REGISTRY }}" >> .env
-          echo "ENCRYPTOR_PASSWORD=${{ secrets.ENCRYPTOR_PASSWORD }}" >> .env
-        # 필요한 다른 환경 변수도 추가
+          services=("config" "eureka.server" "gateway" "auth" "personal" "product" "account" "notification" "performance")
+          for service in "${services[@]}"; do
+            aws ecr batch-delete-image --repository-name ${{ env.ECR_NAMESPACE }}/$service --image-ids imageTag=latest || true
+          done
 
+      # Docker 이미지 빌드 및 푸시
       - name: Build and Push docker images to AWS ECR
         run: |
           services=("config" "eureka.server" "gateway" "auth" "personal" "product" "account" "notification" "performance")
@@ -85,8 +68,13 @@ jobs:
 
           for service in "${services[@]}"; do
             imageName="${{ env.ECR_REGISTRY }}/${{ env.ECR_NAMESPACE }}/${service}"
-            # Docker Compose를 사용하여 이미지를 빌드합니다.
-            docker build -t "$imageName:latest" --build-arg MODULE="$service" .
+
+            # 로컬 이미지 삭제
+            docker rmi "$imageName:latest" || true
+
+            # Docker 이미지 빌드
+            docker build -t "$imageName:latest" -f ./Dockerfile --build-arg MODULE="$service" .
+
 
             # 태그 추가
             docker tag "$imageName:latest" "$imageName:$commit_hash"
@@ -97,8 +85,6 @@ jobs:
 
             echo "$service image is built and pushed to AWS ECR"
           done
-
-          echo "Build and Push processing is done"
 
   Deploy:
     name: AWS EC2 Deploy
@@ -144,6 +130,6 @@ jobs:
           envs: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, ECR_REGISTRY, ECR_NAMESPACE
           script: |
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            docker compose down
-            docker compose pull
-            docker compose up -d
+            docker-compose down
+            docker-compose pull
+            docker-compose up -d
