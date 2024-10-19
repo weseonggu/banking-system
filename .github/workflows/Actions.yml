@@ -16,16 +16,18 @@ jobs:
     # https://docs.github.com/ko/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
     strategy:
       matrix:
-        service: [ com.banking.eureka.server,
-                    com.banking.config,
-                    com.banking.auth,
-                    com.banking.gateway,
-                    com.banking.commonBean,
-                    com.banking.product,
-                    com.banking.account,
-                    com.banking.personal,
-                    com.banking.notification,
-                    com.banking.performance]
+        # service: [ com.banking.eureka.server,
+        #             com.banking.config,
+        #             com.banking.auth,
+        #             com.banking.gateway,
+        #             com.banking.commonBean,
+        #             com.banking.product,
+        #             com.banking.account,
+        #             com.banking.personal,
+        #             com.banking.notification,
+        #             com.banking.performance]
+        service:
+          - com.banking.config
     steps:
       - name: Checkout
         uses: actions/checkout@v4
