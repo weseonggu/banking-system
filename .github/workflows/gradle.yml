@@ -96,12 +96,8 @@ jobs:
           for service in "${services[@]}"; do
             imageName="${{ env.ECR_REGISTRY }}/${{ env.ECR_NAMESPACE }}/${service}"
           
-            # 로컬 이미지 삭제
-            docker rmi "$imageName:latest" || true
-          
             # Docker 이미지 빌드
             docker build -t "$imageName:latest" -f ./path/to/Dockerfile --build-arg MODULE="$service" .
-          
           
             # 태그 추가
             docker tag "$imageName:latest" "$imageName:$commit_hash"
