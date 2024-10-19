@@ -117,7 +117,7 @@ services:
       - "19090:19090"
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/server:latest
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/eureka.server:latest
 
   gateway:
     build:
