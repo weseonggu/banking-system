@@ -3,11 +3,10 @@ package com.msa.banking.account.domain.model;
 
 import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
 import com.msa.banking.common.account.dto.AccountRequestDto;
-import com.msa.banking.common.base.AuditEntity;
 import com.msa.banking.common.account.type.AccountStatus;
 import com.msa.banking.common.account.type.AccountType;
+import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.math.BigDecimal;

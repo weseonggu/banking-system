@@ -1,4 +1,4 @@
-package com.msa.banking.account.infrastructure.batch;
+package com.msa.banking.account.infrastructure.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -6,13 +6,13 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Component
+@Configuration
 @RequiredArgsConstructor
 public class JobScheduler {
 
@@ -21,16 +21,15 @@ public class JobScheduler {
     @Lazy
     private final Job balanceVerificationJob;
 
-    @Scheduled(cron = "0 0 3 * * ?")  // 매일 새벽 3시에 실행
-    public void runBatchJob() {
-        try {
-            JobParameters params = new JobParametersBuilder()
-                    .addString("runDate", LocalDateTime.now().toString())
-                    .toJobParameters();
+    @Scheduled(cron = "0 0 3 * * ?", zone = "Asia/Seoul")// 매일 새벽 3시에 실행
+    public void runBalanceVerificationJob() throws Exception {
 
-            jobLauncher.run(balanceVerificationJob, params);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println("Running Balance Verification Job");
+
+        JobParameters params = new JobParametersBuilder()
+                .addString("runDate", LocalDateTime.now().toString())
+                .toJobParameters();
+
+        jobLauncher.run(balanceVerificationJob, params);
     }
 }

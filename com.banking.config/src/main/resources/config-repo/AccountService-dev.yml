@@ -37,23 +37,17 @@ spring:
     url: jdbc:postgresql://localhost:5432/account
     username: banking
     password: banking20
-    hikari:
-      maximum-pool-size: 10
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
 
   batch:
+    job:
+      enabled: true
+    jdbc:
+      initialize-schema: always
     datasource:
       driver-class-name: org.postgresql.Driver
       url: jdbc:postgresql://localhost:5432/batch_db
       username: banking
       password: banking20
-      hikari:
-        maximum-pool-size: 10
-        connection-timeout: 30000
-        idle-timeout: 600000
-        max-lifetime: 1800000
 
   jpa:
     hibernate:
@@ -78,11 +72,6 @@ redisson:
     address: redis://localhost:6379
     password: systempass
     connectionPoolSize: 10
-
-jasypt:
-  encryptor:
-    password: ${ENCRYPTOR_PASSWORD}
-    algorithm: PBEWithHMACSHA512AndAES_256
 
 eureka:
   client:

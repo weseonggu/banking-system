@@ -53,7 +53,7 @@ public class AccountTransactions extends AuditEntity {
     @Convert(converter = EncryptAttributeConverter.class)  // 데이터 암호화
     private String originatingAccount;
 
-    @Convert(converter = EncryptAttributeConverter.class) // 타 은행과의 계좌거래를 전제하지 않기 때문에 형식 일정.\
+    @Convert(converter = EncryptAttributeConverter.class) // 타 은행과의 계좌거래를 전제하지 않기 때문에 형식 일정
     private String beneficiaryAccount;
 
 
