@@ -101,10 +101,11 @@ services:
     networks:
       - my-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://config:19000/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://43.202.30.15:19000/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s # 컨테이너 시작 후 60초를 기다린 후 체크 시작
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config:latest
 
   eureka:
@@ -132,9 +133,8 @@ services:
     ports:
       - "19092:19092"
     depends_on:
-      - config
-#      config:
-#        condition: service_healthy
+      config:
+        condition: service_healthy
     networks:
       - my-network
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway:latest
@@ -152,9 +152,8 @@ services:
     networks:
       - my-network
     depends_on:
-      - config
-#      config:
-#        condition: service_healthy
+      config:
+        condition: service_healthy
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth:latest
 
   personal:
@@ -168,9 +167,8 @@ services:
     ports:
       - "19096:19096"
     depends_on:
-      - config
-#      config:
-#        condition: service_healthy
+      config:
+        condition: service_healthy
     networks:
       - my-network
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal:latest
@@ -189,9 +187,8 @@ services:
     ports:
       - "19094:19094"
     depends_on:
-      - config
-#      config:
-#        condition: service_healthy
+      config:
+        condition: service_healthy
     networks:
       - my-network
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product:latest
@@ -208,9 +205,8 @@ services:
     ports:
       - "19095:19095"
     depends_on:
-      - config
-#      config:
-#        condition: service_healthy
+      config:
+        condition: service_healthy
     networks:
       - my-network
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account:latest
@@ -227,9 +223,8 @@ services:
     ports:
       - "19097:19097"
     depends_on:
-      - config
-#      config:
-#        condition: service_healthy
+      config:
+        condition: service_healthy
     networks:
       - my-network
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification:latest
@@ -246,9 +241,8 @@ services:
     ports:
       - "19098:19098"
     depends_on:
-      - config
-#      config:
-#        condition: service_healthy
+      config:
+        condition: service_healthy
     networks:
       - my-network
     image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance:latest
