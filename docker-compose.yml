@@ -103,7 +103,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config:latest
 
   eureka:
     build:
@@ -117,7 +117,7 @@ services:
       - "19090:19090"
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/server
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/server:latest
 
   gateway:
     build:
@@ -134,7 +134,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway:latest
 
   auth:
     build:
@@ -151,7 +151,7 @@ services:
     depends_on:
       config:
         condition: service_healthy
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth:latest
 
   personal:
     build:
@@ -168,7 +168,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal:latest
 
   product:
     build:
@@ -188,7 +188,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product:latest
 
   account:
     build:
@@ -206,7 +206,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account:latest
 
   notification:
     build:
@@ -224,7 +224,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification:latest
 
   performance:
     build:
@@ -242,7 +242,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance
+    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance:latest
 
 
 volumes:
