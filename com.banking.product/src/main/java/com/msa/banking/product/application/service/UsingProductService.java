@@ -138,7 +138,7 @@ public class UsingProductService {
                                                     String accountPin, CheckingInUse checkingInUse, LoanInUse loanInUse) throws FeignException {
 
         // 계좌 생성 요청
-        ResponseEntity<UUID> response = addAccount(name, accountPin);
+        ResponseEntity<UUID> response = addAccount(name, accountPin, productType);
 
         // UsingProduct 엔티티 생성
         UsingProduct usingProduct = UsingProduct.create(userId, productType, response.getBody(), name, productId);
@@ -160,9 +160,16 @@ public class UsingProductService {
 
     // 계좌 생성 요청  서킷 브레이커적용하기
     @CircuitBreaker(name = "createAccountService", fallbackMethod = "joinFallbackMethod")
-    private ResponseEntity<UUID> addAccount(String name, String accountPin) throws FeignException{
+    private ResponseEntity<UUID> addAccount(String name, String accountPin, ProductType accountType) throws FeignException{
+        AccountRequestDto requestDto =  null;
+        switch (accountType){
+            case CHECKING:
+                requestDto = new AccountRequestDto(name, AccountType.CHECKING, accountPin, accountPin);
+                break;
 
-        AccountRequestDto requestDto = new AccountRequestDto(name, AccountType.CHECKING, accountPin, accountPin);
+            case NEGATIVE_LOANS:
+                requestDto = new AccountRequestDto(name, AccountType.LOAN, accountPin, accountPin);
+        }
         return accountClient.addAccount(requestDto);
 
 

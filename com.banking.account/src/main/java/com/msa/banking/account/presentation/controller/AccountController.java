@@ -199,7 +199,7 @@ public class AccountController {
 
     // 대출 계좌 해지
     @DeleteMapping("/{account_id}/loan")
-    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     @Operation(summary = "대출 계좌 해지", description = "대출 계좌를 해지 API 입니다.")
     public Boolean deleteLoanAccount(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
