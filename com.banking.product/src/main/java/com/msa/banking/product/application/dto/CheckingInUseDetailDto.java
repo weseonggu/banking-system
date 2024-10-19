@@ -15,6 +15,7 @@ import java.util.UUID;
 public class CheckingInUseDetailDto extends UsingProductDetailDto {
 
     private UUID id;
+    private UUID accountId;
     private LocalDateTime subscriptionDate;
     private String type;
     private String name;
@@ -28,6 +29,7 @@ public class CheckingInUseDetailDto extends UsingProductDetailDto {
         CheckingInUse inUse = product.getCheckingInUse();
         return CheckingInUseDetailDto.builder()
                 .id(product.getId())
+                .accountId(product.getAccountId())
                 .subscriptionDate(product.getSubscriptionDate())
                 .type(product.getType().getValue())
                 .name(product.getName())

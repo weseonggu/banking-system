@@ -9,6 +9,7 @@ import com.msa.banking.product.application.dto.UsingProductDetailDto;
 import com.msa.banking.product.application.dto.UsingProductPage;
 import com.msa.banking.product.application.dto.UsingProductResponseDto;
 import com.msa.banking.product.application.service.UsingProductService;
+import com.msa.banking.product.presentation.request.LoanRunRequest;
 import com.msa.banking.product.presentation.request.RequestJoinLoan;
 import com.msa.banking.product.presentation.request.RequestUsingProductConditionDto;
 import com.msa.banking.product.presentation.request.RequsetJoinChecking;
@@ -112,6 +113,7 @@ public class UsingProductController {
     })
     @PatchMapping(value = "/using/loan/approval")
     @PreAuthorize("hasAnyAuthority('MANAGER', 'MASTER')")
+    @LogDataChange
     public ResponseEntity<SuccessResponse> approvalLoan(@RequestParam("using_product_id") UUID id,
                                                         @RequestParam("choice") boolean choice,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
@@ -136,10 +138,11 @@ public class UsingProductController {
     })
     @PatchMapping(value = "/using/loan/running")
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
-    public ResponseEntity<SuccessResponse> runningLoan(@RequestParam("using_product_id") UUID id,
+    @LogDataChange
+    public ResponseEntity<SuccessResponse> runningLoan(@RequestBody LoanRunRequest dto,
                                                         @AuthenticationPrincipal UserDetailsImpl userDetails){
 
-        usingProductService.changeLoanSateToRun(id, userDetails);
+        usingProductService.changeLoanSateToRun(dto.getAccountId(), userDetails, dto.getAccountNumber());
 
         SuccessResponse response = new SuccessResponse<>(
                 HttpStatus.OK.value(),
