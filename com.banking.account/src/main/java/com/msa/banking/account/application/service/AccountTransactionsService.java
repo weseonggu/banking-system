@@ -72,9 +72,6 @@ public class AccountTransactionsService {
     @RedissonLock(value = "#accountId.toString()") // accountId로 락 적용
     public SingleTransactionResponseDto createLoanDeposit(UUID accountId, LoanDepositTransactionRequestDto request, UUID userId, String role) {
 
-        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        }
 
         // 거래 상태 확인
         if(!request.getType().equals(TransactionType.LOAN_DEPOSIT)) {

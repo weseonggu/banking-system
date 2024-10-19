@@ -215,10 +215,6 @@ public class AccountService {
     @Transactional
     public Boolean deleteAccount(UUID accountId, UUID userId, String username, String role) {
 
-        if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
-            throw new GlobalCustomException(ErrorCode.FORBIDDEN);
-        }
-
         try {
             Account account = accountRepository.findById(accountId)
                     .filter(a -> !a.getIsDelete())
