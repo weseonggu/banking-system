@@ -6,7 +6,6 @@ import com.msa.banking.account.domain.model.FirstBatchWriter;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.FirstBatchWriterRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -31,7 +30,7 @@ import java.util.List;
 
 @Slf4j
 @Configuration
-public class BalanceVerificationJobJob {
+public class BalanceVerificationJob {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformManager;
@@ -40,7 +39,7 @@ public class BalanceVerificationJobJob {
     private final FirstBatchWriterRepository firstBatchWriterRepository;
 
     // 생성자에 @Qualifier 사용
-    public BalanceVerificationJobJob(
+    public BalanceVerificationJob(
             JobRepository jobRepository,
             @Qualifier("batchTransactionManager") PlatformTransactionManager platformManager,
             TransactionsRepository transactionsRepository,
