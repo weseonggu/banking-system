@@ -3,7 +3,7 @@ name: Team 20 Banking System CI/CD with AWS EC2, ECR
 on:
   push:
     branches:
-      - validateToPersonal
+      - cicd
 
 env:
   ECR_NAMESPACE: sparta
