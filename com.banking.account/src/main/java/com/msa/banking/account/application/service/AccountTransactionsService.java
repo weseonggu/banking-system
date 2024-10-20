@@ -7,7 +7,6 @@ import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
 import com.msa.banking.account.infrastructure.redisson.RedissonLock;
 import com.msa.banking.account.presentation.dto.transactions.*;
-import com.msa.banking.account.presentation.dto.transactions.DepositTransactionRequestDto;
 import com.msa.banking.common.account.dto.LoanDepositTransactionRequestDto;
 import com.msa.banking.common.account.dto.SingleTransactionResponseDto;
 import com.msa.banking.common.account.type.AccountStatus;
@@ -23,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
