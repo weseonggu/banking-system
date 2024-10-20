@@ -1,4 +1,4 @@
-# Dockerfile for com.banking.auth
+
 FROM gradle:7.6-jdk17 AS build
 
 # 작업 디렉토리 설정
