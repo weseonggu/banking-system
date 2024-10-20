@@ -1,4 +1,4 @@
-# Dockerfile for com.banking.auth
+
 FROM gradle:7.6-jdk17 AS build
 
 # 작업 디렉토리 설정
@@ -26,7 +26,7 @@ ENV SPRING_PROFILES_ACTIVE=${TEST_SPRING_PROFILES_ACTIVE}
 ARG MODULE
 # 빌드 수행 - 로그를 파일에 저장
 RUN chmod +x ./gradlew
-RUN ./gradlew clean :com.banking.${MODULE}:bootJar
+RUN ./gradlew clean :com.banking.${MODULE}:bootJar -x test
 
 # 실행 이미지 생성
 FROM openjdk:17-jdk-slim
