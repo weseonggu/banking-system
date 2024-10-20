@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   zipkin:
     image: openzipkin/zipkin
@@ -107,9 +106,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - my-network
-    depends_on:
-      zookeeper:
-        condition: service_healthy
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
