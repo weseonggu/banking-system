@@ -5,10 +5,7 @@ import com.msa.banking.common.account.dto.LoanDepositTransactionRequestDto;
 import com.msa.banking.common.account.dto.SingleTransactionResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -28,5 +25,6 @@ public interface AccountClient {
     public Boolean deleteAccount(@PathVariable("account_id") UUID accountId);
 
     @DeleteMapping("/api/accounts/{account_id}/loan")
-    public Boolean deleteLoanAccount(@PathVariable("account_id") UUID accountId, BigDecimal amount);
+    public Boolean deleteLoanAccount( @PathVariable("account_id") UUID accountId,
+                                      @RequestParam BigDecimal amount);
 }
