@@ -1,6 +1,7 @@
 package com.msa.banking.account.infrastructure.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -25,12 +27,30 @@ import javax.sql.DataSource;
 )
 public class DataSourceConfig {
 
+    @Value("${spring.jpa.properties.hibernate.show_sql}")
+    private boolean showSql;
+
+    @Value("${spring.jpa.hibernate.ddl-auto}")
+    private String ddlAuto;
+
+    @Value("${spring.jpa.properties.hibernate.dialect}")
+    private String dialect;
+
     @Primary
     @Bean // Spring 기본 데이터 소스
     @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource dataSource() {
 
         return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    public JpaVendorAdapter jpaVendorAdapter() {
+        HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
+        adapter.setShowSql(showSql);
+        adapter.setGenerateDdl("update".equalsIgnoreCase(ddlAuto));
+        adapter.setDatabasePlatform(dialect);
+        return adapter;
     }
 
     @Primary

@@ -1,5 +1,4 @@
-# Auth Server dev config
-
+# Account Server dev config
 server:
   port: 19095
 
@@ -31,24 +30,21 @@ spring:
       port: 6379
       username: default
       password: systempass
-
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/account
+    jdbc-url: jdbc:postgresql://localhost:5432/account
     username: banking
     password: banking20
-
   batch:
     job:
-      enabled: true
+      enabled: false
     jdbc:
       initialize-schema: always
     datasource:
       driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://localhost:5432/batch_db
+      jdbc-url: jdbc:postgresql://localhost:5432/batch_db
       username: banking
       password: banking20
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -58,7 +54,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
-
   devtools:
     restart:
       enabled: false # 개발 도구 재시작 방지
