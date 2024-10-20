@@ -8,12 +8,18 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets:
-          - 'host.docker.internal:29094'  # Product-Service
-          - 'host.docker.internal:29093'  # Auth-Service
-          - 'host.docker.internal:29095'  # Account-Service
-          - 'host.docker.internal:29097'  # Notification-Service
-          - 'host.docker.internal:29098'  # Performance-Service
-          - 'host.docker.internal:29096'  # PersonalHistory-Service
+#          - 'host.docker.internal:29094'  # Product-Service
+#          - 'host.docker.internal:29093'  # Auth-Service
+#          - 'host.docker.internal:29095'  # Account-Service
+#          - 'host.docker.internal:29097'  # Notification-Service
+#          - 'host.docker.internal:29098'  # Performance-Service
+#          - 'host.docker.internal:29096'  # PersonalHistory-Service
+          - 'product:29094'  # Product-Service
+          - 'auth:29093'  # Auth-Service
+          - 'account:29095'  # Account-Service
+          - 'notification:29097'  # Notification-Service
+          - 'performance:29098'  # Performance-Service
+          - 'personal:29096'  # PersonalHistory-Service
   - job_name: 'postgresql'
     static_configs:
       - targets: ['postgres_exporter:9187']
