@@ -1,5 +1,6 @@
 package com.msa.banking.account.domain.model;
 
+import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class SecondBatchWriter {
 
     private UUID accountId; // 자동 이체 실행할 계좌 아이디
 
+    @Convert(converter = EncryptAttributeConverter.class)  // 데이터 암호화
     private String beneficiaryAccount; // 자동 이체 대상 계좌 번호
 
     @Column(precision = 15, scale = 2)

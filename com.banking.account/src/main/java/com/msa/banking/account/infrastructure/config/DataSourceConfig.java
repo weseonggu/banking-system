@@ -44,7 +44,7 @@ public class DataSourceConfig {
         return DataSourceBuilder.create().build();
     }
 
-    @Bean
+    @Bean(name="jpaVendorAdapter")
     public JpaVendorAdapter jpaVendorAdapter() {
         HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
         adapter.setShowSql(showSql);
@@ -54,7 +54,7 @@ public class DataSourceConfig {
     }
 
     @Primary
-    @Bean
+    @Bean(name="dataEntityManager")
     public LocalContainerEntityManagerFactoryBean dataEntityManager(
             @Qualifier("dataSource") DataSource dataSource,
             JpaVendorAdapter jpaVendorAdapter) {

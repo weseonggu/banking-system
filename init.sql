@@ -18,9 +18,6 @@ CREATE DATABASE account
   TABLESPACE = pg_default
   CONNECTION LIMIT = -1;
 
--- account 데이터베이스로 연결
-\c account;
-
 -- 'transaction_sequence' 시퀀스 생성 (account 데이터베이스에서 사용할 시퀀스)
 CREATE SEQUENCE transaction_sequence
     INCREMENT BY 1

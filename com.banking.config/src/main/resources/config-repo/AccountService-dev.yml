@@ -36,15 +36,15 @@ spring:
     username: banking
     password: banking20
   batch:
-    job:
-      enabled: false
-    jdbc:
-      initialize-schema: always
     datasource:
       driver-class-name: org.postgresql.Driver
       jdbc-url: jdbc:postgresql://localhost:5432/batch_db
       username: banking
       password: banking20
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
   jpa:
     hibernate:
       ddl-auto: update
@@ -54,9 +54,11 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_batch_fetch_size: 1000
+
   devtools:
     restart:
       enabled: false # 개발 도구 재시작 방지
+
   logging:
     level:
       root: DEBUG  # 전체 애플리케이션에서 DEBUG 레벨 로그 출력
