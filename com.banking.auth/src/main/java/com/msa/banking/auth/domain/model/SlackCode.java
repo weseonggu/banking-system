@@ -18,6 +18,7 @@ public class SlackCode extends AuditEntity {
 
     @Id
     @GeneratedValue
+    @Column(name = "slack_code_id")
     private Long id;
 
     @Column(name = "slack_id", nullable = false)

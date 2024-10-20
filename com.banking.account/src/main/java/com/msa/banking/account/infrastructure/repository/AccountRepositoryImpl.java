@@ -1,6 +1,5 @@
 package com.msa.banking.account.infrastructure.repository;
 
-
 import com.msa.banking.account.application.mapper.AccountMapper;
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.common.account.type.AccountType;

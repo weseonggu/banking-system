@@ -4,7 +4,6 @@ import com.msa.banking.account.infrastructure.encryption.EncryptAttributeConvert
 import com.msa.banking.account.presentation.dto.directDebit.DirectDebitRequestDto;
 import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -33,7 +32,6 @@ public class DirectDebit extends AuditEntity {
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    // TODO: 날짜 검증 로직 필요
     @Column(nullable = false)
     private Integer transferDate;
 
