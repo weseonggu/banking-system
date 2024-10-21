@@ -388,12 +388,9 @@ public class AccountService {
 
         String key = getDailyWithdrawalKey(account.getAccountNumber());
 
-        // Redis에서 그날의 출금 누적 금액 조회
-        BigDecimal currentWithdrawals = (BigDecimal) redisTemplate.opsForValue().get(key);
-
-        if (currentWithdrawals == null) {
-            currentWithdrawals = BigDecimal.ZERO;
-        }
+        // Redis에서 그날의 출금 누적 금액 조회 (String으로 받아서 BigDecimal로 변환)
+        String currentWithdrawalsStr = (String) redisTemplate.opsForValue().get(key);
+        BigDecimal currentWithdrawals = currentWithdrawalsStr != null ? new BigDecimal(currentWithdrawalsStr) : BigDecimal.ZERO;
 
         // 하루 출금 한도 체크
         BigDecimal newTotalWithdrawals = currentWithdrawals.add(withdrawalAmount);
@@ -401,8 +398,8 @@ public class AccountService {
             throw new GlobalCustomException(ErrorCode.DAILY_WITHDRAWAL_LIMIT_EXCEEDED);
         }
 
-        // Redis에 누적 출금 금액 업데이트, TTL은 그날의 자정까지 설정
-        redisTemplate.opsForValue().set(key, newTotalWithdrawals);
+        // Redis에 누적 출금 금액 업데이트, 값을 String으로 변환하여 저장
+        redisTemplate.opsForValue().set(key, newTotalWithdrawals.toPlainString());
 
         // 자정까지 TTL 설정
         long ttl = ChronoUnit.SECONDS.between(LocalDateTime.now(), LocalDate.now().plusDays(1).atStartOfDay());
@@ -427,12 +424,9 @@ public class AccountService {
 
         String key = getDailyTransferKey(account.getAccountNumber());
 
-        // Redis에서 그날의 이체 누적 금액 조회
-        BigDecimal currentTransfers = (BigDecimal) redisTemplate.opsForValue().get(key);
-
-        if (currentTransfers == null) {
-            currentTransfers = BigDecimal.ZERO;
-        }
+        // Redis에서 그날의 이체 누적 금액 조회 (String으로 받아서 BigDecimal로 변환)
+        String currentTransfersStr = (String) redisTemplate.opsForValue().get(key);
+        BigDecimal currentTransfers = currentTransfersStr != null ? new BigDecimal(currentTransfersStr) : BigDecimal.ZERO;
 
         // 하루 이체 한도 체크
         BigDecimal newTotalTransfers = currentTransfers.add(transferAmount);
@@ -440,8 +434,8 @@ public class AccountService {
             throw new GlobalCustomException(ErrorCode.DAILY_TRANSFER_LIMIT_EXCEEDED);
         }
 
-        // Redis에 누적 출금 금액 업데이트, TTL은 그날의 자정까지 설정
-        redisTemplate.opsForValue().set(key, newTotalTransfers);
+        // Redis에 누적 이체 금액 업데이트, 값을 String으로 변환하여 저장
+        redisTemplate.opsForValue().set(key, newTotalTransfers.toPlainString());
 
         // 자정까지 TTL 설정
         long ttl = ChronoUnit.SECONDS.between(LocalDateTime.now(), LocalDate.now().plusDays(1).atStartOfDay());
