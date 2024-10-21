@@ -2,10 +2,9 @@ package com.msa.banking.account.infrastructure.batch;
 
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.DirectDebit;
-import com.msa.banking.account.domain.model.FirstBatchWriter;
 import com.msa.banking.account.domain.model.SecondBatchWriter;
 import com.msa.banking.account.domain.repository.DirectDebitRepository;
-import com.msa.banking.account.domain.repository.SecondBatchWriterRepository;
+import com.msa.banking.account.infrastructure.repository.SecondBatchWriterRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;

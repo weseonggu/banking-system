@@ -4,7 +4,7 @@ import com.msa.banking.account.application.dto.FirstBatchTransactionsDto;
 import com.msa.banking.account.domain.model.Account;
 import com.msa.banking.account.domain.model.FirstBatchWriter;
 import com.msa.banking.account.domain.repository.AccountRepository;
-import com.msa.banking.account.domain.repository.FirstBatchWriterRepository;
+import com.msa.banking.account.infrastructure.repository.FirstBatchWriterRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
