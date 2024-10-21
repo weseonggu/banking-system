@@ -132,7 +132,7 @@ public class ProductApplicationService {
     // 상품 디테일 조회
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = RedisCacheKey.ProductDetailCache, key = "#productId",
-            unless = "#result == null", condition = "checkRedisState.isRedisAvailable()" )
+            unless = "#result == null", condition = "@checkRedisState.isRedisAvailable()" )
     public ProductResponseDto findProductDetail(UUID productId) {
         Product product = productService.findPrductInfo(productId);
         ProductDetailDto detailDto;
