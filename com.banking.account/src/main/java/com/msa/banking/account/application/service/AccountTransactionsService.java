@@ -44,7 +44,7 @@ public class AccountTransactionsService {
      * 입금 기능
      */
     @LogDataChange
-    @RedissonLock(value = "#request.accountNumber()") // accountNumber로 락 적용
+    @RedissonLock(value = "#request.getAccountNumber()")   // accountNumber로 락 적용
     public SingleTransactionResponseDto createDeposit(DepositTransactionRequestDto request) {
 
         // 거래 상태 확인
