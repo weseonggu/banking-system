@@ -280,7 +280,7 @@ public class UsingProductService {
     @Transactional
     public void changeLoanSateToRun(UUID id, UserDetailsImpl userDetails, String accountNum) {
         // 실행할 데이터 검색
-        UsingProduct usingProduct =usingProductRepository.findByIdEntityGraph(id)
+        UsingProduct usingProduct =usingProductRepository.findByAccountIdEntityGraph(id)
                 .orElseThrow(() -> new IllegalArgumentException("데이터가 없습니다."));
 
         // 요청 이 본인 인지 확인

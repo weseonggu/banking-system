@@ -25,6 +25,10 @@ public interface UsingProductRepository extends JpaRepository<UsingProduct, UUID
     @Query("select u FROM UsingProduct  u WHERE u.id = :id")
     Optional<UsingProduct> findByIdEntityGraph(@Param("id")UUID id);
 
+    @EntityGraph(attributePaths = {"loanInUse"})
+    @Query("select u FROM UsingProduct  u WHERE u.accountId = :id")
+    Optional<UsingProduct> findByAccountIdEntityGraph(@Param("id")UUID id);
+
     @EntityGraph(attributePaths = {"loanInUse", "checkingInUse"})
     @Query("select u FROM UsingProduct  u WHERE u.id = :id AND u.isUsing = true")
     Optional<UsingProduct> findByIdJoinBothTable(@Param("id")UUID id);
