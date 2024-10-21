@@ -39,7 +39,7 @@ public class ProductService {
     // 입출금 상품 디테일 저장
     @Transactional
     @Caching(evict = {
-            @CacheEvict(cacheNames = RedisCacheKey.ProdctListCache, allEntries = true, beforeInvocation = true, condition = "@checkRedisState.isRedisAvailable()")
+            @CacheEvict(cacheNames = RedisCacheKey.ProductListCache, allEntries = true, beforeInvocation = true, condition = "checkRedisState.isRedisAvailable()" )
     })
     public void saveCheckingProduct(Product product, CheckingDetail detail, PDFInfo pdf) {
             // 데이터베이스에 데이터를 삽입하는 로직
@@ -54,7 +54,7 @@ public class ProductService {
     // 대출 상품 디테일 저장
     @Transactional
     @Caching(evict = {
-            @CacheEvict(cacheNames = RedisCacheKey.ProdctListCache, allEntries = true, beforeInvocation = true, condition = "@checkRedisState.isRedisAvailable()")
+            @CacheEvict(cacheNames = RedisCacheKey.ProductListCache, allEntries = true, beforeInvocation = true, condition = "checkRedisState.isRedisAvailable()" )
     })
     public void saveLoanProduct(Product product, LoanDetail loanDetail, PDFInfo pdf) {
         product.addDetail(loanDetail.addPDF(pdf));
@@ -64,8 +64,8 @@ public class ProductService {
 
     // 상품 목록 조회
     @Transactional(readOnly = true)
-    @Cacheable(cacheNames = RedisCacheKey.ProdctListCache, key = "#condition.type + '_' + #pageable.getSort() + '_' + #pageable.getPageNumber()",
-            unless = "#result == null", condition = "@checkRedisState.isRedisAvailable()")
+    @Cacheable(cacheNames = RedisCacheKey.ProductListCache, key = "#condition.type + '_' + #pageable.getSort() + '_' + #pageable.getPageNumber()",
+            unless = "#result == null", condition = "checkRedisState.isRedisAvailable()" )
     public List<ResponseProductPage> findAllProducts(Pageable pageable, RequestSearchProductDto condition) {
         log.info("캐시: "+ checkRedisState.isRedisAvailable());
             return productRepository.findAllProductsPage(pageable, condition);

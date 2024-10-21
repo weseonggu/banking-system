@@ -1,6 +1,7 @@
 package com.msa.banking.product.application.service;
 
 import com.msa.banking.product.application.dto.*;
+import com.msa.banking.product.config.redis.RedisCacheKey;
 import com.msa.banking.product.domain.model.CheckingDetail;
 import com.msa.banking.product.domain.model.LoanDetail;
 import com.msa.banking.product.domain.model.PDFInfo;
@@ -9,12 +10,14 @@ import com.msa.banking.product.domain.repository.CheckingDetailRepository;
 import com.msa.banking.product.domain.repository.LoanDetailRepository;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.domain.service.ProductService;
+import com.msa.banking.product.infrastructure.repository.CheckRedisState;
 import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import com.msa.banking.product.presentation.response.ResponseProductPage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,6 +36,7 @@ public class ProductApplicationService {
     private final CheckingDetailRepository checkingDetailRepository;
     private final LoanDetailRepository loanDetailRepository;
     private final AsyncService asyncService;
+    private final CheckRedisState checkRedisState;
 
     // 입출금 상품 등록
     @Transactional
@@ -127,6 +131,8 @@ public class ProductApplicationService {
 
     // 상품 디테일 조회
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = RedisCacheKey.ProductDetailCache, key = "#productId",
+            unless = "#result == null", condition = "checkRedisState.isRedisAvailable()" )
     public ProductResponseDto findProductDetail(UUID productId) {
         Product product = productService.findPrductInfo(productId);
         ProductDetailDto detailDto;
