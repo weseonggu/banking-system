@@ -324,6 +324,7 @@ services:
 
 
 
+
   product:
     build:
       dockerfile: ./Dockerfile
