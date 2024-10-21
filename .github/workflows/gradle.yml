@@ -3,7 +3,7 @@ name: Team 20 Banking System CI/CD with AWS EC2, ECR
 on:
   push:
     branches:
-      - validateToPersonal
+      - cicd
 
 env:
   ECR_NAMESPACE: sparta
@@ -136,7 +136,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.yml,prometheus.yml"
           target: "/home/ubuntu" # target 은 디렉토리임. target directory 아래에 같은 이름의 파일로 옮겨진다.
 
       # ssh를 통해 EC2에 접속하고 docker container를 재시작합니다.
@@ -164,5 +164,6 @@ jobs:
 
             docker-compose down
             docker-compose pull
+            docker image prune
             docker-compose up -d
 

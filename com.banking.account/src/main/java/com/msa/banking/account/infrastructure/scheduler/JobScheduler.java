@@ -30,6 +30,19 @@ public class JobScheduler {
                 .addString("runDate", LocalDateTime.now().toString())
                 .toJobParameters();
 
-        jobLauncher.run(balanceVerificationJob, params);
+        jobLauncher.run(jobRegistry.getJob("balanceVerificationJob"), params);
+    }
+
+
+    @Scheduled(cron = "0 0 14 * * ?", zone = "Asia/Seoul")// 매일 오후 2시에 실행
+    public void runDirectDebitJob() throws Exception {
+
+        System.out.println("Running Direct Debit Job");
+
+        JobParameters params = new JobParametersBuilder()
+                .addString("runDate", LocalDateTime.now().toString())
+                .toJobParameters();
+
+        jobLauncher.run(jobRegistry.getJob("directDebitJob"), params);
     }
 }

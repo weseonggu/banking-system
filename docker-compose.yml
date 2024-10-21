@@ -27,15 +27,19 @@ services:
 
   redis_exporter:
     image: oliver006/redis_exporter:latest
+    restart: always
     ports:
       - "9121:9121"
-    depends_on:
-      - redis-stack
     networks:
       - my-network
     environment:
       REDIS_PASSWORD: "systempass"
       REDIS_ADDR: "redis-stack:6379"
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo 'ruok' | nc redis-stack 6379 | grep 'imok'" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   postgres:
     image: postgres:latest
@@ -60,14 +64,20 @@ services:
 
   postgres_exporter:
     image: wrouesnel/postgres_exporter:latest
+    restart: always
     environment:
       DATA_SOURCE_NAME: "user=banking password=banking20 host=postgres port=5432 dbname=auth sslmode=disable"
     ports:
       - "9187:9187"
-    depends_on:
-      - postgres
     networks:
       - my-network
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo 'ruok' | nc postgres 5432 | grep 'imok'" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+################################  kafka ####################################################
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -87,8 +97,8 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
-#      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://43.202.30.15:9092
+#      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
@@ -97,6 +107,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - my-network
+    depends_on:
+      zookeeper:
+        condition: service_healthy
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -112,93 +125,19 @@ services:
     networks:
       - my-network
 
+################################### monitoring #####################################
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-  config:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
-        MODULE: config
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-    ports:
-      - "19000:19000"
-    networks:
-      - my-network
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://43.202.30.15:19000/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s # 컨테이너 시작 후 60초를 기다린 후 체크 시작
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config:latest
-
-  eureka:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: eureka.server
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19090:19090"
-    networks:
-      - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/eureka.server:latest
-
-  gateway:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: gateway
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19092:19092"
-    depends_on:
-      config:
-        condition: service_healthy
-    networks:
-      - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway:latest
-
-  auth:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: auth
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
-    ports:
-      - "19093:19093"
-    networks:
-      - my-network
-    depends_on:
-      config:
-        condition: service_healthy
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth:latest
-
-  personal:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: personal
-    environment:
-      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
     ports:
       - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     restart: always
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
 
   grafana:
     image: grafana/grafana:latest
@@ -210,79 +149,8 @@ services:
     restart: always
     networks:
       - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product:latest
 
-  account:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: account
-    environment:
-      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-      ENCRYPTOR_PASSWORD: ${ENCRYPTOR_PASSWORD}
-    ports:
-      - "19095:19095"
-    depends_on:
-      config:
-        condition: service_healthy
-    networks:
-      - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account:latest
-
-  notification:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: notification
-    environment:
-      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-      SLACK_API_TOKEN: ${SLACK_API_TOKEN}
-    ports:
-      - "19097:19097"
-    depends_on:
-      config:
-        condition: service_healthy
-    networks:
-      - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification:latest
-
-  performance:
-    build:
-      dockerfile: ./Dockerfile
-      args:
-        TEST_SPRING_PROFILES_ACTIVE: prod
-        MODULE: performance
-    environment:
-      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-      SLACK_API_TOKEN: ${SLACK_API_TOKEN}
-    ports:
-      - "19098:19098"
-    depends_on:
-      config:
-        condition: service_healthy
-    networks:
-      - my-network
-    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance:latest
-#  config:
-#    build:
-#      dockerfile: ./Dockerfile
-#      args:
-#        TEST_SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
-#        MODULE: config
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod
-#    ports:
-#      - "19000:19000"
-#    networks:
-#      - my-network
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://config:19000/actuator/health" ]
-#      interval: 30s
-#      timeout: 10s
-#      retries: 5
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config
+############################## Microservice ######################################
 #
 #  eureka:
 #    build:
@@ -296,7 +164,39 @@ services:
 #      - "19090:19090"
 #    networks:
 #      - my-network
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/server
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/eureka.server:latest
+#    healthcheck:
+#      test: ["CMD", "sh", "-c", "curl -s http://localhost:19090/actuator/health | grep '\"status\":\"UP\"'"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 60s # 컨테이너 시작 후 60초를 기다린 후 체크 시작
+#
+#  config:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: native # 원하는 프로파일 설정
+#        MODULE: config
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod
+#    ports:
+#      - "19000:19000"
+#    networks:
+#      - my-network
+#    depends_on:
+#      eureka:
+#        condition: service_healthy
+#    healthcheck:
+#      test: ["CMD", "sh", "-c", "curl -s http://localhost:19000/actuator/health | grep '\"status\":\"UP\"'"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 60s # 컨테이너 시작 후 60초를 기다린 후 체크 시작
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/config:latest
+#
+#
+#
 #
 #  gateway:
 #    build:
@@ -308,13 +208,13 @@ services:
 #      SPRING_PROFILES_ACTIVE: prod  # 운영 환경 프로파일 설정
 #    ports:
 #      - "19092:19092"
-#      - "29092:29092"
 #    depends_on:
 #      config:
 #        condition: service_healthy
 #    networks:
 #      - my-network
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/gateway:latest
+#
 #
 #  auth:
 #    build:
@@ -332,7 +232,13 @@ services:
 #    depends_on:
 #      config:
 #        condition: service_healthy
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/auth:latest
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://host.docker.internal:19000/actuator/health" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 60s # 컨테이너 시작 후 60초를 기다린 후 체크 시작
 #
 #  personal:
 #    build:
@@ -345,12 +251,78 @@ services:
 #    ports:
 #      - "19096:19096"
 #      - "29096:29096"
+#    volumes:
+#      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#    restart: always
+#    networks:
+#      - my-network
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal:latest
+#    depends_on:
+#      config:
+#        condition: service_healthy
+#
+#
+#
+#  account:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: account
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
+#      ENCRYPTOR_PASSWORD: ${ENCRYPTOR_PASSWORD}
+#    ports:
+#      - "19095:19095"
+#      - "29095:29095"
 #    depends_on:
 #      config:
 #        condition: service_healthy
 #    networks:
 #      - my-network
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/personal
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account:latest
+#
+#
+#  notification:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: notification
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
+#      SLACK_API_TOKEN: ${SLACK_API_TOKEN}
+#    ports:
+#      - "19097:19097"
+#      - "29097:29097"
+#    depends_on:
+#      config:
+#        condition: service_healthy
+#    networks:
+#      - my-network
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification:latest
+#
+#
+#  performance:
+#    build:
+#      dockerfile: ./Dockerfile
+#      args:
+#        TEST_SPRING_PROFILES_ACTIVE: prod
+#        MODULE: performance
+#    environment:
+#      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
+#      SLACK_API_TOKEN: ${SLACK_API_TOKEN}
+#    ports:
+#      - "19098:19098"
+#      - "29098:29098"
+#    depends_on:
+#      config:
+#        condition: service_healthy
+#    networks:
+#      - my-network
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance:latest
+#
+#
 #
 #  product:
 #    build:
@@ -371,65 +343,10 @@ services:
 #        condition: service_healthy
 #    networks:
 #      - my-network
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product
+#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product:latest
 #
-#  account:
-#    build:
-#      dockerfile: ./Dockerfile
-#      args:
-#        TEST_SPRING_PROFILES_ACTIVE: prod
-#        MODULE: account
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-#      ENCRYPTOR_PASSWORD: ${ENCRYPTOR_PASSWORD}
-#    ports:
-#      - "19095:19095"
-#      - "29095:29095"
-#    depends_on:
-#      config:
-#        condition: service_healthy
-#    networks:
-#      - my-network
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/account
 #
-#  notification:
-#    build:
-#      dockerfile: ./Dockerfile
-#      args:
-#        TEST_SPRING_PROFILES_ACTIVE: prod
-#        MODULE: notification
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-#      SLACK_API_TOKEN: ${SLACK_API_TOKEN}
-#    ports:
-#      - "19097:19097"
-#      - "29097:29097"
-#    depends_on:
-#      config:
-#        condition: service_healthy
-#    networks:
-#      - my-network
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/notification
 #
-#  performance:
-#    build:
-#      dockerfile: ./Dockerfile
-#      args:
-#        TEST_SPRING_PROFILES_ACTIVE: prod
-#        MODULE: performance
-#    environment:
-#      SPRING_PROFILES_ACTIVE: prod # 운영 환경 프로파일 설정
-#      SLACK_API_TOKEN: ${SLACK_API_TOKEN}
-#    ports:
-#      - "19098:19098"
-#      - "29098:29098"
-#    depends_on:
-#      config:
-#        condition: service_healthy
-#    networks:
-#      - my-network
-#    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/performance
-
 
 volumes:
   postgres_data:
