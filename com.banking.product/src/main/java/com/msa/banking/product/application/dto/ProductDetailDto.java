@@ -1,4 +1,6 @@
 package com.msa.banking.product.application.dto;
 
-public abstract class ProductDetailDto {
+import java.io.Serializable;
+
+public abstract class ProductDetailDto implements Serializable {
 }
