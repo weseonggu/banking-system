@@ -6,7 +6,6 @@ import com.msa.banking.account.domain.model.FirstBatchWriter;
 import com.msa.banking.account.domain.repository.AccountRepository;
 import com.msa.banking.account.domain.repository.FirstBatchWriterRepository;
 import com.msa.banking.account.domain.repository.TransactionsRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -31,7 +30,7 @@ import java.util.List;
 
 @Slf4j
 @Configuration
-public class BalanceVerificationJobJob {
+public class FirstBatchJob {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformManager;
@@ -40,7 +39,7 @@ public class BalanceVerificationJobJob {
     private final FirstBatchWriterRepository firstBatchWriterRepository;
 
     // 생성자에 @Qualifier 사용
-    public BalanceVerificationJobJob(
+    public FirstBatchJob(
             JobRepository jobRepository,
             @Qualifier("batchTransactionManager") PlatformTransactionManager platformManager,
             TransactionsRepository transactionsRepository,
@@ -59,15 +58,15 @@ public class BalanceVerificationJobJob {
      *  3. 모든 계좌에 대해 특정 계좌 잔액과 그 계좌의 거래 내역 합산을 비교한다.
      */
     @Bean
-    public Job balanceVerificationJob(Step step) {
+    public Job balanceVerificationJob(Step step1) {
         return new JobBuilder("balanceVerificationJob", jobRepository)
-                .start(step)
+                .start(step1)
                 .build();
     }
 
     @Bean
-    public Step step() {
-        return new StepBuilder("step", jobRepository)
+    public Step step1() {
+        return new StepBuilder("step1", jobRepository)
                 .<Account, FirstBatchWriter> chunk(10, platformManager)
                 .reader(accountReader())
                 .processor(accountProcessor())
@@ -123,7 +122,7 @@ public class BalanceVerificationJobJob {
     @Bean
     public RepositoryItemWriter<FirstBatchWriter> accountWriter() {
         return new RepositoryItemWriterBuilder<FirstBatchWriter>()
-                .repository(firstBatchWriterRepository)  // 처리된 결과를 저장할 때 동일한 Account 엔티티 사용
+                .repository(firstBatchWriterRepository)  // 처리된 결과를 저장할 때 새로운 엔티티 사용
                 .methodName("save")
                 .build();
     }
