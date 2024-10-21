@@ -35,7 +35,8 @@ public class CacheConfig {
         Map<String, RedisCacheConfiguration> customConfigurationMap = new HashMap<>();
 
         customConfigurationMap.put(RedisCacheKey.pdfCache, PdfCacheConfiguration());
-        customConfigurationMap.put(RedisCacheKey.ProdctListCache, ProductListCacheConfiguration());
+        customConfigurationMap.put(RedisCacheKey.ProductListCache, ProductListCacheConfiguration());
+        customConfigurationMap.put(RedisCacheKey.ProductDetailCache, ProductDetailCacheConfiguration());
 
         return customConfigurationMap;
     }
@@ -77,6 +78,17 @@ public class CacheConfig {
                 .defaultCacheConfig()
                 .disableCachingNullValues()// 널은 캐싱 안함
                 .entryTtl(Duration.ofSeconds(6*60*60))// 6시간
+                .computePrefixWith(CacheKeyPrefix.simple())
+                .serializeValuesWith(
+                        SerializationPair.fromSerializer(RedisSerializer.java())
+                );
+    }
+
+    private RedisCacheConfiguration ProductDetailCacheConfiguration() {
+        return RedisCacheConfiguration
+                .defaultCacheConfig()
+                .disableCachingNullValues()// 널은 캐싱 안함
+                .entryTtl(Duration.ofSeconds(6*60))// 1시간
                 .computePrefixWith(CacheKeyPrefix.simple())
                 .serializeValuesWith(
                         SerializationPair.fromSerializer(RedisSerializer.java())
