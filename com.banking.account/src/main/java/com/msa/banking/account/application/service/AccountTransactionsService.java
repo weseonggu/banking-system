@@ -44,7 +44,7 @@ public class AccountTransactionsService {
      * 입금 기능
      */
     @LogDataChange
-    @RedissonLock(value = "#request.accountNumber()") // accountNumber로 락 적용
+    @RedissonLock(value = "#request.getAccountNumber()")  // accountNumber로 락 적용
     public SingleTransactionResponseDto createDeposit(DepositTransactionRequestDto request) {
 
         // 거래 상태 확인
@@ -63,6 +63,7 @@ public class AccountTransactionsService {
         return transactionsMapper.toDto(depositTransaction);
     }
 
+
     /**
      * 대출액 입금 기능
      * 맨 처음 한도액을 정할때만 기능 작동 가능.
@@ -71,7 +72,6 @@ public class AccountTransactionsService {
     @LogDataChange
     @RedissonLock(value = "#accountId.toString()") // accountId로 락 적용
     public SingleTransactionResponseDto createLoanDeposit(UUID accountId, LoanDepositTransactionRequestDto request, UUID userId, String role) {
-
 
         // 거래 상태 확인
         if(!request.getType().equals(TransactionType.LOAN_DEPOSIT)) {
@@ -89,10 +89,10 @@ public class AccountTransactionsService {
         return transactionsMapper.toDto(depositTransaction);
     }
 
+
     /**
      * 출금 + 결제 기능
      * 비밀번호를 3번 이상 틀리면 본인 인증 확인 필요.
-     * TODO: 계좌 거래 합산과 계좌 잔액 비교를 BATCH로 처리. 실시간 처리에서는 생략.-> 일치하지 않으면 에러 처리는 어떻게?
      */
     @LogDataChange
     @RedissonLock(value = "#accountId.toString()")
@@ -130,11 +130,12 @@ public class AccountTransactionsService {
         return transactionsMapper.toDto(withdrawalTransaction);
     }
 
+
     /**
      * 이체 기능(저축 + 대출 상환 포함 가능)
      */
     @LogDataChange
-    @RedissonLock(value = {"#accountId.toString()", "#request.beneficiaryAccount()"})  // 송금인과 수취인 계좌에 대해 각각 락 적용
+    @RedissonLock(value = {"#accountId.toString()", "#request.getBeneficiaryAccount()"})  // 송금인과 수취인 계좌에 대해 각각 락 적용
     public TransferTransactionResponseDto createTransfer(UUID accountId, TransferTransactionRequestDto request, UUID userId, String role) {
 
         if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
@@ -145,7 +146,6 @@ public class AccountTransactionsService {
         if(!request.getType().equals(TransactionType.TRANSFER)) {
             throw new GlobalCustomException(ErrorCode.INVALID_TRANSACTION_TYPE);
         }
-
 
         // 비즈니스 로직
         Account senderAccount = accountRepository.findById(accountId)
@@ -179,6 +179,7 @@ public class AccountTransactionsService {
         return new TransferTransactionResponseDto(senderDto, beneficiaryDto);
     }
 
+
     // 거래 설명 수정
     @LogDataChange
     @Transactional
@@ -197,6 +198,7 @@ public class AccountTransactionsService {
 
     }
 
+
     // TODO: 자신의 계좌 거래 조회가 가능해야 함.
     // 거래 전체 조회
     @LogDataChange
@@ -205,6 +207,7 @@ public class AccountTransactionsService {
 
         return transactionsRepository.searchTransactions(search, pageable);
     }
+
 
     // 거래 상세 조회
     @LogDataChange

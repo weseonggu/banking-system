@@ -24,6 +24,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 
 @Slf4j
@@ -37,7 +38,7 @@ public class SecondBatchJob {
 
     public SecondBatchJob(JobRepository jobRepository,
                           @Qualifier("batchTransactionManager") PlatformTransactionManager platformManager,
-                          DirectDebitRepository directDebitRepository,
+                          @Qualifier("directDebitRepository") DirectDebitRepository directDebitRepository,
                           SecondBatchWriterRepository secondBatchWriterRepository) {
         this.jobRepository = jobRepository;
         this.platformManager = platformManager;
@@ -77,16 +78,19 @@ public class SecondBatchJob {
                 .name("directDebitReader")
                 .repository(directDebitRepository)
                 .methodName("findByTransferDate")
-                .arguments(adjustTransferDate(LocalDate.now().getDayOfMonth()))  // 오늘 날짜 기준으로 숫자 전달
+                .arguments(adjustToLastDayOfMonth(LocalDate.now()))  /// 오늘 날짜 기준으로 숫자 전달
                 .pageSize(10)
                 .sorts(Collections.singletonMap("accountId", Sort.Direction.ASC))
                 .build();
     }
 
     // 31일인 경우에는 자동으로 30일로 변경하여 처리
-    private Integer adjustTransferDate(int dayOfMonth) {
-        return dayOfMonth == 31 ? 30 : dayOfMonth;
+    // 매월 마지막 날로 조정 (31일이 없으면 30일 또는 그 달의 마지막 날로 처리)
+    private Integer adjustToLastDayOfMonth(LocalDate currentDate) {
+        int lastDayOfMonth = currentDate.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
+        return currentDate.getDayOfMonth() == 31 ? lastDayOfMonth : currentDate.getDayOfMonth();
     }
+
 
     @Bean
     public ItemProcessor<DirectDebit, SecondBatchWriter> directDebitProcessor() {

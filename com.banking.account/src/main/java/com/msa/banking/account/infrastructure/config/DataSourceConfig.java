@@ -29,10 +29,8 @@ public class DataSourceConfig {
 
     @Value("${spring.jpa.properties.hibernate.show_sql}")
     private boolean showSql;
-
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String ddlAuto;
-
     @Value("${spring.jpa.properties.hibernate.dialect}")
     private String dialect;
 
