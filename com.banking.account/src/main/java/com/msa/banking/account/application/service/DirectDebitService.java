@@ -32,7 +32,6 @@ public class DirectDebitService {
     private final ProductService productService;
 
 
-
     // 자동 이체 등록
     @LogDataChange
     @Transactional
@@ -44,6 +43,11 @@ public class DirectDebitService {
             throw new GlobalCustomException(ErrorCode.FORBIDDEN);
         }
 
+        // 자동 이체 대상 계좌 검증
+        Account beneficiaryAccount = accountRepository.findByAccountNumber(request.getBeneficiaryAccount())
+                .filter(a -> !a.getIsDelete())
+                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+
         // 이체 날짜 검증
         if(!isValidTransferDay(request.getTransferDate())){
             throw new GlobalCustomException(ErrorCode.TRANSFER_DATE_NOT_AVAILABLE);
@@ -53,14 +57,12 @@ public class DirectDebitService {
                 .filter(a -> !a.getIsDelete())
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-
         DirectDebit directDebit = DirectDebit.createDirectDebit(account, request);
         directDebitRepository.save(directDebit);
         return directDebitMapper.toDto(directDebit);
     }
 
 
-    // TODO: 매니저나 마스터가 자동 이체를 생성할 시 고객의 권한 체크를 어떻게 할 것인가?
     // 자동 이체 수정
     @LogDataChange
     @Transactional
@@ -85,7 +87,7 @@ public class DirectDebitService {
 
     }
 
-    // TODO: Status도 변경해야 하는데 현재 delete로는 함께 변경 불가, 따로 status만 변경하는 메서드를 생성해야 하는가?
+
     // 자동 이체 해지
     @LogDataChange
     @Transactional
@@ -113,6 +115,7 @@ public class DirectDebitService {
         return directDebitRepository.searchDirectDebits(search, pageable);
     }
 
+
     // 자동 이체 상세 조회
     @LogDataChange
     @Transactional(readOnly = true)
@@ -129,7 +132,7 @@ public class DirectDebitService {
         return directDebitMapper.toDto(directDebit);
     }
 
-    // TODO: 자동이체 계좌를 스케줄러로 이체
+
     // 날짜 검증
     public boolean isValidTransferDay(int dayOfMonth) {
         // dayOfMonth 값이 1~31 사이인지 먼저 확인
