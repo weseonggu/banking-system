@@ -39,8 +39,8 @@ public class EventProducerImpl implements EventProducer {
             Object dataObject = responseBody.get("data");
 
             if (dataObject instanceof Map<?, ?> dataMap) {
-                UUID fetchedUserId = UUID.fromString((String) dataMap.get("id"));
-                log.info("UserId: " + userId);
+                UUID fetchedUserId = UUID.fromString((String) dataMap.get("userId"));
+                log.info("UserId: " + fetchedUserId);
 
                 // PersonalHistoryRequestDto 생성
                 PersonalHistoryRequestDto personalHistoryRequestDto = PersonalHistoryRequestDto.builder()
