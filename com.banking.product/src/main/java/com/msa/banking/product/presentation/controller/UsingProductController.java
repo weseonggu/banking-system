@@ -47,8 +47,9 @@ public class UsingProductController {
     @PostMapping(value = "/join/checking")
     @LogDataChange
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'MANAGER')")
-    public ResponseEntity<?> signUpForCheckingProduct(@Valid @RequestBody RequsetJoinChecking requsetJoinChecking,
-                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> signUpForCheckingProduct(
+            @Valid @RequestBody RequsetJoinChecking requsetJoinChecking,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         NewSubscriber dto = usingProductService.joinChecking(requsetJoinChecking, userDetails);
         SuccessResponse response = new SuccessResponse<>(
@@ -69,8 +70,9 @@ public class UsingProductController {
     @PostMapping(value = "/join/loan")
     @LogDataChange
     @PreAuthorize("hasAnyAuthority('CUSTOMER')")
-    public ResponseEntity<?> signUpForLoanProduct(@Valid @RequestBody RequestJoinLoan requestJoinLoan,
-                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<?> signUpForLoanProduct(
+            @Valid @RequestBody RequestJoinLoan requestJoinLoan,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         NewSubscriber dto  = usingProductService.joinLoan(requestJoinLoan, userDetails);
 
