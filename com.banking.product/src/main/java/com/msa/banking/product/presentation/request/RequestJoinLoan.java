@@ -1,6 +1,7 @@
 package com.msa.banking.product.presentation.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.msa.banking.product.annotaion.PinMatches;
 import com.msa.banking.product.lib.ProductType;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,8 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestJoinLoan {
+@PinMatches
+public class RequestJoinLoan extends RequestJoinProduct{
 
     @NotNull(message = "필수 입력 사항입니다.")
     private UUID userId;
@@ -39,6 +41,10 @@ public class RequestJoinLoan {
     @NotNull(message = "필수 입력 사항입니다.")
     @Pattern(regexp = "^\\d{6}$", message = "6자리 숫자여야 합니다.")
     private String accountPin;// 비번
+
+    @NotNull(message = "필수 입력 사항입니다.")
+    @Pattern(regexp = "^\\d{6}$", message = "6자리 숫자여야 합니다.")
+    private String checkPin;// 비번
 
 
 }
