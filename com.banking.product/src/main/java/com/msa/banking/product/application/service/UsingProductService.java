@@ -188,14 +188,14 @@ public class UsingProductService {
 
     public NewSubscriber joinFallbackMethod(Exception e){
 
-        // TODO: 개발 자에게 알림이 가도록 모니터링되도록
+
 
         throw new TryAgainException("서비스에 문제가 생겼습니다. 나중에 다시 시도해주세요");
     }
 
     public NewSubscriber userCheckFallbackMethod(Exception e){
 
-        // TODO: 개발 자에게 알림이 가도록 모니터링되도록
+
 
         throw new TryAgainException("서비스에 문제가 생겼습니다. 나중에 다시 시도해주세요");
     }
@@ -280,7 +280,7 @@ public class UsingProductService {
     @Transactional
     public void changeLoanSateToRun(UUID id, UserDetailsImpl userDetails, String accountNum) {
         // 실행할 데이터 검색
-        UsingProduct usingProduct =usingProductRepository.findByIdEntityGraph(id)
+        UsingProduct usingProduct =usingProductRepository.findByAccountIdEntityGraph(id)
                 .orElseThrow(() -> new IllegalArgumentException("데이터가 없습니다."));
 
         // 요청 이 본인 인지 확인

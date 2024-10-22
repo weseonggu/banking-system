@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class ProductResponseDto {
+public class ProductResponseDto implements Serializable {
     private UUID id;
     private String name;
     private ProductType type;
