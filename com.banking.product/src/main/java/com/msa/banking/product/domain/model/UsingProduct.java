@@ -18,7 +18,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
 @Table(indexes = {
-        @Index(name = "idx_using_product_user_id", columnList = "user_id")
+        @Index(name = "idx_using_product_user_id", columnList = "user_id"),
+        @Index(name = "idx_using_product_account_id", columnList = "account_id")
 })
 public class UsingProduct extends AuditEntity {
     @Id

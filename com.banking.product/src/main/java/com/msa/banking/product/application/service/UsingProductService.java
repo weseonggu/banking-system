@@ -138,7 +138,7 @@ public class UsingProductService {
                                                     String accountPin, CheckingInUse checkingInUse, LoanInUse loanInUse) throws FeignException {
 
         // 계좌 생성 요청
-        ResponseEntity<UUID> response = addAccount(name, accountPin);
+        ResponseEntity<UUID> response = addAccount(name, accountPin, productType);
 
         // UsingProduct 엔티티 생성
         UsingProduct usingProduct = UsingProduct.create(userId, productType, response.getBody(), name, productId);
@@ -160,9 +160,16 @@ public class UsingProductService {
 
     // 계좌 생성 요청  서킷 브레이커적용하기
     @CircuitBreaker(name = "createAccountService", fallbackMethod = "joinFallbackMethod")
-    private ResponseEntity<UUID> addAccount(String name, String accountPin) throws FeignException{
+    private ResponseEntity<UUID> addAccount(String name, String accountPin, ProductType accountType) throws FeignException{
+        AccountRequestDto requestDto =  null;
+        switch (accountType){
+            case CHECKING:
+                requestDto = new AccountRequestDto(name, AccountType.CHECKING, accountPin, accountPin);
+                break;
 
-        AccountRequestDto requestDto = new AccountRequestDto(name, AccountType.CHECKING, accountPin, accountPin);
+            case NEGATIVE_LOANS:
+                requestDto = new AccountRequestDto(name, AccountType.LOAN, accountPin, accountPin);
+        }
         return accountClient.addAccount(requestDto);
 
 
@@ -181,14 +188,14 @@ public class UsingProductService {
 
     public NewSubscriber joinFallbackMethod(Exception e){
 
-        // TODO: 개발 자에게 알림이 가도록 모니터링되도록
+
 
         throw new TryAgainException("서비스에 문제가 생겼습니다. 나중에 다시 시도해주세요");
     }
 
     public NewSubscriber userCheckFallbackMethod(Exception e){
 
-        // TODO: 개발 자에게 알림이 가도록 모니터링되도록
+
 
         throw new TryAgainException("서비스에 문제가 생겼습니다. 나중에 다시 시도해주세요");
     }
@@ -273,7 +280,7 @@ public class UsingProductService {
     @Transactional
     public void changeLoanSateToRun(UUID id, UserDetailsImpl userDetails, String accountNum) {
         // 실행할 데이터 검색
-        UsingProduct usingProduct =usingProductRepository.findByIdEntityGraph(id)
+        UsingProduct usingProduct =usingProductRepository.findByAccountIdEntityGraph(id)
                 .orElseThrow(() -> new IllegalArgumentException("데이터가 없습니다."));
 
         // 요청 이 본인 인지 확인
