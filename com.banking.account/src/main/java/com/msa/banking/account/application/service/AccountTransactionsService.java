@@ -134,7 +134,7 @@ public class AccountTransactionsService {
      * 이체 기능(저축 + 대출 상환 포함 가능)
      */
     @LogDataChange
-    @RedissonLock(value = {"#accountId.toString()", "#request.beneficiaryAccount()"})  // 송금인과 수취인 계좌에 대해 각각 락 적용
+    @RedissonLock(value = {"#accountId.toString()", "#request.getBeneficiaryAccount()"})  // 송금인과 수취인 계좌에 대해 각각 락 적용
     public TransferTransactionResponseDto createTransfer(UUID accountId, TransferTransactionRequestDto request, UUID userId, String role) {
 
         if(role.equals(UserRole.CUSTOMER.name()) && !productService.findByAccountId(accountId, userId, role).getStatusCode().is2xxSuccessful()){
