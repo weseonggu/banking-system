@@ -108,7 +108,7 @@
 </aside>
 
 ## ⛱️ 인프라 설계도
-<img src="/gitimg/infra.png" alt="은행 이미지" />
+<img src="/gitimg/Infra.png" alt="은행 이미지" />
 
 ## 🔧 주요 기능
 <h3>🍈 상품 서비스</h3>
