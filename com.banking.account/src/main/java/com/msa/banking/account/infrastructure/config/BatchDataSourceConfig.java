@@ -2,11 +2,17 @@ package com.msa.banking.account.infrastructure.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.batch.item.database.support.DefaultDataFieldMaxValueIncrementerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -25,16 +31,17 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "batchEntityManager", // 배치용 EntityManager
         transactionManagerRef = "batchTransactionManager" // 배치용 트랜잭션 매니저
 )
-public class BatchDataSourceConfig extends DefaultBatchConfiguration {
+public class BatchDataSourceConfig {
 
     // HikariCP는 성능 최적화에 중점을 둔 커넥션 풀로, 속도와 효율성이 우수
     // 대규모 트래픽을 처리해야 하는 서비스에서 뛰어난 성능을 발휘
-    @Bean
+    @Bean(name = "batchDataSource")
     @ConfigurationProperties(prefix = "spring.batch.datasource")
     public DataSource batchDataSource() {
 
         return DataSourceBuilder.create().build();
     }
+
 
     @Bean(name = "batchEntityManager")
     public LocalContainerEntityManagerFactoryBean batchEntityManager(
@@ -57,5 +64,19 @@ public class BatchDataSourceConfig extends DefaultBatchConfiguration {
             @Qualifier("batchDataSource") DataSource batchDataSource) {
         log.info("batch 트랜잭션 매니저 확인");
         return new DataSourceTransactionManager(batchDataSource);
+    }
+
+    @Bean(name = "batchJobRepository")
+    public JobRepository jobRepository(
+            @Qualifier("batchDataSource") DataSource batchDataSource,
+            @Qualifier("batchTransactionManager") PlatformTransactionManager transactionManager) throws Exception {
+
+        JobRepositoryFactoryBean factory = new JobRepositoryFactoryBean();
+        factory.setDataSource(batchDataSource);
+        factory.setTransactionManager(transactionManager);
+
+        // incrementerFactory 설정 제거
+        factory.setIsolationLevelForCreate("ISOLATION_DEFAULT");
+        return factory.getObject();
     }
 }
