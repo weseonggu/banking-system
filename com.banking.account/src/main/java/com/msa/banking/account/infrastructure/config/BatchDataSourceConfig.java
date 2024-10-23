@@ -1,6 +1,7 @@
 package com.msa.banking.account.infrastructure.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -24,7 +25,7 @@ import javax.sql.DataSource;
         entityManagerFactoryRef = "batchEntityManager", // 배치용 EntityManager
         transactionManagerRef = "batchTransactionManager" // 배치용 트랜잭션 매니저
 )
-public class BatchDataSourceConfig {
+public class BatchDataSourceConfig extends DefaultBatchConfiguration {
 
     // HikariCP는 성능 최적화에 중점을 둔 커넥션 풀로, 속도와 효율성이 우수
     // 대규모 트래픽을 처리해야 하는 서비스에서 뛰어난 성능을 발휘

@@ -32,7 +32,6 @@ public class AccountController {
 
 
     // 상품 가입시 계좌 등록 후 계좌 ID 반환
-    // TODO: requestDto가 record타입인 경우 final을 붙이는게 의미가 있는가? AuditEntity에서 createdBy 처리
     @PostMapping
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     @Operation(summary = "계좌 등록", description = "상품 가입 시 계좌 등록 API 입니다.")
