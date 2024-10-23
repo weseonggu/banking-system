@@ -341,10 +341,7 @@ services:
 #      - my-network
 #    image: 211125657451.dkr.ecr.ap-northeast-2.amazonaws.com/sparta/product:latest
 
-
-
-
-
+############################## Other ######################################
 
 volumes:
   postgres_data:
