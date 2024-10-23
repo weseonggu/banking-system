@@ -45,7 +45,7 @@ public class AccountTransactionsService {
      */
     @LogDataChange
     @RedissonLock(value = "#request.getAccountNumber()")   // accountNumber로 락 적용
-    public SingleTransactionResponseDto createDeposit(DepositTransactionRequestDto request) {
+    public SingleTransactionResponseDto createDeposit(DepositTransactionRequestDto request, UUID userId, String role) {
 
         // 거래 상태 확인
         if(!request.getType().equals(TransactionType.DEPOSIT) && !request.getType().equals(TransactionType.SAVINGS_DEPOSIT)) {
@@ -59,7 +59,7 @@ public class AccountTransactionsService {
 
         // 입금 처리
         AccountTransactions depositTransaction = transactionalService.createDepositTransaction(account, request);
-        transactionalService.updateDepositAccountBalance(account, request.getDepositAmount());
+        transactionalService.updateDepositAccountBalance(account, request.getDepositAmount(), userId, role, depositTransaction);
         return transactionsMapper.toDto(depositTransaction);
     }
 
@@ -85,7 +85,7 @@ public class AccountTransactionsService {
 
         // 입금 처리
         AccountTransactions depositTransaction = transactionalService.createDepositTransaction(account, request);
-        transactionalService.updateDepositAccountBalance(account, request.getDepositAmount());
+        transactionalService.updateDepositAccountBalance(account, request.getDepositAmount(), userId, role, depositTransaction);
         return transactionsMapper.toDto(depositTransaction);
     }
 

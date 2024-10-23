@@ -12,6 +12,7 @@ import com.msa.banking.personal.application.service.BudgetService;
 import com.msa.banking.personal.application.service.CategoryService;
 import com.msa.banking.personal.application.service.PersonalHistoryService;
 import com.msa.banking.personal.domain.enums.PersonalHistoryStatus;
+import com.msa.banking.personal.domain.enums.PersonalHistoryType;
 import com.msa.banking.personal.domain.model.Budget;
 import com.msa.banking.personal.domain.model.Category;
 import com.msa.banking.personal.domain.model.PersonalHistory;
@@ -76,16 +77,20 @@ public class PersonalHistoryServiceImpl implements PersonalHistoryService {
         LocalDateTime transactionDate = savePersonalHistory.getTransactionDate();
         BigDecimal transactionAmount = savePersonalHistory.getAmount();
 
-        // 해당 기간에 속하는 모든 예산 설정을 조회
-        List<Budget> budgets = budgetService.findAllByUserIdAndPeriod(userId,transactionDate);
+        // 출금, 이체 시
+        if(accountCompletedEventDto.getType() == PersonalHistoryType.WITHDRAWAL || accountCompletedEventDto.getType() == PersonalHistoryType.TRANSFER){
+            // 해당 기간에 속하는 모든 예산 설정을 조회
+            List<Budget> budgets = budgetService.findAllByUserIdAndPeriod(userId,transactionDate);
 
-        // 예산 설정이 존재하면 처리
-        if (!budgets.isEmpty()) {
-            budgets.forEach(budget -> {
-                // 각 예산에 대해 금액을 추가
-                budgetService.addTransactionAmountToBudget(budget,transactionAmount,personalHistory);
-            });
+            // 예산 설정이 존재하면 처리
+            if (!budgets.isEmpty()) {
+                budgets.forEach(budget -> {
+                    // 각 예산에 대해 금액을 추가
+                    budgetService.addTransactionAmountToBudget(budget,transactionAmount,personalHistory);
+                });
+            }
         }
+
         return PersonalHistoryResponseDto.toDTO(savePersonalHistory);
     }
 

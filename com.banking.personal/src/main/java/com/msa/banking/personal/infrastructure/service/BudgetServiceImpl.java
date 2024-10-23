@@ -3,6 +3,7 @@ package com.msa.banking.personal.infrastructure.service;
 import com.msa.banking.common.base.UserRole;
 import com.msa.banking.common.notification.NotiType;
 import com.msa.banking.common.notification.NotificationRequestDto;
+import com.msa.banking.common.personal.PersonalHistoryType;
 import com.msa.banking.common.response.ErrorCode;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
 import com.msa.banking.personal.application.dto.budget.BudgetListDto;
@@ -31,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,9 +44,7 @@ public class BudgetServiceImpl implements BudgetService {
     private final CacheManager cacheManager;
     private final UserService userService;
     private final EventProducer eventProducer;
-
     private static final int MAX_BUDGET_LIMIT = 20;
-
 
     /**
      * 예산 설정 목록 조회
@@ -96,6 +92,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         LocalDateTime startDate = budgetRequestDto.getStartDate();
         LocalDateTime endDate = Budget.calculateEndDate(startDate, budgetRequestDto.getPeriod());
+        List<PersonalHistoryType> types = Arrays.asList(PersonalHistoryType.WITHDRAWAL, PersonalHistoryType.TRANSFER);
 
         Long budgetCount = budgetRepository.countBudgetByUserId(userId);
 
@@ -104,7 +101,7 @@ public class BudgetServiceImpl implements BudgetService {
 
             // Optional을 사용하여 금액이 있을 경우에만 예산에 추가
             Optional<BigDecimal> totalSpentAmountOpt = personalHistoryRepository
-                    .findTotalAmountByDateRange(userId, startDate, endDate);
+                    .findTotalAmountByDateRange(userId, startDate, endDate, types);
 
             totalSpentAmountOpt.ifPresent(budget::addTransactionAmount);
 
