@@ -106,17 +106,15 @@
 <img src="/gitimg/Infra.png" alt="은행 이미지" />
 
 ## ⛱ 기술적 의사결정
-[쓰기성능 향상] CQRS 패턴 [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5B%EC%93%B0%EA%B8%B0%EC%84%B1%EB%8A%A5-%ED%96%A5%EC%83%81%5D-CQRS-%ED%8C%A8%ED%84%B4)
+[쓰기성능 향상] CQRS 패턴 [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%EA%B8%B0%EC%88%A0%EC%A0%81-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95#%EC%93%B0%EA%B8%B0%EC%84%B1%EB%8A%A5-%ED%96%A5%EC%83%81-cqrs-%ED%8C%A8%ED%84%B4)
 
-[데이터 동시성] 동시성 문제 해결을 위한 분산락 [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5B%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%8F%99%EC%8B%9C%EC%84%B1%5D-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0%EC%9D%84-%EC%9C%84%ED%95%9C-%EB%B6%84%EC%82%B0%EB%9D%BD)
+[데이터 동시성] 동시성 문제 해결을 위한 분산락 [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%EA%B8%B0%EC%88%A0%EC%A0%81-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%8F%99%EC%8B%9C%EC%84%B1-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0%EC%9D%84-%EC%9C%84%ED%95%9C-%EB%B6%84%EC%82%B0%EB%9D%BD)
 
-[공통 모듈] 멀티 모듈 구성 [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5B%EA%B3%B5%ED%86%B5-%EB%AA%A8%EB%93%88%5D-%EB%A9%80%ED%8B%B0-%EB%AA%A8%EB%93%88-%EA%B5%AC%EC%84%B1)
+[공통 모듈] 멀티 모듈 구성 [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%EA%B8%B0%EC%88%A0%EC%A0%81-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95#%EA%B3%B5%ED%86%B5-%EB%AA%A8%EB%93%88-%EB%A9%80%ED%8B%B0-%EB%AA%A8%EB%93%88-%EA%B5%AC%EC%84%B1)
 
-[인증/인가] 스프링 시큐리티 vs Gateway [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5B%EC%9D%B8%EC%A6%9D-%EC%9D%B8%EA%B0%80%5D-%EC%8A%A4%ED%94%84%EB%A7%81-%EC%8B%9C%ED%81%90%EB%A6%AC%ED%8B%B0-vs-Gateway)
-
-[실시간 데이터 처리] Kafka vs DB 변경 감지 [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5B%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%B2%98%EB%A6%AC%5D-Kafka-vs-DB-%EB%B3%80%EA%B2%BD-%EA%B0%90%EC%A7%80)
-
-[대용량 데이터 처리] Spring Batch [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5B%EB%8C%80%EC%9A%A9%EB%9F%89-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%B2%98%EB%A6%AC%5D-Spring-Batch)
+[인증/인가] 스프링 시큐리티 vs Gateway [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%EA%B8%B0%EC%88%A0%EC%A0%81-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95#editing-%EC%9D%B8%EC%A6%9D-%EC%9D%B8%EA%B0%80-%EC%8A%A4%ED%94%84%EB%A7%81-%EC%8B%9C%ED%81%90%EB%A6%AC%ED%8B%B0-vs-gateway)
+[실시간 데이터 처리] Kafka vs DB 변경 감지 [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%EA%B8%B0%EC%88%A0%EC%A0%81-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95#%EC%8B%A4%EC%8B%9C%EA%B0%84-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%B2%98%EB%A6%AC-kafka-vs-db-%EB%B3%80%EA%B2%BD-%EA%B0%90%EC%A7%80)
+[대용량 데이터 처리] Spring Batch [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%EA%B8%B0%EC%88%A0%EC%A0%81-%EC%9D%98%EC%82%AC-%EA%B2%B0%EC%A0%95#%EB%8C%80%EC%9A%A9%EB%9F%89-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%B2%98%EB%A6%AC-spring-batch)
 
 ## 🔧 주요 기능
 <h3>🍈 상품 서비스</h3>
@@ -183,13 +181,13 @@
 </details>
 
 ## 🧨 트러블 슈팅
-성능테스트 상품 조회 트러블 슈팅 [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5BTrouble-Shooting%5D-%EC%84%B1%EB%8A%A5%ED%85%8C%EC%8A%A4%ED%8A%B8-%EC%83%81%ED%92%88-%EC%A1%B0%ED%9A%8C-%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85)
+성능테스트 상품 조회 트러블 슈팅 [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85#%EF%B8%8F-%EC%83%81%ED%92%88-%EB%AA%A9%EB%A1%9D-%EC%A1%B0%ED%9A%8C-%EC%84%B1%EB%8A%A5-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EA%B2%B0%EA%B3%BC)
 
-성능테스트 회원 수정 트러블 슈팅 [WIKE보기](https://github.com/Last-Project-20/banking-system/wiki/%5BTrouble-Shooting%5D-%EC%84%B1%EB%8A%A5%ED%85%8C%EC%8A%A4%ED%8A%B8-%ED%9A%8C%EC%9B%90-%EC%88%98%EC%A0%95-%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85)
+성능테스트 회원 수정 트러블 슈팅 [WIKE보기](https://github.com/weseonggu/banking-system/wiki/%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85#%EF%B8%8F-%EC%A7%81%EC%9B%90-%EC%A0%95%EB%B3%B4-%EC%88%98%EC%A0%95-%EC%84%B1%EB%8A%A5-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EA%B2%B0%EA%B3%BC)
 
-참조키 문제 [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5BTrouble-Shooting%5D-%EC%B0%B8%EC%A1%B0%ED%82%A4-%EB%AC%B8%EC%A0%9C)
+참조키 문제 [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85#%EF%B8%8F-%EC%83%81%ED%92%88-%EB%94%94%ED%85%8C%EC%9D%BC-%EC%A0%80%EC%9E%A5-%EC%8B%9C-%EB%B0%9C%EC%83%9D%ED%95%98%EB%8A%94-%EC%98%88%EC%99%B8-%EC%B2%98%EB%A6%AC-%EB%AC%B8%EC%A0%9C)
 
-트랜잭션 롤백 : 서비스 분리와 트랜잭션 전파의 중요성 [WIKI보기](https://github.com/Last-Project-20/banking-system/wiki/%5BTrouble-Shooting%5D-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EB%A1%A4%EB%B0%B1-:-%EC%84%9C%EB%B9%84%EC%8A%A4-%EB%B6%84%EB%A6%AC%EC%99%80-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EC%A0%84%ED%8C%8C%EC%9D%98-%EC%A4%91%EC%9A%94%EC%84%B1)
+트랜잭션 롤백 : 서비스 분리와 트랜잭션 전파의 중요성 [WIKI보기](https://github.com/weseonggu/banking-system/wiki/%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85#-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EC%8B%9C%EB%8F%84-%EC%B2%98%EB%A6%AC-%EB%B0%8F-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0)
 
 ## 🍇 CONTRIBUTORS
 
