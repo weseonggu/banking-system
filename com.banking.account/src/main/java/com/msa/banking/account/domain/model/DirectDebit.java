@@ -49,13 +49,13 @@ public class DirectDebit extends AuditEntity {
                 .build();
     }
 
-    // 이체 금액, 이체 날짜, 상태 변경 가능
+    // 이체 금액, 이체 날짜 변경 가능
     public void updateDirectDebit(DirectDebitRequestDto requestDto) {
         this.amount = requestDto.getAmount();
         this.transferDate = requestDto.getTransferDate();
     }
 
-    // 이체 금액, 이체 날짜, 상태 변경 가능
+    // 이체 상태 변경 가능
     public void updateDirectDebitStatus(DirectDebitStatus status) {
         this.status = status;
     }

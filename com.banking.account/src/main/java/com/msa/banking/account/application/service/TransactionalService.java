@@ -60,6 +60,7 @@ public class TransactionalService {
         return depositTransaction;
     }
 
+
     // 대출 계좌 대출액 거래 내역 생성
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AccountTransactions createDepositTransaction(Account account, LoanDepositTransactionRequestDto request) {

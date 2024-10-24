@@ -1,4 +1,4 @@
-package com.msa.banking.account.domain.repository;
+package com.msa.banking.account.infrastructure.repository;
 
 import com.msa.banking.account.domain.model.SecondBatchWriter;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -4,12 +4,13 @@ import com.msa.banking.product.domain.model.CheckingDetail;
 import com.msa.banking.product.domain.model.Product;
 import lombok.*;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class CheckingDetailDto extends ProductDetailDto {
+public class CheckingDetailDto extends ProductDetailDto implements Serializable {
     private String checkingDetail;
     private String termsAndConditions;
     private BigDecimal interestRate;

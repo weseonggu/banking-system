@@ -70,6 +70,7 @@ public class ProductController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> findProucts(Pageable pageable, RequestSearchProductDto condition) {
         // 어플리케이션 계층 서비스 호츌
+
         List<ResponseProductPage> list = applicationService.findAllProduct(pageable, condition);
         SuccessResponse response =  new SuccessResponse(
                 HttpStatus.OK.value(),
