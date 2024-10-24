@@ -105,6 +105,19 @@
 ## ⛱️ 인프라 설계도
 <img src="/gitimg/Infra.png" alt="은행 이미지" />
 
+## ⛱ 기술적 의사결정
+[쓰기성능 향상] CQRS 패턴 [WIKI보기](주소)
+
+[데이터 동시성] 동시성 문제 해결을 위한 분산락 [WIKI보기](주소)
+
+[공통 모듈] 멀티 모듈 구성 [WIKI보기](주소)
+
+[인증/인가] 스프링 시큐리티 vs Gateway [WIKI보기](주소)
+
+[실시간 데이터 처리] Kafka vs DB 변경 감지 [WIKI보기](주소)
+
+[대용량 데이터 처리] Spring Batch [WIKI보기](주소)
+
 ## 🔧 주요 기능
 <h3>🍈 상품 서비스</h3>
 <details>
@@ -169,12 +182,19 @@
 
 </details>
 
+## 🧨 트러블 슈팅
+성능테스트 트러블 슈팅 [WIKI보기](주소)
+
+참조키 문제 [WIKI보기](주소)
+
+트랜잭션 롤백 : 서비스 분리와 트랜잭션 전파의 중요성 [WIKI보기](주소)
+
 ## 🍇 CONTRIBUTORS
 
 
 | 팀원명     | 포지션 | 담당(개인별 기여점)                                                                                                                                                                                                                                                                                                    | GitHub 링크 |
 |---------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| **김원기** | 리더   | **GitHub 관리** / 팀원 간 일정 조율 및 튜터님과 일정 협의 <br> - **인증/인가 및 Gateway 필터 구현**<br>    - 시큐리티를 통한 인증/인가 구현 / Gateway를 통한 JWT 검증 및 라우팅<br>  **Auth Service**<br>    - 회원 ID 검증, 회원가입 알림, 로그인, 로그아웃 구현<br> - **User Service**<br>    - User 검색 및 수정 구현<br>  **Performance Service**<br>    - 원활, 연도별 대출 가입건수 및 대출 상환 금액을 스케줄로 통해 자동 기록 | [GitHub TrendFollow - Overview](https://github.com/TrendFollow) |
+| **김원기** | 리더   | **GitHub 관리** / 팀원 간 일정 조율 및 튜터님과 일정 협의 <br> - **인증/인가 및 Gateway 필터 구현**<br>    - 시큐리티를 통한 인증/인가 구현 / Gateway를 통한 JWT 검증 및 라우팅<br>  **Auth Service**<br>    - 회원 슬랙 ID 검증, 회원가입 알림, 로그인, 로그아웃 구현<br> - **User Service**<br>    - User 검색 및 수정 구현<br>  **Performance Service**<br>    - 원별, 연도별 대출 가입건수 및 대출 상환 금액을 스케줄로 통해 자동 기록 | [GitHub TrendFollow - Overview](https://github.com/TrendFollow) |
 | **김혜린** | 브리더 |  팀원 간 소통이 원활하도록 분위기 조성 및 참여 유도<br>     팀 회의 시 대화 주도 및 팀원 참여 유도<br>     팀 주요 공지 사항 안내<br>  **기록 및 발표 자료 담당**<br>     팀 회의/튜터님 피드백 기록 작성<br>     제출 자료 검토 및 정리<br>  **Account Service**<br>    - 계좌, 금융 거래, 자동 이체 관련 기능 구현                                                                                       | [GitHub uzuberceuse - Overview](https://github.com/uzuberceuse) |
 | **위성구** | 팀원   |  기획 단계에서 선택할 기술을 파악하고 대안을 제공<br>     메인 서비스의 금융 거래에 대해서 다양한 구현 방식을 제안<br>     프로젝트 생성 및 모듈 구조 설정<br>  **Product Service**<br>    - 상품 생성 조회 구현<br>    - 고객의 상품 가입, 조회, 실행, 해지 구현<br>  **배포 관련**<br>    - 배포를 위한 AWS 운영<br>    - Docker-compose 작성<br>  **모니터링**<br>    - Prometheus, Grafana를 사용한 서버의 자원 사용량 모니터링 | [GitHub wseongsung - Overview](https://github.com/wseongsung) |
 | **이범수** | 팀원   |  **Personal Service**<br>    - 개인 내역 생성, 카테고리 설정<br>    - 예산 설정 생성, 수정<br>    - 기간 내 사용 비율이 설정한 예산을 넘으면 알림 발송<br>  **CI/CD**<br>    - GitHub Actions를 통한 CI/CD 파이프라인 구축<br>    - ECR에 도커 이미지를 저장하고, EC2에서 컨테이너로 실행                                                                                             | [GitHub beomsu1 - Overview](https://github.com/beomsu1) |
