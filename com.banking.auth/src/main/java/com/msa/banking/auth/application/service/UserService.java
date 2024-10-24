@@ -126,8 +126,6 @@ public class UserService {
      * @return
      */
     @Transactional
-    @CachePut(cacheNames = "CustomerCache", key = "#customerId", condition = "@checkRedisState.isRedisAvailable()")
-    @CacheEvict(cacheNames = "CustomerSearchCache", allEntries = true)
     public AuthResponseDto updateCustomer(UUID customerId, AuthRequestDto request, UUID userId, String role) {
 
         // 고객 권한일 때 본인 정보가 아니면 에러
@@ -193,8 +191,6 @@ public class UserService {
      * @return
      */
     @Transactional
-    @CachePut(cacheNames = "EmployeeCache", key = "#employeeId", condition = "@checkRedisState.isRedisAvailable()")
-    @CacheEvict(cacheNames = "EmployeeSearchCache", allEntries = true)
     public AuthResponseDto updateEmployee(UUID employeeId, AuthRequestDto request, UUID userId, String role) {
 
         // 매니저 권한일 때 본인 정보가 아니면 에러
