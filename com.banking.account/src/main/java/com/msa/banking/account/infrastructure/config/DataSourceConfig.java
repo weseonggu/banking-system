@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
+@Primary
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
@@ -31,10 +32,7 @@ public class DataSourceConfig {
     private boolean showSql;
     @Value("${spring.jpa.hibernate.ddl-auto}")
     private String ddlAuto;
-    @Value("${spring.jpa.properties.hibernate.dialect}")
-    private String dialect;
 
-    @Primary
     @Bean // Spring 기본 데이터 소스
     @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource dataSource() {
@@ -47,7 +45,6 @@ public class DataSourceConfig {
         HibernateJpaVendorAdapter adapter = new HibernateJpaVendorAdapter();
         adapter.setShowSql(showSql);
         adapter.setGenerateDdl("update".equalsIgnoreCase(ddlAuto));
-        adapter.setDatabasePlatform(dialect);
         return adapter;
     }
 

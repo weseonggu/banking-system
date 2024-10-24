@@ -5,6 +5,34 @@ server:
 spring:
   application:
     name: AccountService
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    jdbc-url: jdbc:postgresql://localhost:5432/account
+    username: banking
+    password: banking20
+  batch:
+    datasource:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://localhost:5432/batch_db
+      username: banking
+      password: banking20
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 1000
+
+  jmx:
+    enabled: false
+
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -24,45 +52,24 @@ spring:
         enabled: true
       env:
         enabled: true
+
   data:
     redis:
       host: localhost
       port: 6379
       username: default
       password: systempass
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    jdbc-url: jdbc:postgresql://localhost:5432/account
-    username: banking
-    password: banking20
-  batch:
-    datasource:
-      driver-class-name: org.postgresql.Driver
-      jdbc-url: jdbc:postgresql://localhost:5432/batch_db
-      username: banking
-      password: banking20
-    job:
-      enabled: false
-    jdbc:
-      initialize-schema: always
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_batch_fetch_size: 1000
 
   devtools:
     restart:
       enabled: false # 개발 도구 재시작 방지
 
-  logging:
-    level:
-      root: DEBUG  # 전체 애플리케이션에서 DEBUG 레벨 로그 출력
-      org.springframework: DEBUG  # 스프링 프레임워크 관련 로그 출력
+logging:
+  level:
+    root: INFO  # 기본적으로 INFO 레벨만 출력
+    org.springframework.batch: DEBUG  # Spring Batch 관련 디버그 로그만 출력
+    org.apache.kafka: WARN  # Kafka 관련 로그는 경고 이상만 출력
+
 
 redisson:
   singleServerConfig:
@@ -96,6 +103,9 @@ management:
       show-details: always
     env:
       show-values: "ALWAYS"
+  sleuth:
+    sampler:
+      probability: 1.0   # 모든 요청을 샘플링 (0.0 ~ 1.0)
   zipkin:
     tracing:
       endpoint: "http://localhost:9411/api/v2/spans"

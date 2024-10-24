@@ -36,9 +36,9 @@ public class SecondBatchJob {
     private final DirectDebitRepository directDebitRepository;
     private final SecondBatchWriterRepository secondBatchWriterRepository;
 
-    public SecondBatchJob(JobRepository jobRepository,
+    public SecondBatchJob(@Qualifier("batchJobRepository")JobRepository jobRepository,
                           @Qualifier("batchTransactionManager") PlatformTransactionManager platformManager,
-                          @Qualifier("directDebitRepository") DirectDebitRepository directDebitRepository,
+                          DirectDebitRepository directDebitRepository,
                           SecondBatchWriterRepository secondBatchWriterRepository) {
         this.jobRepository = jobRepository;
         this.platformManager = platformManager;
