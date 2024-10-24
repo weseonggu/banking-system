@@ -89,7 +89,7 @@ public class TransactionalService {
 
     // 입금 트랜잭션 내에서 잔액 변경 처리 및 Kafka 이벤트 전송
     @Transactional
-    public void updateDepositAccountBalance(Account account, BigDecimal depositAmount) {
+    public void updateDepositAccountBalance(Account account, BigDecimal depositAmount, UUID userId, String role, AccountTransactions depositTransaction) {
 
         try {
             // 금액 추가
@@ -100,6 +100,8 @@ public class TransactionalService {
         } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.BALANCE_TRANSACTION_FAILED);
         }
+
+        eventProducer.sendTransactionCreatedEvent(account.getAccountId(), userId, role, depositTransaction);
     }
 
 

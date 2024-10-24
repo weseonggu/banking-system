@@ -35,6 +35,7 @@ public class PersonalHistoryRepositoryImpl implements PersonalHistoryRepositoryC
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(personalHistory.transactionDate.desc())
                 .fetch();
 
         // 전체 개수를 가져와서 페이징된 결과와 함께 반환
@@ -50,7 +51,7 @@ public class PersonalHistoryRepositoryImpl implements PersonalHistoryRepositoryC
     }
 
     @Override
-    public Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, Pageable pageable, UUID userId) {
+    public Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, UUID userId, Pageable pageable) {
         QPersonalHistory personalHistory = QPersonalHistory.personalHistory;
 
         // QueryDSL을 이용한 검색
@@ -63,6 +64,7 @@ public class PersonalHistoryRepositoryImpl implements PersonalHistoryRepositoryC
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(personalHistory.transactionDate.desc())
                 .fetch();
 
         // 전체 개수를 가져와서 페이징된 결과와 함께 반환
