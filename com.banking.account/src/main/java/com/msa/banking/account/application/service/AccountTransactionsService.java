@@ -35,6 +35,7 @@ public class AccountTransactionsService {
     private final TransactionsMapper transactionsMapper;
     private final ProductService productService;
     private final AccountService accountService;
+    private final AccountCaheService accountCaheService;
 
 
     /**
@@ -53,14 +54,13 @@ public class AccountTransactionsService {
         }
 
         // 입금하려는 계좌 찾기
-        Account account = accountRepository.findByAccountNumber(request.getAccountNumber())
-                .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
-                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+        Account account = accountCaheService.findAccountAndCaching(request);
 
         // 입금 처리
-        AccountTransactions depositTransaction = transactionalService.createDepositTransaction(account, request);
+//        AccountTransactions depositTransaction = transactionalService.createDepositTransaction(account, request);
         transactionalService.updateDepositAccountBalance(account, request.getDepositAmount());
-        return transactionsMapper.toDto(depositTransaction);
+//        return transactionsMapper.toDto(depositTransaction);
+        return null;
     }
 
 
