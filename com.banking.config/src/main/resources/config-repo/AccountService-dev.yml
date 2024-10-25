@@ -10,6 +10,8 @@ spring:
     jdbc-url: jdbc:postgresql://localhost:5432/account
     username: banking
     password: banking20
+    hikari:
+      maximum-pool-size: 50
   batch:
     datasource:
       driver-class-name: org.postgresql.Driver
@@ -28,7 +30,7 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-        default_batch_fetch_size: 1000
+        default_batch_fetch_size: 100
 
   jmx:
     enabled: false

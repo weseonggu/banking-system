@@ -14,9 +14,12 @@ import com.msa.banking.commonbean.annotation.LogDataChange;
 import com.msa.banking.commonbean.exception.GlobalCustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -298,7 +302,6 @@ public class AccountService {
 
     // 계좌 비밀번호 확인 및 입력 시도 제한
     @LogDataChange
-    @Transactional
     public void checkAccountPin(UUID accountId, String accountPin) {
 
         // 비밀번호가 6자리인지 확인
@@ -307,17 +310,18 @@ public class AccountService {
         }
 
         String redisKey = PIN_FAILURE_KEY_PREFIX + accountId;
-
         // 레디스에서 실패 횟수 조회
         Integer pinFailureCount = (Integer) redisTemplate.opsForValue().get(redisKey);
         if (pinFailureCount == null) {
             pinFailureCount = 0;
         }
 
+        // 계좌 정보 조회
         Account account = accountRepository.findById(accountId)
                 .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
                 .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
+        // 비밀번호 불일치 시 처리
         if (!account.getAccountPin().equals(accountPin)) {
             // 실패 횟수 증가
             redisTemplate.opsForValue().increment(redisKey);
@@ -327,14 +331,21 @@ public class AccountService {
             throw new GlobalCustomException(ErrorCode.ACCOUNT_PIN_NOT_MATCH);
         }
 
-        // 3회 넘게 실패 시 계좌 잠금 처리
+        // 비밀번호 실패 횟수가 3회 이상일 때 계좌 잠금 처리
         if (pinFailureCount > 3) {
-            account.updateAccountStatus(AccountStatus.LOCKED);
-            throw new GlobalCustomException(ErrorCode.ACCOUNT_LOCKED); // 계좌 잠김 처리
+            lockAccount(account);  // 계좌 잠금을 위한 트랜잭션 처리
+        } else {
+            // 비밀번호가 맞으면 레디스에서 실패 횟수 초기화
+            redisTemplate.delete(redisKey);
         }
+    }
 
-        // 비밀번호가 맞으면 레디스에서 실패 횟수 초기화
-        redisTemplate.delete(redisKey);
+    // 계좌 잠금 처리 (트랜잭션 적용)
+    @Transactional
+    public void lockAccount(Account account) {
+        account.updateAccountStatus(AccountStatus.LOCKED); // 계좌 상태를 잠금으로 업데이트
+        accountRepository.save(account); // 계좌 정보 저장
+        throw new GlobalCustomException(ErrorCode.ACCOUNT_LOCKED); // 계좌 잠금 예외 발생
     }
 
 
@@ -407,6 +418,7 @@ public class AccountService {
     }
 
 
+
     // Redis 키 생성 메서드 (예: 계좌번호 + 날짜)
     private String getDailyTransferKey(String accountNumber) {
         LocalDate today = LocalDate.now();
@@ -440,5 +452,12 @@ public class AccountService {
         // 자정까지 TTL 설정
         long ttl = ChronoUnit.SECONDS.between(LocalDateTime.now(), LocalDate.now().plusDays(1).atStartOfDay());
         redisTemplate.expire(key, ttl, TimeUnit.SECONDS);
+    }
+
+    @Cacheable(value = "accountCache", key = "#accountId")
+    public Account findAccountById(UUID accountId) {
+        return accountRepository.findById(accountId)
+                .filter(a -> !a.getIsDelete() && a.getStatus().equals(AccountStatus.ACTIVE))
+                .orElseThrow(() -> new GlobalCustomException(ErrorCode.ACCOUNT_NOT_FOUND));
     }
 }
