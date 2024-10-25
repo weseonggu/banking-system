@@ -151,8 +151,8 @@ public class TransactionalService {
     }
 
 
-    // 이체 계좌 거래 내역 생성
-    @Transactional(propagation = Propagation.REQUIRES_NEW)  // 별도의 트랜잭션으로 처리
+    // 이체 계좌 거래 내역 생성 (트랜잭션 경계를 최소화함)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TransferAccountTransactions createTransferTransactions(Account senderAccount, Account beneficiaryAccount, TransferTransactionRequestDto request) {
 
         AccountTransactions senderTransaction;
@@ -162,8 +162,8 @@ public class TransactionalService {
             // 송금인 계좌 거래 생성
             senderTransaction = AccountTransactions.createSenderTransaction(senderAccount, request);
 
-            // 거래 설명 없을 시
-            if(request.getDescription()==null){
+            // 거래 설명 없을 시 기본 값 설정
+            if (request.getDescription() == null) {
                 senderTransaction.updateTransactionDescription(beneficiaryAccount.getAccountHolder());
             }
 
@@ -172,45 +172,42 @@ public class TransactionalService {
             // 수취인 계좌 거래 생성
             beneficiaryTransaction = AccountTransactions.createBeneficiaryTransaction(beneficiaryAccount, senderAccount.getAccountNumber(), request);
 
-            // 거래 설명 없을 시
-            if(request.getDescription()==null){
+            // 거래 설명 없을 시 기본 값 설정
+            if (request.getDescription() == null) {
                 beneficiaryTransaction.updateTransactionDescription(senderAccount.getAccountHolder());
             }
 
             transactionsRepository.save(beneficiaryTransaction);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.ACCOUNT_TRANSACTION_FAILED);
         }
 
-        // 이벤트 발행(현재 PENDING 상태)
+        // 이벤트 발행
         eventPublisher.publishEvent(new TransactionStatusEvent(senderTransaction.getTransactionId()));
         eventPublisher.publishEvent(new TransactionStatusEvent(beneficiaryTransaction.getTransactionId()));
 
         return new TransferAccountTransactions(senderTransaction, beneficiaryTransaction);
     }
 
-
-    // 이체 트랜잭션 내에서 잔액 변경 처리 및 Kafka 이벤트 전송
+    // 이체 트랜잭션 내에서 잔액 변경 처리 및 Kafka 이벤트 전송 (트랜잭션 경계를 최소화함)
     @Transactional
     public void updateTransferAccountBalances(Account senderAccount, Account beneficiaryAccount, BigDecimal transferAmount, AccountTransactions senderTransaction, UUID accountId, UUID userId, String role) {
 
         try {
-            // 송금인 금액 차감 및 저장
+            // 송금인 잔액 차감 및 저장
             BigDecimal totalSenderBalance = senderAccount.getBalance().subtract(transferAmount);
             senderAccount.updateAccountBalance(totalSenderBalance);
-
             accountRepository.save(senderAccount);
 
-            // 수취인 계좌 금액 추가 및 저장
+            // 수취인 잔액 추가 및 저장
             BigDecimal totalBeneficiaryBalance = beneficiaryAccount.getBalance().add(transferAmount);
             beneficiaryAccount.updateAccountBalance(totalBeneficiaryBalance);
-
             accountRepository.save(beneficiaryAccount);
         } catch (Exception e) {
             throw new GlobalCustomException(ErrorCode.BALANCE_TRANSACTION_FAILED);
         }
 
-        // 모든 작업이 성공하면 Kafka 이벤트 전송
+        // Kafka 이벤트 전송
         eventProducer.sendTransactionCreatedEvent(accountId, userId, role, senderTransaction);
     }
 }

@@ -40,7 +40,7 @@ public class FirstBatchJob {
 
     // 생성자에 @Qualifier 사용
     public FirstBatchJob(
-            JobRepository jobRepository,
+            @Qualifier("batchJobRepository")JobRepository jobRepository,
             @Qualifier("batchTransactionManager") PlatformTransactionManager platformManager,
             TransactionsRepository transactionsRepository,
             AccountRepository accountRepository,

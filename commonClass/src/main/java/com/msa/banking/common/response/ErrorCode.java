@@ -93,8 +93,6 @@ public enum ErrorCode {
     PER_TRANSFER_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, 3022, "1회 출금 한도를 초과하였습니다."),
 
 
-
-
     /* 알림 4000번대 */
     SLACK_ERROR(HttpStatus.BAD_REQUEST, 4000, "슬랙 ID가 잘못되었거나, 현재 메시지를 보낼 수 없는 상태입니다."),
     /* 개인내역 5000번대 */
