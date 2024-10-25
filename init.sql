@@ -34,6 +34,9 @@ CREATE DATABASE batch_db
   TABLESPACE = pg_default
   CONNECTION LIMIT = -1;
 
+CREATE SEQUENCE batch_job_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE batch_step_seq START WITH 1 INCREMENT BY 1;
+
 -- 'personal' 데이터베이스 생성
 CREATE DATABASE personal
   WITH OWNER = banking
