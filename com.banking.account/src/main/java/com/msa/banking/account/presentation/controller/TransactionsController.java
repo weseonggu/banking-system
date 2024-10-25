@@ -37,13 +37,14 @@ public class TransactionsController {
     @PreAuthorize("hasAnyAuthority('MASTER', 'MANAGER', 'CUSTOMER')")
     @Operation(summary = "입금 거래 생성", description = "입금 거래 생성 API 입니다.")
     public ResponseEntity<?> createDeposit(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody DepositTransactionRequestDto request) {
 
         return ResponseEntity.ok(
                 new SuccessResponse<>(
                         SuccessCode.INSERT_SUCCESS.getStatus(),
                         "입금 거래 완료",
-                        transactionsService.createDeposit(request)
+                        transactionsService.createDeposit(request, userDetails.getUserId(), userDetails.getRole())
                 )
         );
     }

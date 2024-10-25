@@ -6,5 +6,5 @@ import java.util.UUID;
 
 public interface EventProducer {
 
-    void sendTransactionCreatedEvent(UUID accountId, UUID userId, String role, AccountTransactions withdrawalTransaction);
+    void sendTransactionCreatedEvent(UUID accountId, UUID userId, String role, AccountTransactions accountTransactions);
 }

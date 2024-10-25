@@ -1,5 +1,6 @@
 package com.msa.banking.personal.infrastructure.repository;
 
+import com.msa.banking.common.personal.PersonalHistoryType;
 import com.msa.banking.personal.domain.model.PersonalHistory;
 import com.msa.banking.personal.domain.repository.PersonalHistoryRepositoryCustom;
 import feign.Param;
@@ -18,11 +19,13 @@ public interface PersonalHistoryRepository extends JpaRepository<PersonalHistory
 
     Page<PersonalHistory> findAllByIsDeleteFalse(Pageable pageable);
 
-    @Query("SELECT SUM(ph.amount) FROM PersonalHistory ph WHERE ph.userId = :userId AND ph.transactionDate BETWEEN :startDate AND :endDate")
+    @Query("SELECT SUM(ph.amount) FROM PersonalHistory ph WHERE ph.userId = :userId AND ph.transactionDate BETWEEN :startDate AND :endDate AND ph.type IN (:types)")
     Optional<BigDecimal> findTotalAmountByDateRange(
             @Param("userId") UUID userId,
             @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate);
+            @Param("endDate") LocalDateTime endDate,
+            @Param("types") List<PersonalHistoryType> types);
+
 
     @Query("SELECT c.name AS categoryName, SUM(ph.amount) AS totalSpent " +
             "FROM PersonalHistory ph " +

@@ -9,16 +9,20 @@ import com.msa.banking.common.base.AuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
 @Entity
-@Table(name = "p_account")
+@Table(name = "p_account"
+        , indexes = {
+        @Index(name = "idx_accountNumber", columnList = "accountNumber")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class Account extends AuditEntity {
+public class Account extends AuditEntity implements Serializable {
 
     @Id// @Id는 기본적으로 @Column(updatable = false, nullable = false) 설정 포함
     @GeneratedValue(strategy = GenerationType.UUID)
