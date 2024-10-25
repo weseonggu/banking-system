@@ -2,6 +2,7 @@ package com.msa.banking.personal.domain.enums;
 
 public enum PersonalHistoryType {
     DEPOSIT,           // 입금
+    LOAN_DEPOSIT,     // 대출액 입금
     WITHDRAWAL,        // 출금
     TRANSFER,          // 이체
     PAYMENT,           // 결제

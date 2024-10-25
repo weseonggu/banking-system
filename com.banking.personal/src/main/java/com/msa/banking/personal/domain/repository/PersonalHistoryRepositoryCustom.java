@@ -10,5 +10,5 @@ import java.util.UUID;
 public interface PersonalHistoryRepositoryCustom{
     Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, Pageable pageable);
 
-    Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, Pageable pageable, UUID userId);
+    Page<PersonalHistory> findByCategoryAndStatus(String categoryName, PersonalHistoryStatus status, UUID userId, Pageable pageable);
 }
