@@ -7,6 +7,8 @@ import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -42,6 +44,9 @@ public class Product extends AuditEntity {
     @Column(name = "is_finish", nullable = false)
     private Boolean isFinish;
 
+    @Column(name = "like_count")
+    private Integer likeCount;
+
     ///////////////////////////////////////////////////////////////////////////////////////
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -52,6 +57,9 @@ public class Product extends AuditEntity {
     @JoinColumn(name = "checking_detail_id", referencedColumnName = "checking_detail_id")
     private CheckingDetail checkingDetail;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProductLike> likes = new ArrayList<>();
+
     //////////////////////////////////////////////////////////////////////////////////////
 
     public static Product create(String name, ProductType type, LocalDateTime validFrom, LocalDateTime validTo) {
@@ -61,6 +69,7 @@ public class Product extends AuditEntity {
                 .validFrom(validFrom == null ? LocalDateTime.now() : validFrom)
                 .validTo(validTo)
                 .isFinish(false)
+                .likeCount(0)
                 .build();
     }
 
@@ -75,5 +84,14 @@ public class Product extends AuditEntity {
     }
     public void changeIsFinish(){
         this.isFinish = true;
+    }
+
+    public void addLike(ProductLike productLike){
+        this.likes.add(productLike);
+        this.likeCount++;
+    }
+    public void removeLike(ProductLike productLike){
+        this.likes.remove(productLike);
+        this.likeCount--;
     }
 }

@@ -1,5 +1,6 @@
 package com.msa.banking.product.domain.service;
 
+import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.product.presentation.response.ResponseProductPage;
 import com.msa.banking.product.config.redis.RedisCacheKey;
 import com.msa.banking.product.domain.model.CheckingDetail;
@@ -75,9 +76,17 @@ public class ProductService {
     // 상품 디테일 검색
     @Transactional(readOnly = true)
     public Product findPrductInfo(UUID productId) {
-        return productRepository.findEntityGrapById(productId).orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        return productRepository.findEntityGrapById(productId).orElseThrow(() -> new IllegalArgumentException("없는 상품입니다."));
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisCacheKey.ProductListCache, allEntries = true, beforeInvocation = true, condition = "@checkRedisState.isRedisAvailable()"),
+            @CacheEvict(cacheNames = RedisCacheKey.ProductDetailCache, key = "#productId")
+    })
+    public void delete(UUID productId, UserDetailsImpl userDetails) {
 
-
+        Product product = productRepository.findByIdAndIsDeleteFalse(productId).orElseThrow(() -> new IllegalArgumentException("없는 상품입니다."));
+        product.delete(userDetails.getUsername());
+        productRepository.save(product);
+    }
 }
