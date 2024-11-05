@@ -2,6 +2,7 @@ package com.msa.banking.product.presentation.controller;
 
 import com.msa.banking.common.response.SuccessResponse;
 import com.msa.banking.commonbean.annotation.LogDataChange;
+import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.product.application.dto.ProductResponseDto;
 import com.msa.banking.product.presentation.response.ResponseProductPage;
 import com.msa.banking.product.application.service.ProductApplicationService;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,6 +48,7 @@ public class ProductController {
         applicationService.createCheckingProduct(product);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Operation(summary = "대출 상품 등록 api")
     @ApiResponses(value = {
@@ -60,6 +64,8 @@ public class ProductController {
         applicationService.createLoanProduct(product);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Operation(summary = "금융 상품 목록 조회 api")
     @ApiResponses(value = {
@@ -80,6 +86,8 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Operation(summary = "금융 상품 상세 조회 api")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "상품 목록"),
@@ -98,7 +106,32 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    @DeleteMapping("/delete")
+    @PreAuthorize("hasAnyAuthority('MASTER')")
+    public ResponseEntity<?> deleteProduct(@RequestParam("product_id") UUID productId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        applicationService.deleteProduct(productId, userDetails);
+        SuccessResponse response =  new SuccessResponse(
+                HttpStatus.OK.value(),
+                "상품을 삭제 했습니다.",
+                null
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @PutMapping("/add/like")
+    @PreAuthorize("isAuthenticated()")
+    public void addLike(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam("product_id") UUID productId){
+        applicationService.addLike(userDetails, productId);
+    }
+    @PutMapping("/delete/like")
+    @PreAuthorize("isAuthenticated()")
+    public void deleteLike(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestParam("product_id") UUID productId){
+        applicationService.deleteLike(userDetails, productId);
+    }
 
 
 }

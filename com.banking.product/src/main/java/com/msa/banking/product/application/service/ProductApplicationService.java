@@ -1,23 +1,25 @@
 package com.msa.banking.product.application.service;
 
+import com.msa.banking.commonbean.security.UserDetailsImpl;
 import com.msa.banking.product.application.dto.*;
 import com.msa.banking.product.config.redis.RedisCacheKey;
-import com.msa.banking.product.domain.model.CheckingDetail;
-import com.msa.banking.product.domain.model.LoanDetail;
-import com.msa.banking.product.domain.model.PDFInfo;
-import com.msa.banking.product.domain.model.Product;
+import com.msa.banking.product.domain.model.*;
 import com.msa.banking.product.domain.repository.CheckingDetailRepository;
 import com.msa.banking.product.domain.repository.LoanDetailRepository;
 import com.msa.banking.product.domain.service.PDFInfoService;
 import com.msa.banking.product.domain.service.ProductService;
 import com.msa.banking.product.infrastructure.repository.CheckRedisState;
+import com.msa.banking.product.infrastructure.repository.ProductRepository;
 import com.msa.banking.product.presentation.exception.custom.ResourceNotFoundException;
 import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct;
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import com.msa.banking.product.presentation.response.ResponseProductPage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,6 +31,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductApplicationService {
 
     private final PDFInfoService pdfInfoService;
@@ -37,6 +40,7 @@ public class ProductApplicationService {
     private final LoanDetailRepository loanDetailRepository;
     private final AsyncService asyncService;
     private final CheckRedisState checkRedisState;
+    private final ProductRepository productRepository;
 
     // 입출금 상품 등록
     @Transactional
@@ -155,9 +159,45 @@ public class ProductApplicationService {
                 product.getType(),
                 product.getValidFrom(),
                 product.getValidTo(),
+                product.getLikeCount(),
                 product.getIsFinish(),
                 detailDto  // LoanDetailDto 또는 CheckingDetailDto 반환
         );
 
+    }
+
+    /**
+     * 상품 삭제
+     * @param productId
+     * @param userDetails
+     */
+    @Transactional
+    public void deleteProduct(UUID productId, UserDetailsImpl userDetails) {
+        productService.delete(productId, userDetails);
+    }
+
+    /**
+     * 상품 좋아요
+     * @param userDetails
+     * @param productId
+     */
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisCacheKey.ProductDetailCache, key = "#productId")
+    })
+    public void addLike(UserDetailsImpl userDetails, UUID productId) {
+
+        Product product = productRepository.findByIdAndIsDeleteFalse(productId).orElseThrow(() -> new IllegalArgumentException("없는 상품입니다."));
+        try {
+            ProductLike like = ProductLike.create(product, userDetails.getUserId());
+            product.addLike(like);
+            productRepository.save(product);
+        }catch (Exception e){
+            // 중복 좋아요
+            throw new IllegalArgumentException("이미 좋아요 하신 상품 입니다.");
+        }
+    }
+    // TODO: 상품 좋아요 지우기
+    public void deleteLike(UserDetailsImpl userDetails, UUID productId) {
+        Product product = productRepository.findByIdAndIsDeleteFalse(productId).orElseThrow(() -> new IllegalArgumentException("없는 상품입니다."));
     }
 }

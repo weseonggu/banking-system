@@ -40,7 +40,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         builder.and(isDeletedEq(condition.getIs_deleted()))
                 .and(typeEq(condition.getType()))
-                .and(validDuringCurrentTime());
+                .and(validDuringCurrentTime())
+                .and(product.isDelete.eq(false));
 
         JPAQuery<ResponseProductPage> query = queryFactory
                 .select(new QResponseProductPage(

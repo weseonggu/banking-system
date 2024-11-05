@@ -40,7 +40,6 @@ public class CheckRedisState {
             // Redis에 ping 요청을 보내고 응답이 올 경우 연결이 가능하다고 판단
             redisTemplate.getConnectionFactory().getConnection().ping().equals("PONG");
             this.redisAvailable = true; // Redis가 사용 가능한 경우
-            log.info("Check Redis: "+ redisAvailable);
         } catch (Exception e) {
             // 연결이 불가능한 경우
             this.redisAvailable = false; // Redis가 사용 불가능한 경우

@@ -20,7 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, Product
             "loanDetail",           // LoanDetail 연관 엔티티
             "loanDetail.pdfInfo"     // LoanDetail과 연관된 PDFInfo
     })
-    @Query("SELECT p FROM Product p WHERE p.id = :productId")
+    @Query("SELECT p FROM Product p WHERE p.id = :productId and p.isDelete = false")
     Optional<Product> findEntityGrapById(@Param("productId")UUID productId);
 
 
@@ -38,4 +38,5 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, Product
     Optional<Product> findByIdWhereIsDeleted(@Param("productId") UUID productId, @Param("deleted") Boolean deleted, @Param("type") ProductType type, @Param("current_time") LocalDateTime current_time);
 
 
+    Optional<Product> findByIdAndIsDeleteFalse(UUID productId);
 }

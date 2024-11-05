@@ -74,14 +74,14 @@ public class AuthService {
 
             Employee employee = AuthSignUpRequestDto.toEmployee(request);
 
-            // 슬랙 검증 통과 여부 확인
-            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
-                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
-
-            // 검증 완료 시 삭제
-            if (findSlackCode != null) {
-                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
-            }
+//            // 슬랙 검증 통과 여부 확인
+//            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
+//                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
+//
+//            // 검증 완료 시 삭제
+//            if (findSlackCode != null) {
+//                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
+//            }
 
             // 유저 ID 유니크 제약 조건 검증
             if (existsEmployeeByUsername(request.getUsername())) {
@@ -103,19 +103,19 @@ public class AuthService {
 
             // kafka 알림 회원 가입 메세지 보내기
             // 트랜잭션이 커밋된 후에 Kafka 메시지를 전송
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCommit() {
-                    NotificationRequestDto notifyDto = new NotificationRequestDto(
-                            savedEmployee.getId(),
-                            savedEmployee.getSlackId(),
-                            savedEmployee.getRole(),
-                            NotiType.SIGNUP,
-                            savedEmployee.getName() + "님 회원 가입을 축하드립니다."
-                    );
-                    signUpNotify(notifyDto);
-                }
-            });
+//            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+//                @Override
+//                public void afterCommit() {
+//                    NotificationRequestDto notifyDto = new NotificationRequestDto(
+//                            savedEmployee.getId(),
+//                            savedEmployee.getSlackId(),
+//                            savedEmployee.getRole(),
+//                            NotiType.SIGNUP,
+//                            savedEmployee.getName() + "님 회원 가입을 축하드립니다."
+//                    );
+//                    signUpNotify(notifyDto);
+//                }
+//            });
 
             return AuthResponseDto.toDto(savedEmployee);
 
@@ -125,14 +125,14 @@ public class AuthService {
 
             Customer customer = AuthSignUpRequestDto.toCustomer(request);
 
-            // 슬랙 검증 통과 여부 확인
-            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
-                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
-            
-            // 검증 완료 시 삭제
-            if (findSlackCode != null) {
-                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
-            }
+//            // 슬랙 검증 통과 여부 확인
+//            SlackCode findSlackCode = slackCodeRepository.findBySlackIdAndIsValid(request.getSlackId(), true).orElseThrow(() ->
+//                    new GlobalCustomException(ErrorCode.SLACK_NOT_VALID));
+//
+//            // 검증 완료 시 삭제
+//            if (findSlackCode != null) {
+//                slackCodeRepository.deleteBySlackIdAndIsValid(request.getSlackId());
+//            }
 
             // 유저 ID 유니크 제약 조건 검증
             if (existsCustomerByUsername(request.getUsername())) {
@@ -154,19 +154,19 @@ public class AuthService {
 
             // kafka 알림 회원 가입 메세지 보내기
             // 트랜잭션이 커밋된 후에 Kafka 메시지를 전송
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCommit() {
-                    NotificationRequestDto notifyDto = new NotificationRequestDto(
-                            savedCustomer.getId(),
-                            savedCustomer.getSlackId(),
-                            savedCustomer.getRole(),
-                            NotiType.SIGNUP,
-                            savedCustomer.getName() + "님 회원 가입을 축하드립니다."
-                    );
-                    signUpNotify(notifyDto);
-                }
-            });
+//            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+//                @Override
+//                public void afterCommit() {
+//                    NotificationRequestDto notifyDto = new NotificationRequestDto(
+//                            savedCustomer.getId(),
+//                            savedCustomer.getSlackId(),
+//                            savedCustomer.getRole(),
+//                            NotiType.SIGNUP,
+//                            savedCustomer.getName() + "님 회원 가입을 축하드립니다."
+//                    );
+//                    signUpNotify(notifyDto);
+//                }
+//            });
 
             return AuthResponseDto.toDto(savedCustomer);
         }
