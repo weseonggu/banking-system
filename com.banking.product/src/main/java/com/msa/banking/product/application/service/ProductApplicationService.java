@@ -15,6 +15,7 @@ import com.msa.banking.product.presentation.request.RequestCreateCheckingProduct
 import com.msa.banking.product.presentation.request.RequestCreateLoanProduct;
 import com.msa.banking.product.presentation.request.RequestSearchProductDto;
 import com.msa.banking.product.presentation.response.ResponseProductPage;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -159,7 +160,7 @@ public class ProductApplicationService {
                 product.getType(),
                 product.getValidFrom(),
                 product.getValidTo(),
-                product.getLikeCount(),
+                product.getProductLike().getLikeCount(),
                 product.getIsFinish(),
                 detailDto  // LoanDetailDto 또는 CheckingDetailDto 반환
         );
@@ -184,14 +185,18 @@ public class ProductApplicationService {
     @Caching(evict = {
             @CacheEvict(cacheNames = RedisCacheKey.ProductDetailCache, key = "#productId")
     })
+    @Transactional(timeout = 2)
     public void addLike(UserDetailsImpl userDetails, UUID productId) {
 
         Product product = productRepository.findByIdAndIsDeleteFalse(productId).orElseThrow(() -> new IllegalArgumentException("없는 상품입니다."));
         try {
-            ProductLike like = ProductLike.create(product, userDetails.getUserId());
-            product.addLike(like);
+            ProductLikeWho likeWho = ProductLikeWho.create(product, userDetails.getUserId());
+            product.getProductLike().addLike(likeWho);
             productRepository.save(product);
-        }catch (Exception e){
+        }catch (OptimisticLockException e){
+            log.error("낙관적 락 발생");
+        }
+        catch (Exception e){
             // 중복 좋아요
             throw new IllegalArgumentException("이미 좋아요 하신 상품 입니다.");
         }

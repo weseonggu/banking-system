@@ -18,7 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, Product
             "checkingDetail",       // CheckingDetail 연관 엔티티
             "checkingDetail.pdfInfo",  // CheckingDetail과 연관된 PDFInfo
             "loanDetail",           // LoanDetail 연관 엔티티
-            "loanDetail.pdfInfo"     // LoanDetail과 연관된 PDFInfo
+            "loanDetail.pdfInfo",
+            "productLike"// LoanDetail과 연관된 PDFInfo
     })
     @Query("SELECT p FROM Product p WHERE p.id = :productId and p.isDelete = false")
     Optional<Product> findEntityGrapById(@Param("productId")UUID productId);

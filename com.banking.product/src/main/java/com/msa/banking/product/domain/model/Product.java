@@ -44,8 +44,6 @@ public class Product extends AuditEntity {
     @Column(name = "is_finish", nullable = false)
     private Boolean isFinish;
 
-    @Column(name = "like_count")
-    private Integer likeCount;
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,8 +55,9 @@ public class Product extends AuditEntity {
     @JoinColumn(name = "checking_detail_id", referencedColumnName = "checking_detail_id")
     private CheckingDetail checkingDetail;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ProductLike> likes = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "like_id", referencedColumnName = "like_id")
+    private ProductLike productLike;
 
     //////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +68,7 @@ public class Product extends AuditEntity {
                 .validFrom(validFrom == null ? LocalDateTime.now() : validFrom)
                 .validTo(validTo)
                 .isFinish(false)
-                .likeCount(0)
+                .productLike(ProductLike.create())
                 .build();
     }
 
@@ -86,12 +85,5 @@ public class Product extends AuditEntity {
         this.isFinish = true;
     }
 
-    public void addLike(ProductLike productLike){
-        this.likes.add(productLike);
-        this.likeCount++;
-    }
-    public void removeLike(ProductLike productLike){
-        this.likes.remove(productLike);
-        this.likeCount--;
-    }
+
 }

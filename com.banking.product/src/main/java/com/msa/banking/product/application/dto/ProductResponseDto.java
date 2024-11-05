@@ -17,7 +17,7 @@ public class ProductResponseDto implements Serializable {
     private ProductType type;
     private LocalDateTime validFrom;
     private LocalDateTime validTo;
-    private Integer like;
+    private Long like;
     private Boolean isFinish;
     private ProductDetailDto detail;
 }
