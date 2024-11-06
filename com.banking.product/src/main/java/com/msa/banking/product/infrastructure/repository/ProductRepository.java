@@ -38,6 +38,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, Product
             "AND p.type = :type")
     Optional<Product> findByIdWhereIsDeleted(@Param("productId") UUID productId, @Param("deleted") Boolean deleted, @Param("type") ProductType type, @Param("current_time") LocalDateTime current_time);
 
-
+    @EntityGraph(attributePaths = {
+            "productLike"
+    })
     Optional<Product> findByIdAndIsDeleteFalse(UUID productId);
 }

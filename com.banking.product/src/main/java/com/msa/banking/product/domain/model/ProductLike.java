@@ -12,12 +12,7 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "p_product_like"
-//        ,
-//        uniqueConstraints = {
-//                @UniqueConstraint(columnNames = {"product_id", "user_id"})
-//        }
-)
+@Table(name = "p_product_like")
 public class ProductLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +29,7 @@ public class ProductLike {
     @OneToOne(mappedBy = "productLike", fetch = FetchType.LAZY)
     private Product product;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "productLike", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProductLikeWho> likes = new ArrayList<>();
 
     ///////////////////////////////////////////////////////////////////////////////
