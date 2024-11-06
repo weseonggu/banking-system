@@ -17,8 +17,12 @@ spring:
           search-locations: classpath:/config-repo
           watch:
             enabled: true
+    stream:
+      kafka:
+        binder:
+          autoCreateTopics: true
   kafka:
-    bootstrap-servers: http://localhost:9092
+    bootstrap-servers: localhost:9092
 eureka:
   client:
     service-url:

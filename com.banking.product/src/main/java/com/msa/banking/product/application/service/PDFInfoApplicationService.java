@@ -37,7 +37,7 @@ public class PDFInfoApplicationService {
 
         String uploadFileName = getRandomImageName() + ".pdf";
         // s3에 파일 저장
-        uploadService.uploadImage(uploadFileName, multipartFile);
+//        uploadService.uploadImage(uploadFileName, multipartFile);// S3 사용안하는 상태임 사용시 주석 풀기
         // DB에 파일 저장
         PDFInfo pdf = pdfInfoService.savePdfInfo(originalName, uploadFileName);
 
