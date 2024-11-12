@@ -18,6 +18,8 @@ import com.msa.banking.product.presentation.response.ResponseProductPage;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -33,6 +35,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +50,7 @@ public class ProductApplicationService {
     private final CheckRedisState checkRedisState;
     private final ProductRepository productRepository;
     private final PlatformTransactionManager transactionManager;
+    private final RedissonClient redisson;
 
     // 입출금 상품 등록
     @Transactional
@@ -182,51 +186,76 @@ public class ProductApplicationService {
         productService.delete(productId, userDetails);
     }
 
-    /**
-     * 상품 좋아요
-     * @param userDetails
-     * @param productId
-     */
+//    /**
+//     * 상품 좋아요
+//     * @param userDetails
+//     * @param productId
+//     */
+//    public void addLike(UserDetailsImpl userDetails, UUID productId) {
+//        int maxRetryCount = 300;
+//        int retryCount = 0;
+//        boolean isSuccess = false;
+//
+//        while (retryCount < maxRetryCount && !isSuccess) {
+//            TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+//            try {
+//                Product product = productRepository.findByIdAndIsDeleteFalse(productId)
+//                        .orElseThrow(() -> new IllegalArgumentException("없는 상품입니다."));
+//
+//                ProductLikeWho likeWho = ProductLikeWho.create(product.getProductLike(), userDetails.getUserId());
+//                product.getProductLike().addLike(likeWho);
+//
+//                productRepository.save(product);
+//                transactionManager.commit(status);
+//                  // 성공 시 커밋
+//                isSuccess = true;
+//
+//            } catch (ObjectOptimisticLockingFailureException e) {
+//                retryCount++;
+//                log.warn("낙관적 락 발생 - 재시도 횟수: {}", retryCount);
+//                if (retryCount >= maxRetryCount) {
+//                    transactionManager.rollback(status);
+//                    throw new RuntimeException("최대 재시도 횟수를 초과하여 실패했습니다.");
+//                }
+//                try {
+//                    Thread.sleep(100); // 짧은 대기 후 재시도
+//                } catch (InterruptedException ie) {
+//                    Thread.currentThread().interrupt();
+//                }
+//            } catch (Exception e) {
+//                log.info("Exception 예외");
+//                log.error(e.getMessage());
+//
+//                transactionManager.rollback(status);  // 그 외의 예외도 롤백
+//                throw e;
+//            }
+//        }
+//
+//    }
     public void addLike(UserDetailsImpl userDetails, UUID productId) {
-        int maxRetryCount = 300;
-        int retryCount = 0;
-        boolean isSuccess = false;
+        String lockKey = "post:like:" + productId;
+        RLock lock = redisson.getLock(lockKey);
 
-        while (retryCount < maxRetryCount && !isSuccess) {
-            TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-            try {
+        try {
+            boolean isLocked = lock.tryLock(10, 5, TimeUnit.SECONDS); // 최대 대기 시간 10초, 락 유지 시간 5초
+            if (isLocked) {
                 Product product = productRepository.findByIdAndIsDeleteFalse(productId)
                         .orElseThrow(() -> new IllegalArgumentException("없는 상품입니다."));
-
                 ProductLikeWho likeWho = ProductLikeWho.create(product.getProductLike(), userDetails.getUserId());
                 product.getProductLike().addLike(likeWho);
-                
+
                 productRepository.save(product);
-                transactionManager.commit(status);
-                  // 성공 시 커밋
-                isSuccess = true;
-
-            } catch (ObjectOptimisticLockingFailureException e) {
-                retryCount++;
-                log.warn("낙관적 락 발생 - 재시도 횟수: {}", retryCount);
-                if (retryCount >= maxRetryCount) {
-                    transactionManager.rollback(status);
-                    throw new RuntimeException("최대 재시도 횟수를 초과하여 실패했습니다.");
-                }
-                try {
-                    Thread.sleep(100); // 짧은 대기 후 재시도
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-            } catch (Exception e) {
-                log.info("Exception 예외");
-                log.error(e.getMessage());
-
-                transactionManager.rollback(status);  // 그 외의 예외도 롤백
-                throw e;
+            } else {
+                log.warn("좋아요 락 획득에 실패 했습니다.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println("락 획득 대기 중 인터럽트 발생: " + e.getMessage());
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock(); // 락 해제
             }
         }
-
     }
     // TODO: 상품 좋아요 지우기
     public void deleteLike(UserDetailsImpl userDetails, UUID productId) {
